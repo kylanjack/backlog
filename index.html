@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Backlog</title>
+
+<!-- PWA / iOS Add-to-Home-Screen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Backlog">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d0a08">
+<meta name="description" content="Personal anime + TV watchlist tracker">
+
+<!-- Inline SVG favicon and apple-touch-icon -->
+<link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" fill="%230d0a08"/><text x="90" y="138" font-family="Arial Black,sans-serif" font-size="140" fill="%23ff3819" text-anchor="middle" font-weight="900">B</text></svg>'>
+<link rel="apple-touch-icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" fill="%230d0a08"/><text x="90" y="138" font-family="Arial Black,sans-serif" font-size="140" fill="%23ff3819" text-anchor="middle" font-weight="900">B</text></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0a08;
+    --bg-elevated: #161210;
+    --bg-card: #1a1612;
+    --border: #2a241c;
+    --border-strong: #3d352a;
+    --text: #f5efe6;
+    --text-muted: #8a8074;
+    --text-dim: #5a5249;
+    --accent: #ff6b1a;
+    --accent-hot: #ff3819;
+    --tier-s: #ff3819;
+    --tier-a: #ffb01a;
+    --tier-b: #d4c19a;
+    --tier-c: #7a7164;
+    --tier-d: #8b3a2a;
+    --completed: #4a8a3a;
+    --watching: #ff6b1a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body {
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(255, 107, 26, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(255, 56, 25, 0.06) 0%, transparent 50%);
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* === HEADER === */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+    margin-bottom: 32px;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .eyebrow::before, .eyebrow::after {
+    content: '';
+    height: 1px;
+    background: var(--border-strong);
+    flex: 0 1 40px;
+  }
+  .eyebrow::before { background: var(--accent); flex: 0 0 24px; }
+
+  h1.title {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(56px, 12vw, 144px);
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  h1.title .accent {
+    color: var(--accent-hot);
+    display: inline-block;
+  }
+
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    color: var(--text-muted);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+
+  /* === STATS === */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+
+  .stat {
+    background: var(--bg-elevated);
+    padding: 20px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .stat-value {
+    font-family: 'Anton', sans-serif;
+    font-size: 36px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+
+  .stat-suffix {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* === CALLOUTS === */
+  .callout {
+    background: var(--bg-card);
+    border-left: 3px solid var(--accent);
+    padding: 18px 22px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .callout-icon {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .callout-body { font-size: 14px; line-height: 1.6; color: var(--text); }
+  .callout-body strong { color: var(--accent); font-weight: 700; }
+
+  .callout.warn { border-left-color: var(--tier-a); }
+  .callout.warn .callout-icon { color: var(--tier-a); }
+  .callout.warn .callout-body strong { color: var(--tier-a); }
+
+  /* === FILTERS === */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 32px 0 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .filter-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .filter-btn:hover {
+    color: var(--text);
+    border-color: var(--text-muted);
+  }
+
+  .filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+  }
+
+  /* === RANK SECTIONS === */
+  .rank-section {
+    margin-bottom: 64px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards;
+  }
+  .rank-section:nth-child(1) { animation-delay: 0.05s; }
+  .rank-section:nth-child(2) { animation-delay: 0.15s; }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(20px); }
+  }
+
+  .rank-header {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    border-bottom: 2px solid var(--border-strong);
+    padding-bottom: 16px;
+  }
+
+  .rank-badge {
+    font-family: 'Anton', sans-serif;
+    font-size: 80px;
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+  }
+
+  .rank-s .rank-badge { color: var(--tier-s); }
+  .rank-rest .rank-badge { color: var(--text); }
+
+  .rank-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .rank-name {
+    font-family: 'Anton', sans-serif;
+    font-size: 32px;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    line-height: 1;
+  }
+
+  .rank-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .rank-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin: 16px 0 32px;
+    max-width: 720px;
+    line-height: 1.6;
+  }
+
+  /* === TYPE GROUP === */
+  .type-group {
+    margin-bottom: 36px;
+  }
+
+  .type-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .type-label {
+    font-family: 'Anton', sans-serif;
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text);
+  }
+
+  .type-divider {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .type-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+  }
+
+  .type-group.anime .type-label { color: var(--accent); }
+  .type-group.live .type-label { color: var(--tier-b); }
+
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  /* === CARDS === */
+  .card {
+    background: var(--bg-card);
+    padding: 20px 22px;
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 20px;
+    align-items: center;
+    transition: background 0.15s ease;
+    cursor: pointer;
+  }
+
+  .card:hover {
+    background: var(--bg-elevated);
+  }
+
+  .card.completed {
+    opacity: 0.55;
+  }
+
+  .card.completed .card-title {
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--completed);
+  }
+
+  .card-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  .card-main {
+    min-width: 0;
+  }
+
+  .card-meta-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .card-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
+  }
+
+  .card-tag.anime { color: var(--accent); border-color: var(--accent); }
+  .card-tag.live { color: var(--tier-b); border-color: var(--tier-b); }
+  .card-tag.airing { color: var(--tier-a); border-color: var(--tier-a); }
+
+  .tier-chip {
+    font-family: 'Anton', sans-serif;
+    font-size: 14px;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border: 1px solid currentColor;
+    flex-shrink: 0;
+    letter-spacing: 0;
+  }
+  .tier-chip[data-tier="S"] { color: var(--tier-s); }
+  .tier-chip[data-tier="A"] { color: var(--tier-a); }
+  .tier-chip[data-tier="B"] { color: var(--tier-b); }
+  .tier-chip[data-tier="C"] { color: var(--tier-c); }
+  .tier-chip[data-tier="D"] { color: var(--tier-d); }
+
+  .card-title {
+    font-family: 'Anton', sans-serif;
+    font-size: 22px;
+    line-height: 1.05;
+    letter-spacing: 0.005em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .card-take {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    font-style: italic;
+  }
+
+  .card-pairs {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .pairs-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    flex-shrink: 0;
+    padding-top: 1px;
+  }
+
+  .pairs-list {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .pairs-list .sep {
+    color: var(--border-strong);
+    margin: 0 6px;
+  }
+
+  .card-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .card-eps {
+    font-family: 'Anton', sans-serif;
+    font-size: 18px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .card-hours {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  /* === STATUS TOGGLE === */
+  .status-toggle {
+    width: 28px;
+    height: 28px;
+    border: 1.5px solid var(--border-strong);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--text-dim);
+  }
+
+  .status-toggle:hover {
+    border-color: var(--text-muted);
+  }
+
+  .status-toggle.watching {
+    border-color: var(--watching);
+    color: var(--watching);
+    background: rgba(255, 107, 26, 0.1);
+  }
+
+  .status-toggle.completed {
+    border-color: var(--completed);
+    background: var(--completed);
+    color: var(--bg);
+  }
+
+  .status-toggle svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* === FOOTER === */
+  .footer {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .reset-btn {
+    font-family: inherit;
+    font-size: inherit;
+    letter-spacing: inherit;
+    background: transparent;
+    border: none;
+    color: var(--tier-d);
+    cursor: pointer;
+    text-transform: uppercase;
+    text-decoration: underline;
+  }
+
+  .reset-btn:hover { color: var(--accent-hot); }
+
+  .reset-btn.export, .reset-btn.import {
+    color: var(--text-muted);
+  }
+  .reset-btn.export:hover, .reset-btn.import:hover {
+    color: var(--accent);
+  }
+
+  .footer-actions {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 720px) {
+    .container { padding: 32px 16px 64px; }
+    .card { grid-template-columns: 1fr auto; padding: 16px; gap: 16px; }
+    .card-num { display: none; }
+    .card-stats { flex-direction: row; align-items: center; gap: 12px; }
+    .rank-badge { font-size: 60px; }
+    .rank-name { font-size: 24px; }
+  }
+
+  @media (min-width: 900px) {
+    .cards { grid-template-columns: 1fr 1fr; }
+  }
+
+  .card.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="header">
+    <div class="eyebrow">— Vol. 01 / Personal Watchlist</div>
+    <h1 class="title">The<br>Back<span class="accent">log</span>.</h1>
+    <p class="subtitle">Thirty-one shows. Over thirteen hundred hours of content. Watched at two hours per day, this is nearly two years of viewing. Each card has a take and a "pairs with" — what to expect, and what to follow it with.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-label">Total</span>
+        <span class="stat-value" id="stat-total">31</span>
+        <span class="stat-suffix">titles</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Completed</span>
+        <span class="stat-value" id="stat-completed">0</span>
+        <span class="stat-suffix">finished</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Watching</span>
+        <span class="stat-value" id="stat-watching">0</span>
+        <span class="stat-suffix">in progress</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Hours Left</span>
+        <span class="stat-value" id="stat-hours">1381</span>
+        <span class="stat-suffix">remaining</span>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="callout-icon">RULE 01</span>
+      <div class="callout-body"><strong>One anime + one live-action at a time.</strong> Rotate. Watching everything in parallel is how watchlists turn into graveyards. You finish things by committing to them.</div>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠ TIME SINKS</span>
+      <div class="callout-body"><strong>Top 5 longest: One Piece (462h), Shippuden (192h), Suits (94h), Naruto (84h), Vikings (67h) = 899 hours combined.</strong> Roughly 65% of your remaining backlog sits in five shows. These are commitments, not weekend bingers — pace them as ongoing companions to shorter shows.</div>
+    </div>
+  </header>
+
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-filter="all">All / 31</button>
+    <button class="filter-btn" data-filter="anime">Anime</button>
+    <button class="filter-btn" data-filter="live">Live-Action</button>
+    <button class="filter-btn" data-filter="not-started">Not Started</button>
+    <button class="filter-btn" data-filter="watching">Watching</button>
+    <button class="filter-btn" data-filter="completed">Completed</button>
+  </div>
+
+  <main id="ranks"></main>
+
+  <footer class="footer">
+    <span>Last synced: <span id="sync-time">—</span></span>
+    <span class="footer-actions">
+      <button class="reset-btn export" id="export-btn" onclick="exportState()">Export state</button>
+      <button class="reset-btn import" onclick="importState()">Import state</button>
+      <button class="reset-btn" onclick="resetAll()">Reset all progress</button>
+    </span>
+  </footer>
+
+</div>
+
+<script>
+  const SHOWS = [
+    // ===== S-TIER =====
+    { id: 'breaking-bad', title: 'Breaking Bad', type: 'live', tier: 'S', episodes: 62, hours: 49,
+      take: "62 episodes of escalating dread. Walter White's transformation is one of TV's greatest character arcs. Slow burn early, locked-in finish.",
+      pairs: ['Better Call Saul', 'Ozark', 'The Wire'] },
+    { id: 'frieren', title: "Frieren: Beyond Journey's End", type: 'anime', tier: 'S', episodes: 28, hours: 11,
+      take: "Quiet, devastating, the best new anime in years. Post-quest fantasy — what happens after the heroes save the world. Tone is melancholy and patient.",
+      pairs: ['Mushishi', 'Violet Evergarden', 'Spice and Wolf'] },
+    { id: 'vinland-saga', title: 'Vinland Saga', type: 'anime', tier: 'S', episodes: 48, hours: 19,
+      take: "Brutal opening, transcendent middle. Season 2 trades Viking warfare for a meditation on violence and atonement. The shift is intentional and rewarded.",
+      pairs: ['Berserk (1997)', 'Vagabond (manga)', 'Kingdom'] },
+    { id: 'avatar', title: 'Avatar: The Last Airbender', type: 'live', tier: 'S', episodes: 61, hours: 23,
+      take: "Holds up better than 95% of TV. Three seasons of tight worldbuilding, real character growth, and one of animation's cleanest finales.",
+      pairs: ['Legend of Korra', 'Arcane', 'Code Geass'] },
+    { id: 'mob-psycho', title: 'Mob Psycho 100', type: 'anime', tier: 'S', episodes: 37, hours: 15,
+      take: "ONE's writing with elite Bones animation. Coming-of-age story disguised as psychic action. Season 3 finale earns every emotional beat.",
+      pairs: ['One Punch Man', 'Hunter x Hunter (2011)', 'Chainsaw Man'] },
+    { id: 'dark', title: 'Dark', type: 'live', tier: 'S', episodes: 26, hours: 24,
+      take: "German sci-fi mystery, tightly plotted across three timelines. Watch in German with subs. You will need a notebook.",
+      pairs: ['Severance', 'Devs', '1899'] },
+    { id: 'one-piece', title: 'One Piece', type: 'anime', tier: 'S', episodes: 1156, hours: 462, airing: true,
+      take: "You're already in it. 1,156+ episodes — goofy on the surface, profound underneath. Best emotional payoffs in shounen (Marineford, Whole Cake, Wano). Anime just slowed to 26 ep/year — the weekly grind is over.",
+      pairs: ['Hunter x Hunter (2011)', 'Toriko', 'Fairy Tail'] },
+
+    // ===== A-TIER =====
+    { id: 'aot', title: 'Attack on Titan', type: 'anime', tier: 'A', episodes: 94, hours: 38,
+      take: "Starts as survival horror, ends as geopolitical tragedy. The Marley arc reframes everything. Stick with it through the pacing dips.",
+      pairs: ['86', 'Code Geass', 'Vinland Saga'] },
+    { id: 'code-geass', title: 'Code Geass', type: 'anime', tier: 'A', episodes: 50, hours: 20,
+      take: "Mecha + political chess. Lelouch is one of anime's great morally complex protagonists. R2's finale is a top-five anime ending.",
+      pairs: ['Death Note', 'Attack on Titan', 'Ergo Proxy'] },
+    { id: 'death-note', title: 'Death Note', type: 'anime', tier: 'A', episodes: 37, hours: 14,
+      take: "Cat-and-mouse psychological thriller. First half is essential. Pacing changes after a major plot turn — fans debate the second half.",
+      pairs: ['Code Geass', 'Monster', 'Psycho-Pass'] },
+    { id: 'rezero', title: 'Re:Zero', type: 'anime', tier: 'A', episodes: 65, hours: 26,
+      take: "Time-loop psychological horror under an isekai shell. Subaru's character work is the engine. Season 2 demands attention; season 3 pays it back.",
+      pairs: ['Steins;Gate', 'Madoka Magica', '86'] },
+    { id: '86', title: '86', type: 'anime', tier: 'A', episodes: 23, hours: 9,
+      take: "Military sci-fi about the cost of war and the people who get used up. Earns its emotional moments. Underseen for what it pulls off.",
+      pairs: ['Attack on Titan', 'Code Geass', 'Re:Zero'] },
+    { id: 'vikings', title: 'Vikings', type: 'live', tier: 'A', episodes: 89, hours: 67,
+      take: "Ragnar Lothbrok's saga across the first 4 seasons is great historical drama. After his exit the show shifts — opinions split there.",
+      pairs: ['The Last Kingdom', 'Knightfall', 'Spartacus'] },
+    { id: 'jjk', title: 'Jujutsu Kaisen', type: 'anime', tier: 'A', episodes: 47, hours: 19,
+      take: "MAPPA at peak. Season 2's Shibuya Incident reset what TV-anime fights can look like. Sharp humor, brutal stakes.",
+      pairs: ["Hell's Paradise", 'Chainsaw Man', 'Bleach: TYBW'] },
+    { id: 'naruto', title: 'Naruto', type: 'anime', tier: 'A', episodes: 220, hours: 84,
+      take: "Foundational shounen. Pacing is rough, but Chunin Exams and Sasuke retrieval are still genre-defining. Long road, but you've cleared it.",
+      pairs: ['Bleach', 'Hunter x Hunter (2011)', 'Boruto'] },
+    { id: 'shippuden', title: 'Naruto Shippuden', type: 'anime', tier: 'A', episodes: 500, hours: 192,
+      take: "Where the show levels up. Pain arc forward is genre-defining. Filler is real — skip lists exist for a reason. The 192-hour boss of this list.",
+      pairs: ['Boruto', 'Bleach', 'My Hero Academia'] },
+
+    // ===== B-TIER =====
+    { id: 'solo-leveling', title: 'Solo Leveling', type: 'anime', tier: 'B', episodes: 25, hours: 10,
+      take: "Power fantasy with elite A-1 production. Sung Jin-Woo's leveling-up loop is the entire pitch — and it looks incredible.",
+      pairs: ['The Beginning After the End', 'Re:Monster', 'Wind Breaker'] },
+    { id: 'suits', title: 'Suits', type: 'live', tier: 'B', episodes: 134, hours: 94,
+      take: "Sharp dialogue and charismatic leads. Legal cases are mostly pretexts for Harvey/Mike chemistry. Comfort rewatch energy through ~5 seasons.",
+      pairs: ['Better Call Saul', 'Billions', 'The Good Wife'] },
+    { id: 'dandadan', title: 'Dan Da Dan', type: 'anime', tier: 'B', episodes: 24, hours: 10,
+      take: "Aliens, ghosts, teen romance, and Science Saru animation going feral. Tonally unhinged in the best way. Surprisingly emotional core.",
+      pairs: ['Mob Psycho 100', 'Chainsaw Man', 'FLCL'] },
+    { id: 'hells-paradise', title: "Hell's Paradise", type: 'anime', tier: 'B', episodes: 13, hours: 5,
+      take: "MAPPA shounen with strong production and an interesting world. Convicts hunting an elixir of immortality. Above-average action, mid character work.",
+      pairs: ['Jujutsu Kaisen', 'Chainsaw Man', 'Demon Slayer'] },
+    { id: 'witch-hat', title: 'Witch Hat Atelier', type: 'anime', tier: 'B', episodes: 12, hours: 5, airing: true,
+      take: "Harry Potter for adults who care about craft. Methodical magic system, gorgeous art direction. Currently airing — manga readers will compare closely.",
+      pairs: ['Frieren', 'Mushishi', 'Spice and Wolf'] },
+    { id: 'dragon-ball', title: 'Dragon Ball', type: 'anime', tier: 'B', episodes: 153, hours: 61,
+      take: "Goku's origin before Z. More adventure-comedy than action — closer in tone to old kung-fu films than the franchise it became. Foundational to every shounen that followed.",
+      pairs: ['Dr. Slump', 'Saiyuki', 'Dragon Ball Z'] },
+    { id: 'sentenced', title: 'Sentenced to Be a Hero', type: 'anime', tier: 'B', episodes: 12, hours: 6,
+      take: "Studio Kai dark fantasy (2026). A penal unit of immortal criminal-heroes is forced to fight demons in an endless death-resurrection loop. 12 episodes plus an extended 60-min premiere. Season 2 already greenlit.",
+      pairs: ['86', 'Goblin Slayer', 'Re:Zero'] },
+
+    // ===== C-TIER =====
+    { id: 'soul-eater', title: 'Soul Eater', type: 'anime', tier: 'C', episodes: 51, hours: 20,
+      take: "Iconic 2008 visual style — Halloween palette, Tim Burton energy. Storyline diverges from the manga and wraps abruptly, but the vibe alone earns the watch.",
+      pairs: ['Bleach', 'FMA: Brotherhood', 'Blood+'] },
+    { id: 'tower-of-god', title: 'Tower of God', type: 'anime', tier: 'C', episodes: 25, hours: 10,
+      take: "Webtoon source is genre-defining. Anime adaptation rushes setup but covers the basics. Once hooked, the manhwa is where the story really opens up.",
+      pairs: ['Solo Leveling', 'God of High School', 'Noblesse'] },
+    { id: 'shangri-la', title: 'Shangri-La Frontier', type: 'anime', tier: 'C', episodes: 25, hours: 10,
+      take: "VRMMO power fantasy that takes its game design seriously. Sunraku's love of crappy games gives it personality. Comfort watch.",
+      pairs: ['Sword Art Online (Aincrad)', 'Log Horizon', 'Overlord'] },
+    { id: 'lost-in-space', title: 'Lost in Space', type: 'live', tier: 'C', episodes: 28, hours: 23,
+      take: "Netflix family-survival sci-fi. Gorgeous production design, three tight seasons with a real ending — rare for streaming originals.",
+      pairs: ['For All Mankind', 'Foundation', 'The Expanse'] },
+    { id: 'falling-skies', title: 'Falling Skies', type: 'live', tier: 'C', episodes: 52, hours: 37,
+      take: "Spielberg-produced post-alien-invasion drama. Earnest tone, five complete seasons. A period piece for the early-2010s sci-fi era.",
+      pairs: ['The Walking Dead', 'V (2009)', 'War of the Worlds (2019)'] },
+
+    // ===== D-TIER =====
+    { id: 'kingdoms-ruin', title: 'The Kingdoms of Ruin', type: 'anime', tier: 'D', episodes: 12, hours: 5,
+      take: "Revenge-driven dark fantasy — wizard hunted by mages. Gore-forward and deliberately bleak. 12 episodes, vibes-first viewing.",
+      pairs: ['Goblin Slayer', 'Berserk', 'Hellsing Ultimate'] },
+    { id: 'gachiakuta', title: 'Gachiakuta', type: 'anime', tier: 'D', episodes: 12, hours: 5, airing: true,
+      take: "Bones-animated, currently airing. A slum-born protagonist falls into a trash dimension to hunt murderers. Strong street-art aesthetic, solid early word.",
+      pairs: ['Dorohedoro', 'Chainsaw Man', 'Jujutsu Kaisen'] },
+    { id: 'daemons', title: 'Daemons of the Shadow Realm', type: 'anime', tier: 'D', episodes: 12, hours: 5,
+      take: "From the creator of Fairy Tail. Twin protagonists, magic-system-forward shounen. Aimed squarely at fans of that exact lane.",
+      pairs: ['Fairy Tail', 'Edens Zero', 'Black Clover'] },
+  ];
+
+  const TIER_ORDER = { S: 0, A: 1, B: 2, C: 3, D: 4 };
+
+  const RANKS = [
+    {
+      key: 's',
+      label: 'S',
+      name: 'S-Rank',
+      desc: 'The masterpieces. Universal critical acclaim, hold up on rewatch, will outlive their medium. If you only finish seven things from this list, make it these.',
+      filter: s => s.tier === 'S'
+    },
+    {
+      key: 'rest',
+      label: '02',
+      name: 'The Rest',
+      desc: 'Everything else, sorted by tier within each subgroup. Mix of must-watches (A), solid picks (B), good situational watches (C), and niche genre fits (D). Tier badge on each card tells you where it lands; the take and pairs-with tell you what to expect.',
+      filter: s => s.tier !== 'S'
+    },
+  ];
+
+  const STATE_KEY = 'watchlist:state';
+  let state = {};
+  let currentFilter = 'all';
+
+  // ===== STORAGE (localStorage — works everywhere outside of Claude artifacts) =====
+  function loadState() {
+    try {
+      const stored = localStorage.getItem(STATE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === 'object') state = parsed;
+      }
+    } catch (e) {
+      console.warn('Could not load state:', e.message);
+    }
+  }
+
+  function saveState() {
+    updateSyncTime();
+    try {
+      localStorage.setItem(STATE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.warn('Could not save state:', e.message);
+    }
+  }
+
+  function updateSyncTime() {
+    const now = new Date();
+    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const el = document.getElementById('sync-time');
+    if (el) el.textContent = time;
+  }
+
+  function exportState() {
+    const data = JSON.stringify(state, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'backlog-state.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importState() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        if (parsed && typeof parsed === 'object') {
+          state = parsed;
+          saveState();
+          document.querySelectorAll('.card').forEach(c => updateCard(c.dataset.id));
+          updateStats();
+          applyFilter();
+        }
+      } catch (err) {
+        alert('Failed to import: ' + err.message);
+      }
+    };
+    input.click();
+  }
+
+  // ===== STATE =====
+  function getStatus(id) {
+    return state[id] || 'not-started';
+  }
+
+  function cycleStatus(id) {
+    const cur = getStatus(id);
+    const next = cur === 'not-started' ? 'watching' : cur === 'watching' ? 'completed' : 'not-started';
+    state[id] = next;
+    saveState();
+    updateCard(id);
+    updateStats();
+    applyFilter();
+  }
+
+  function resetAll() {
+    if (!confirm('Reset all progress? This wipes every watching/completed status.')) return;
+    state = {};
+    try { localStorage.removeItem(STATE_KEY); } catch (e) {}
+    document.querySelectorAll('.card').forEach(c => updateCard(c.dataset.id));
+    updateStats();
+    applyFilter();
+  }
+
+  // ===== RENDER =====
+  function renderRanks() {
+    const root = document.getElementById('ranks');
+    let globalIdx = 0;
+    root.innerHTML = RANKS.map(r => {
+      const shows = SHOWS.filter(r.filter);
+      const anime = shows.filter(s => s.type === 'anime')
+        .sort((a, b) => TIER_ORDER[a.tier] - TIER_ORDER[b.tier]);
+      const live = shows.filter(s => s.type === 'live')
+        .sort((a, b) => TIER_ORDER[a.tier] - TIER_ORDER[b.tier]);
+
+      const animeHtml = anime.length ? `
+        <div class="type-group anime" data-type="anime">
+          <div class="type-header">
+            <span class="type-label">Anime</span>
+            <span class="type-divider"></span>
+            <span class="type-count">${anime.length} TITLES</span>
+          </div>
+          <div class="cards">
+            ${anime.map(s => renderCard(s, ++globalIdx)).join('')}
+          </div>
+        </div>
+      ` : '';
+
+      const liveHtml = live.length ? `
+        <div class="type-group live" data-type="live">
+          <div class="type-header">
+            <span class="type-label">Live-Action</span>
+            <span class="type-divider"></span>
+            <span class="type-count">${live.length} TITLES</span>
+          </div>
+          <div class="cards">
+            ${live.map(s => renderCard(s, ++globalIdx)).join('')}
+          </div>
+        </div>
+      ` : '';
+
+      return `
+        <section class="rank-section rank-${r.key}">
+          <div class="rank-header">
+            <span class="rank-badge">${r.label}</span>
+            <div class="rank-meta">
+              <span class="rank-name">${r.name}</span>
+              <span class="rank-count">${shows.length} TITLES</span>
+            </div>
+          </div>
+          <p class="rank-desc">${r.desc}</p>
+          ${animeHtml}
+          ${liveHtml}
+        </section>
+      `;
+    }).join('');
+
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('click', e => {
+        if (e.target.closest('.status-toggle')) return;
+        cycleStatus(card.dataset.id);
+      });
+      const btn = card.querySelector('.status-toggle');
+      btn.addEventListener('click', () => cycleStatus(card.dataset.id));
+    });
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function renderCard(s, idx) {
+    const status = getStatus(s.id);
+    const num = String(idx).padStart(2, '0');
+    const pairsHtml = s.pairs && s.pairs.length ? `
+      <div class="card-pairs">
+        <span class="pairs-label">PAIRS WITH</span>
+        <span class="pairs-list">${s.pairs.map(escapeHtml).join('<span class="sep">·</span>')}</span>
+      </div>
+    ` : '';
+    return `
+      <div class="card ${status}" data-id="${s.id}" data-type="${s.type}" data-status="${status}">
+        <span class="card-num">${num}</span>
+        <div class="card-main">
+          <div class="card-meta-row">
+            <span class="tier-chip" data-tier="${s.tier}">${s.tier}</span>
+            <span class="card-tag ${s.type}">${s.type === 'anime' ? 'Anime' : 'Live-Action'}</span>
+            ${s.airing ? '<span class="card-tag airing">Airing</span>' : ''}
+          </div>
+          <div class="card-title">${escapeHtml(s.title)}</div>
+          <div class="card-take">${escapeHtml(s.take)}</div>
+          ${pairsHtml}
+        </div>
+        <div class="card-stats">
+          <span class="card-eps">${s.episodes} <span style="font-size:11px; color: var(--text-dim); letter-spacing: 0.15em;">EP</span></span>
+          <span class="card-hours">~${s.hours}h</span>
+          <button class="status-toggle ${status}" aria-label="Toggle status">
+            ${status === 'completed'
+              ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+              : status === 'watching'
+              ? '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg>'
+              : ''}
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function updateCard(id) {
+    const card = document.querySelector(`.card[data-id="${id}"]`);
+    if (!card) return;
+    const status = getStatus(id);
+    card.className = `card ${status}`;
+    card.dataset.status = status;
+    const btn = card.querySelector('.status-toggle');
+    btn.className = `status-toggle ${status}`;
+    btn.innerHTML = status === 'completed'
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+      : status === 'watching'
+      ? '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg>'
+      : '';
+  }
+
+  function updateStats() {
+    const completed = SHOWS.filter(s => getStatus(s.id) === 'completed');
+    const watching = SHOWS.filter(s => getStatus(s.id) === 'watching');
+    const remainingHours = SHOWS.reduce((acc, s) => {
+      return getStatus(s.id) === 'completed' ? acc : acc + s.hours;
+    }, 0);
+    document.getElementById('stat-completed').textContent = completed.length;
+    document.getElementById('stat-watching').textContent = watching.length;
+    document.getElementById('stat-hours').textContent = remainingHours;
+  }
+
+  // ===== FILTER =====
+  function applyFilter() {
+    document.querySelectorAll('.card').forEach(card => {
+      const type = card.dataset.type;
+      const status = card.dataset.status;
+      let show = false;
+      if (currentFilter === 'all') show = true;
+      else if (currentFilter === 'anime' || currentFilter === 'live') show = (type === currentFilter);
+      else show = (status === currentFilter);
+      card.classList.toggle('hidden', !show);
+    });
+
+    document.querySelectorAll('.type-group').forEach(group => {
+      const visible = [...group.querySelectorAll('.card')].some(c => !c.classList.contains('hidden'));
+      group.style.display = visible ? '' : 'none';
+    });
+
+    document.querySelectorAll('.rank-section').forEach(section => {
+      const visibleGroups = [...section.querySelectorAll('.type-group')].some(g => g.style.display !== 'none');
+      section.style.display = visibleGroups ? '' : 'none';
+    });
+  }
+
+  document.getElementById('filters').addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    applyFilter();
+  });
+
+  // ===== INIT =====
+  (function init() {
+    loadState();
+    renderRanks();
+    updateStats();
+    updateSyncTime();
+  })();
+</script>
+</body>
+</html>
