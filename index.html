@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6,6 +7,7 @@
 <title>The Backlog</title>
 
 <!-- PWA / iOS Add-to-Home-Screen -->
+
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Backlog">
@@ -14,6 +16,7 @@
 <meta name="description" content="Personal anime + TV watchlist tracker">
 
 <!-- Inline SVG favicon and apple-touch-icon -->
+
 <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" fill="%230d0a08"/><text x="90" y="138" font-family="Arial Black,sans-serif" font-size="140" fill="%23ff3819" text-anchor="middle" font-weight="900">B</text></svg>'>
 <link rel="apple-touch-icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" fill="%230d0a08"/><text x="90" y="138" font-family="Arial Black,sans-serif" font-size="140" fill="%23ff3819" text-anchor="middle" font-weight="900">B</text></svg>'>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,545 +43,546 @@
     --watching: #ff6b1a;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html, body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Manrope', sans-serif;
-    font-weight: 400;
-    line-height: 1.5;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  body {
-    background-image:
-      radial-gradient(circle at 15% 10%, rgba(255, 107, 26, 0.08) 0%, transparent 40%),
-      radial-gradient(circle at 85% 90%, rgba(255, 56, 25, 0.06) 0%, transparent 50%);
-    position: relative;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
-    opacity: 0.04;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 48px 24px 80px;
-    position: relative;
-    z-index: 2;
-  }
-
-  /* === HEADER === */
-  .header {
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 32px;
-    margin-bottom: 32px;
-  }
-
-  .eyebrow {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.3em;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .eyebrow::before, .eyebrow::after {
-    content: '';
-    height: 1px;
-    background: var(--border-strong);
-    flex: 0 1 40px;
-  }
-  .eyebrow::before { background: var(--accent); flex: 0 0 24px; }
-
-  h1.title {
-    font-family: 'Anton', sans-serif;
-    font-size: clamp(56px, 12vw, 144px);
-    line-height: 0.85;
-    letter-spacing: -0.02em;
-    margin-bottom: 16px;
-    text-transform: uppercase;
-  }
-
-  h1.title .accent {
-    color: var(--accent-hot);
-    display: inline-block;
-  }
-
-  .subtitle {
-    font-family: 'Manrope', sans-serif;
-    font-size: 16px;
-    color: var(--text-muted);
-    max-width: 640px;
-    line-height: 1.6;
-    margin-bottom: 32px;
-  }
-
-  /* === STATS === */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    margin-bottom: 32px;
-  }
-
-  .stat {
-    background: var(--bg-elevated);
-    padding: 20px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .stat-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-  }
-
-  .stat-value {
-    font-family: 'Anton', sans-serif;
-    font-size: 36px;
-    line-height: 1;
-    letter-spacing: -0.01em;
-  }
-
-  .stat-suffix {
-    font-family: 'Manrope', sans-serif;
-    font-size: 12px;
-    color: var(--text-muted);
-    font-weight: 500;
-  }
-
-  /* === CALLOUTS === */
-  .callout {
-    background: var(--bg-card);
-    border-left: 3px solid var(--accent);
-    padding: 18px 22px;
-    margin-bottom: 16px;
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-  }
-
-  .callout-icon {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    flex-shrink: 0;
-    padding-top: 2px;
-  }
-
-  .callout-body { font-size: 14px; line-height: 1.6; color: var(--text); }
-  .callout-body strong { color: var(--accent); font-weight: 700; }
-
-  .callout.warn { border-left-color: var(--tier-a); }
-  .callout.warn .callout-icon { color: var(--tier-a); }
-  .callout.warn .callout-body strong { color: var(--tier-a); }
-
-  /* === FILTERS === */
-  .filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 32px 0 24px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .filter-btn {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    background: transparent;
-    border: 1px solid var(--border-strong);
-    color: var(--text-muted);
-    padding: 8px 14px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .filter-btn:hover {
-    color: var(--text);
-    border-color: var(--text-muted);
-  }
-
-  .filter-btn.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--bg);
-    font-weight: 600;
-  }
-
-  /* === RANK SECTIONS === */
-  .rank-section {
-    margin-bottom: 64px;
-    opacity: 0;
-    animation: fadeUp 0.6s ease forwards;
-  }
-  .rank-section:nth-child(1) { animation-delay: 0.05s; }
-  .rank-section:nth-child(2) { animation-delay: 0.15s; }
-
-  @keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0); }
-    from { opacity: 0; transform: translateY(20px); }
-  }
-
-  .rank-header {
-    display: flex;
-    align-items: baseline;
-    gap: 20px;
-    margin-bottom: 8px;
-    flex-wrap: wrap;
-    border-bottom: 2px solid var(--border-strong);
-    padding-bottom: 16px;
-  }
-
-  .rank-badge {
-    font-family: 'Anton', sans-serif;
-    font-size: 80px;
-    line-height: 0.85;
-    letter-spacing: -0.02em;
-    flex-shrink: 0;
-  }
-
-  .rank-s .rank-badge { color: var(--tier-s); }
-  .rank-rest .rank-badge { color: var(--text); }
-
-  .rank-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .rank-name {
-    font-family: 'Anton', sans-serif;
-    font-size: 32px;
-    text-transform: uppercase;
-    letter-spacing: 0.01em;
-    line-height: 1;
-  }
-
-  .rank-count {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: var(--text-muted);
-    text-transform: uppercase;
-  }
-
-  .rank-desc {
-    font-size: 14px;
-    color: var(--text-muted);
-    margin: 16px 0 32px;
-    max-width: 720px;
-    line-height: 1.6;
-  }
-
-  /* === TYPE GROUP === */
-  .type-group {
-    margin-bottom: 36px;
-  }
-
-  .type-header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 14px;
-  }
-
-  .type-label {
-    font-family: 'Anton', sans-serif;
-    font-size: 20px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text);
-  }
-
-  .type-divider {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .type-count {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    color: var(--text-dim);
-  }
-
-  .type-group.anime .type-label { color: var(--accent); }
-  .type-group.live .type-label { color: var(--tier-b); }
-
-  .cards {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-  }
-
-  /* === CARDS === */
-  .card {
-    background: var(--bg-card);
-    padding: 20px 22px;
-    display: grid;
-    grid-template-columns: 32px 1fr auto;
-    gap: 20px;
-    align-items: center;
-    transition: background 0.15s ease;
-    cursor: pointer;
-  }
-
-  .card:hover {
-    background: var(--bg-elevated);
-  }
-
-  .card.completed {
-    opacity: 0.55;
-  }
-
-  .card.completed .card-title {
-    text-decoration: line-through;
-    text-decoration-thickness: 2px;
-    text-decoration-color: var(--completed);
-  }
-
-  .card-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 0.05em;
-  }
-
-  .card-main {
-    min-width: 0;
-  }
-
-  .card-meta-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 6px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .card-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    padding: 2px 7px;
-    border: 1px solid var(--border-strong);
-    color: var(--text-muted);
-  }
-
-  .card-tag.anime { color: var(--accent); border-color: var(--accent); }
-  .card-tag.live { color: var(--tier-b); border-color: var(--tier-b); }
-  .card-tag.airing { color: var(--tier-a); border-color: var(--tier-a); }
-
-  .tier-chip {
-    font-family: 'Anton', sans-serif;
-    font-size: 14px;
-    width: 22px;
-    height: 22px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    border: 1px solid currentColor;
-    flex-shrink: 0;
-    letter-spacing: 0;
-  }
-  .tier-chip[data-tier="S"] { color: var(--tier-s); }
-  .tier-chip[data-tier="A"] { color: var(--tier-a); }
-  .tier-chip[data-tier="B"] { color: var(--tier-b); }
-  .tier-chip[data-tier="C"] { color: var(--tier-c); }
-  .tier-chip[data-tier="D"] { color: var(--tier-d); }
-
-  .card-title {
-    font-family: 'Anton', sans-serif;
-    font-size: 22px;
-    line-height: 1.05;
-    letter-spacing: 0.005em;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  .card-take {
-    font-size: 13px;
-    color: var(--text-muted);
-    line-height: 1.5;
-    font-style: italic;
-  }
-
-  .card-pairs {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px dashed var(--border);
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .pairs-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    flex-shrink: 0;
-    padding-top: 1px;
-  }
-
-  .pairs-list {
-    font-size: 12px;
-    color: var(--text-dim);
-    line-height: 1.5;
-  }
-
-  .pairs-list .sep {
-    color: var(--border-strong);
-    margin: 0 6px;
-  }
-
-  .card-stats {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-
-  .card-eps {
-    font-family: 'Anton', sans-serif;
-    font-size: 18px;
-    color: var(--text);
-    line-height: 1;
-  }
-
-  .card-hours {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 0.1em;
-  }
-
-  /* === STATUS TOGGLE === */
-  .status-toggle {
-    width: 28px;
-    height: 28px;
-    border: 1.5px solid var(--border-strong);
-    background: transparent;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: var(--text-dim);
-  }
-
-  .status-toggle:hover {
-    border-color: var(--text-muted);
-  }
-
-  .status-toggle.watching {
-    border-color: var(--watching);
-    color: var(--watching);
-    background: rgba(255, 107, 26, 0.1);
-  }
-
-  .status-toggle.completed {
-    border-color: var(--completed);
-    background: var(--completed);
-    color: var(--bg);
-  }
-
-  .status-toggle svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  /* === FOOTER === */
-  .footer {
-    margin-top: 64px;
-    padding-top: 32px;
-    border-top: 1px solid var(--border);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .reset-btn {
-    font-family: inherit;
-    font-size: inherit;
-    letter-spacing: inherit;
-    background: transparent;
-    border: none;
-    color: var(--tier-d);
-    cursor: pointer;
-    text-transform: uppercase;
-    text-decoration: underline;
-  }
-
-  .reset-btn:hover { color: var(--accent-hot); }
-
-  .reset-btn.export, .reset-btn.import {
-    color: var(--text-muted);
-  }
-  .reset-btn.export:hover, .reset-btn.import:hover {
-    color: var(--accent);
-  }
-
-  .footer-actions {
-    display: flex;
-    gap: 18px;
-    flex-wrap: wrap;
-  }
-
-  /* === RESPONSIVE === */
-  @media (max-width: 720px) {
-    .container { padding: 32px 16px 64px; }
-    .card { grid-template-columns: 1fr auto; padding: 16px; gap: 16px; }
-    .card-num { display: none; }
-    .card-stats { flex-direction: row; align-items: center; gap: 12px; }
-    .rank-badge { font-size: 60px; }
-    .rank-name { font-size: 24px; }
-  }
-
-  @media (min-width: 900px) {
-    .cards { grid-template-columns: 1fr 1fr; }
-  }
-
-  .card.hidden { display: none; }
+- { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘Manrope’, sans-serif;
+font-weight: 400;
+line-height: 1.5;
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+body {
+background-image:
+radial-gradient(circle at 15% 10%, rgba(255, 107, 26, 0.08) 0%, transparent 40%),
+radial-gradient(circle at 85% 90%, rgba(255, 56, 25, 0.06) 0%, transparent 50%);
+position: relative;
+}
+
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 200 200’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘n’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘3’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23n)’ opacity=‘0.4’/%3E%3C/svg%3E”);
+opacity: 0.04;
+pointer-events: none;
+z-index: 1;
+}
+
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 48px 24px 80px;
+position: relative;
+z-index: 2;
+}
+
+/* === HEADER === */
+.header {
+border-bottom: 1px solid var(–border);
+padding-bottom: 32px;
+margin-bottom: 32px;
+}
+
+.eyebrow {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 11px;
+letter-spacing: 0.3em;
+color: var(–accent);
+text-transform: uppercase;
+margin-bottom: 12px;
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.eyebrow::before, .eyebrow::after {
+content: ‘’;
+height: 1px;
+background: var(–border-strong);
+flex: 0 1 40px;
+}
+.eyebrow::before { background: var(–accent); flex: 0 0 24px; }
+
+h1.title {
+font-family: ‘Anton’, sans-serif;
+font-size: clamp(56px, 12vw, 144px);
+line-height: 0.85;
+letter-spacing: -0.02em;
+margin-bottom: 16px;
+text-transform: uppercase;
+}
+
+h1.title .accent {
+color: var(–accent-hot);
+display: inline-block;
+}
+
+.subtitle {
+font-family: ‘Manrope’, sans-serif;
+font-size: 16px;
+color: var(–text-muted);
+max-width: 640px;
+line-height: 1.6;
+margin-bottom: 32px;
+}
+
+/* === STATS === */
+.stats {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+gap: 1px;
+background: var(–border);
+border: 1px solid var(–border);
+margin-bottom: 32px;
+}
+
+.stat {
+background: var(–bg-elevated);
+padding: 20px 18px;
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+
+.stat-label {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 10px;
+letter-spacing: 0.2em;
+color: var(–text-dim);
+text-transform: uppercase;
+}
+
+.stat-value {
+font-family: ‘Anton’, sans-serif;
+font-size: 36px;
+line-height: 1;
+letter-spacing: -0.01em;
+}
+
+.stat-suffix {
+font-family: ‘Manrope’, sans-serif;
+font-size: 12px;
+color: var(–text-muted);
+font-weight: 500;
+}
+
+/* === CALLOUTS === */
+.callout {
+background: var(–bg-card);
+border-left: 3px solid var(–accent);
+padding: 18px 22px;
+margin-bottom: 16px;
+display: flex;
+gap: 16px;
+align-items: flex-start;
+}
+
+.callout-icon {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 11px;
+letter-spacing: 0.2em;
+color: var(–accent);
+flex-shrink: 0;
+padding-top: 2px;
+}
+
+.callout-body { font-size: 14px; line-height: 1.6; color: var(–text); }
+.callout-body strong { color: var(–accent); font-weight: 700; }
+
+.callout.warn { border-left-color: var(–tier-a); }
+.callout.warn .callout-icon { color: var(–tier-a); }
+.callout.warn .callout-body strong { color: var(–tier-a); }
+
+/* === FILTERS === */
+.filters {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+margin: 32px 0 24px;
+padding-bottom: 24px;
+border-bottom: 1px solid var(–border);
+}
+
+.filter-btn {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 11px;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+background: transparent;
+border: 1px solid var(–border-strong);
+color: var(–text-muted);
+padding: 8px 14px;
+cursor: pointer;
+transition: all 0.15s ease;
+}
+
+.filter-btn:hover {
+color: var(–text);
+border-color: var(–text-muted);
+}
+
+.filter-btn.active {
+background: var(–accent);
+border-color: var(–accent);
+color: var(–bg);
+font-weight: 600;
+}
+
+/* === RANK SECTIONS === */
+.rank-section {
+margin-bottom: 64px;
+opacity: 0;
+animation: fadeUp 0.6s ease forwards;
+}
+.rank-section:nth-child(1) { animation-delay: 0.05s; }
+.rank-section:nth-child(2) { animation-delay: 0.15s; }
+
+@keyframes fadeUp {
+to { opacity: 1; transform: translateY(0); }
+from { opacity: 0; transform: translateY(20px); }
+}
+
+.rank-header {
+display: flex;
+align-items: baseline;
+gap: 20px;
+margin-bottom: 8px;
+flex-wrap: wrap;
+border-bottom: 2px solid var(–border-strong);
+padding-bottom: 16px;
+}
+
+.rank-badge {
+font-family: ‘Anton’, sans-serif;
+font-size: 80px;
+line-height: 0.85;
+letter-spacing: -0.02em;
+flex-shrink: 0;
+}
+
+.rank-s .rank-badge { color: var(–tier-s); }
+.rank-rest .rank-badge { color: var(–text); }
+
+.rank-meta {
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+
+.rank-name {
+font-family: ‘Anton’, sans-serif;
+font-size: 32px;
+text-transform: uppercase;
+letter-spacing: 0.01em;
+line-height: 1;
+}
+
+.rank-count {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 11px;
+letter-spacing: 0.2em;
+color: var(–text-muted);
+text-transform: uppercase;
+}
+
+.rank-desc {
+font-size: 14px;
+color: var(–text-muted);
+margin: 16px 0 32px;
+max-width: 720px;
+line-height: 1.6;
+}
+
+/* === TYPE GROUP === */
+.type-group {
+margin-bottom: 36px;
+}
+
+.type-header {
+display: flex;
+align-items: center;
+gap: 14px;
+margin-bottom: 14px;
+}
+
+.type-label {
+font-family: ‘Anton’, sans-serif;
+font-size: 20px;
+text-transform: uppercase;
+letter-spacing: 0.05em;
+color: var(–text);
+}
+
+.type-divider {
+flex: 1;
+height: 1px;
+background: var(–border);
+}
+
+.type-count {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 10px;
+letter-spacing: 0.2em;
+color: var(–text-dim);
+}
+
+.type-group.anime .type-label { color: var(–accent); }
+.type-group.live .type-label { color: var(–tier-b); }
+
+.cards {
+display: grid;
+grid-template-columns: 1fr;
+gap: 1px;
+background: var(–border);
+border: 1px solid var(–border);
+}
+
+/* === CARDS === */
+.card {
+background: var(–bg-card);
+padding: 20px 22px;
+display: grid;
+grid-template-columns: 32px 1fr auto;
+gap: 20px;
+align-items: center;
+transition: background 0.15s ease;
+cursor: pointer;
+}
+
+.card:hover {
+background: var(–bg-elevated);
+}
+
+.card.completed {
+opacity: 0.55;
+}
+
+.card.completed .card-title {
+text-decoration: line-through;
+text-decoration-thickness: 2px;
+text-decoration-color: var(–completed);
+}
+
+.card-num {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 11px;
+color: var(–text-dim);
+letter-spacing: 0.05em;
+}
+
+.card-main {
+min-width: 0;
+}
+
+.card-meta-row {
+display: flex;
+gap: 8px;
+margin-bottom: 6px;
+flex-wrap: wrap;
+align-items: center;
+}
+
+.card-tag {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 9px;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+padding: 2px 7px;
+border: 1px solid var(–border-strong);
+color: var(–text-muted);
+}
+
+.card-tag.anime { color: var(–accent); border-color: var(–accent); }
+.card-tag.live { color: var(–tier-b); border-color: var(–tier-b); }
+.card-tag.airing { color: var(–tier-a); border-color: var(–tier-a); }
+
+.tier-chip {
+font-family: ‘Anton’, sans-serif;
+font-size: 14px;
+width: 22px;
+height: 22px;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+line-height: 1;
+border: 1px solid currentColor;
+flex-shrink: 0;
+letter-spacing: 0;
+}
+.tier-chip[data-tier=“S”] { color: var(–tier-s); }
+.tier-chip[data-tier=“A”] { color: var(–tier-a); }
+.tier-chip[data-tier=“B”] { color: var(–tier-b); }
+.tier-chip[data-tier=“C”] { color: var(–tier-c); }
+.tier-chip[data-tier=“D”] { color: var(–tier-d); }
+
+.card-title {
+font-family: ‘Anton’, sans-serif;
+font-size: 22px;
+line-height: 1.05;
+letter-spacing: 0.005em;
+text-transform: uppercase;
+margin-bottom: 6px;
+}
+
+.card-take {
+font-size: 13px;
+color: var(–text-muted);
+line-height: 1.5;
+font-style: italic;
+}
+
+.card-pairs {
+margin-top: 10px;
+padding-top: 10px;
+border-top: 1px dashed var(–border);
+display: flex;
+align-items: flex-start;
+gap: 10px;
+flex-wrap: wrap;
+}
+
+.pairs-label {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 9px;
+letter-spacing: 0.2em;
+color: var(–accent);
+flex-shrink: 0;
+padding-top: 1px;
+}
+
+.pairs-list {
+font-size: 12px;
+color: var(–text-dim);
+line-height: 1.5;
+}
+
+.pairs-list .sep {
+color: var(–border-strong);
+margin: 0 6px;
+}
+
+.card-stats {
+display: flex;
+flex-direction: column;
+align-items: flex-end;
+gap: 4px;
+flex-shrink: 0;
+}
+
+.card-eps {
+font-family: ‘Anton’, sans-serif;
+font-size: 18px;
+color: var(–text);
+line-height: 1;
+}
+
+.card-hours {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 10px;
+color: var(–text-dim);
+letter-spacing: 0.1em;
+}
+
+/* === STATUS TOGGLE === */
+.status-toggle {
+width: 28px;
+height: 28px;
+border: 1.5px solid var(–border-strong);
+background: transparent;
+cursor: pointer;
+transition: all 0.2s ease;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
+color: var(–text-dim);
+}
+
+.status-toggle:hover {
+border-color: var(–text-muted);
+}
+
+.status-toggle.watching {
+border-color: var(–watching);
+color: var(–watching);
+background: rgba(255, 107, 26, 0.1);
+}
+
+.status-toggle.completed {
+border-color: var(–completed);
+background: var(–completed);
+color: var(–bg);
+}
+
+.status-toggle svg {
+width: 16px;
+height: 16px;
+}
+
+/* === FOOTER === */
+.footer {
+margin-top: 64px;
+padding-top: 32px;
+border-top: 1px solid var(–border);
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 10px;
+letter-spacing: 0.15em;
+color: var(–text-dim);
+text-transform: uppercase;
+display: flex;
+justify-content: space-between;
+flex-wrap: wrap;
+gap: 16px;
+}
+
+.reset-btn {
+font-family: inherit;
+font-size: inherit;
+letter-spacing: inherit;
+background: transparent;
+border: none;
+color: var(–tier-d);
+cursor: pointer;
+text-transform: uppercase;
+text-decoration: underline;
+}
+
+.reset-btn:hover { color: var(–accent-hot); }
+
+.reset-btn.export, .reset-btn.import {
+color: var(–text-muted);
+}
+.reset-btn.export:hover, .reset-btn.import:hover {
+color: var(–accent);
+}
+
+.footer-actions {
+display: flex;
+gap: 18px;
+flex-wrap: wrap;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 720px) {
+.container { padding: 32px 16px 64px; }
+.card { grid-template-columns: 1fr auto; padding: 16px; gap: 16px; }
+.card-num { display: none; }
+.card-stats { flex-direction: row; align-items: center; gap: 12px; }
+.rank-badge { font-size: 60px; }
+.rank-name { font-size: 24px; }
+}
+
+@media (min-width: 900px) {
+.cards { grid-template-columns: 1fr 1fr; }
+}
+
+.card.hidden { display: none; }
 </style>
+
 </head>
 <body>
 <div class="container">
@@ -588,38 +592,41 @@
     <h1 class="title">The<br>Back<span class="accent">log</span>.</h1>
     <p class="subtitle">Thirty-one shows. Over thirteen hundred hours of content. Watched at two hours per day, this is nearly two years of viewing. Each card has a take and a "pairs with" — what to expect, and what to follow it with.</p>
 
-    <div class="stats">
-      <div class="stat">
-        <span class="stat-label">Total</span>
-        <span class="stat-value" id="stat-total">31</span>
-        <span class="stat-suffix">titles</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Completed</span>
-        <span class="stat-value" id="stat-completed">0</span>
-        <span class="stat-suffix">finished</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Watching</span>
-        <span class="stat-value" id="stat-watching">0</span>
-        <span class="stat-suffix">in progress</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Hours Left</span>
-        <span class="stat-value" id="stat-hours">1381</span>
-        <span class="stat-suffix">remaining</span>
-      </div>
-    </div>
+```
+<div class="stats">
+  <div class="stat">
+    <span class="stat-label">Total</span>
+    <span class="stat-value" id="stat-total">31</span>
+    <span class="stat-suffix">titles</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">Completed</span>
+    <span class="stat-value" id="stat-completed">0</span>
+    <span class="stat-suffix">finished</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">Watching</span>
+    <span class="stat-value" id="stat-watching">0</span>
+    <span class="stat-suffix">in progress</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">Hours Left</span>
+    <span class="stat-value" id="stat-hours">1381</span>
+    <span class="stat-suffix">remaining</span>
+  </div>
+</div>
 
-    <div class="callout">
-      <span class="callout-icon">RULE 01</span>
-      <div class="callout-body"><strong>One anime + one live-action at a time.</strong> Rotate. Watching everything in parallel is how watchlists turn into graveyards. You finish things by committing to them.</div>
-    </div>
+<div class="callout">
+  <span class="callout-icon">RULE 01</span>
+  <div class="callout-body"><strong>One anime + one live-action at a time.</strong> Rotate. Watching everything in parallel is how watchlists turn into graveyards. You finish things by committing to them.</div>
+</div>
 
-    <div class="callout warn">
-      <span class="callout-icon">⚠ TIME SINKS</span>
-      <div class="callout-body"><strong>Top 5 longest: One Piece (462h), Shippuden (192h), Suits (94h), Naruto (84h), Vikings (67h) = 899 hours combined.</strong> Roughly 65% of your remaining backlog sits in five shows. These are commitments, not weekend bingers — pace them as ongoing companions to shorter shows.</div>
-    </div>
+<div class="callout warn">
+  <span class="callout-icon">⚠ TIME SINKS</span>
+  <div class="callout-body"><strong>Top 5 longest: One Piece (462h), Shippuden (192h), Suits (94h), Naruto (84h), Vikings (67h) = 899 hours combined.</strong> Roughly 65% of your remaining backlog sits in five shows. These are commitments, not weekend bingers — pace them as ongoing companions to shorter shows.</div>
+</div>
+```
+
   </header>
 
   <div class="filters" id="filters">
@@ -838,11 +845,15 @@
   }
 
   // ===== STATE =====
+  let cycleLock = false;
   function getStatus(id) {
     return state[id] || 'not-started';
   }
 
   function cycleStatus(id) {
+    if (cycleLock) return;
+    cycleLock = true;
+    setTimeout(() => { cycleLock = false; }, 200);
     const cur = getStatus(id);
     const next = cur === 'not-started' ? 'watching' : cur === 'watching' ? 'completed' : 'not-started';
     state[id] = next;
@@ -920,7 +931,10 @@
         cycleStatus(card.dataset.id);
       });
       const btn = card.querySelector('.status-toggle');
-      btn.addEventListener('click', () => cycleStatus(card.dataset.id));
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        cycleStatus(card.dataset.id);
+      });
     });
   }
 
@@ -1031,5 +1045,6 @@
     updateSyncTime();
   })();
 </script>
+
 </body>
 </html>
