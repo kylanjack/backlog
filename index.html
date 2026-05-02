@@ -38,6 +38,7 @@
     --tier-d: #8b3a2a;
     --completed: #4a8a3a;
     --watching: #ff6b1a;
+    --rewatched: #a78bfa;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -364,6 +365,12 @@
     text-decoration-color: var(--completed);
   }
 
+  .card.rewatched .card-title {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--rewatched);
+  }
+
   .card-num {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
@@ -535,6 +542,12 @@
     color: var(--bg);
   }
 
+  .status-pill.active[data-state="rewatched"] {
+    border-color: var(--rewatched);
+    background: var(--rewatched);
+    color: var(--bg);
+  }
+
   /* === FOOTER === */
   .footer {
     margin-top: 64px;
@@ -584,8 +597,9 @@
     .card { grid-template-columns: 1fr auto; padding: 16px; gap: 16px; }
     .card-num { display: none; }
     .card-stats { gap: 6px; }
-    .status-pill { width: 32px; height: 32px; }
-    .status-pill svg { width: 16px; height: 16px; }
+    .status-segmented { gap: 3px; }
+    .status-pill { width: 30px; height: 30px; }
+    .status-pill svg { width: 15px; height: 15px; }
     .rank-badge { font-size: 60px; }
     .rank-name { font-size: 24px; }
   }
@@ -607,7 +621,7 @@
     <div class="stats">
       <div class="stat">
         <span class="stat-label">Total</span>
-        <span class="stat-value" id="stat-total">31</span>
+        <span class="stat-value" id="stat-total">32</span>
         <span class="stat-suffix">titles</span>
       </div>
       <div class="stat">
@@ -622,29 +636,21 @@
       </div>
       <div class="stat">
         <span class="stat-label">Hours Left</span>
-        <span class="stat-value" id="stat-hours">1381</span>
+        <span class="stat-value" id="stat-hours">1479</span>
         <span class="stat-suffix">remaining</span>
       </div>
     </div>
 
-    <div class="callout">
-      <span class="callout-icon">RULE 01</span>
-      <div class="callout-body"><strong>One anime + one live-action at a time.</strong> Rotate. Watching everything in parallel is how watchlists turn into graveyards. You finish things by committing to them.</div>
-    </div>
-
-    <div class="callout warn">
-      <span class="callout-icon">⚠ TIME SINKS</span>
-      <div class="callout-body"><strong>Top 5 longest: One Piece (462h), Shippuden (192h), Suits (94h), Naruto (84h), Vikings (67h) = 899 hours combined.</strong> Roughly 65% of your remaining backlog sits in five shows. These are commitments, not weekend bingers — pace them as ongoing companions to shorter shows.</div>
-    </div>
   </header>
 
   <div class="filters" id="filters">
-    <button class="filter-btn active" data-filter="all">All / 31</button>
+    <button class="filter-btn active" data-filter="all">All / 32</button>
     <button class="filter-btn" data-filter="anime">Anime</button>
     <button class="filter-btn" data-filter="live">Live-Action</button>
     <button class="filter-btn" data-filter="not-started">Not Started</button>
     <button class="filter-btn" data-filter="watching">Watching</button>
     <button class="filter-btn" data-filter="completed">Completed</button>
+    <button class="filter-btn" data-filter="rewatched">Rewatched</button>
   </div>
 
   <main id="ranks"></main>
@@ -721,6 +727,9 @@
     { id: 'suits', title: 'Suits', type: 'live', tier: 'B', episodes: 134, hours: 94,
       take: "Sharp dialogue and charismatic leads. Legal cases are mostly pretexts for Harvey/Mike chemistry. Comfort rewatch energy through ~5 seasons.",
       pairs: ['Better Call Saul', 'Billions', 'The Good Wife'] },
+    { id: 'big-bang-theory', title: 'The Big Bang Theory', type: 'live', tier: 'B', episodes: 279, hours: 98,
+      take: "12 seasons of geek-culture sitcom that ran 2007-2019. Ensemble chemistry is the engine; humor leans on running jokes and character tics. Easy to drop in/out of, no hard arcs.",
+      pairs: ['Young Sheldon', 'The IT Crowd', 'Brooklyn Nine-Nine'] },
     { id: 'dandadan', title: 'Dan Da Dan', type: 'anime', tier: 'B', episodes: 24, hours: 10,
       take: "Aliens, ghosts, teen romance, and Science Saru animation going feral. Tonally unhinged in the best way. Surprisingly emotional core.",
       pairs: ['Mob Psycho 100', 'Chainsaw Man', 'FLCL'] },
@@ -773,14 +782,14 @@
       key: 's',
       label: 'S',
       name: 'S-Rank',
-      desc: 'The masterpieces. Universal critical acclaim, hold up on rewatch, will outlive their medium. If you only finish seven things from this list, make it these.',
+      desc: 'The masterpieces. Universal critical acclaim, hold up on rewatch, will outlive their medium.',
       filter: s => s.tier === 'S'
     },
     {
       key: 'rest',
       label: '02',
       name: 'The Rest',
-      desc: 'Everything else, sorted by tier within each subgroup. Mix of must-watches (A), solid picks (B), good situational watches (C), and niche genre fits (D). Tier badge on each card tells you where it lands; the take and pairs-with tell you what to expect.',
+      desc: 'Everything else, sorted by tier within each subgroup. Tier badge on each card tells you where it lands.',
       filter: s => s.tier !== 'S'
     },
   ];
@@ -859,7 +868,7 @@
   }
 
   function setStatus(id, newStatus) {
-    if (!['not-started', 'watching', 'completed'].includes(newStatus)) return;
+    if (!['not-started', 'watching', 'completed', 'rewatched'].includes(newStatus)) return;
     state[id] = newStatus;
     saveState();
     updateCard(id);
@@ -978,6 +987,9 @@
             <button class="status-pill ${status === 'completed' ? 'active' : ''}" data-state="completed" aria-label="Mark as completed" title="Done">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </button>
+            <button class="status-pill ${status === 'rewatched' ? 'active' : ''}" data-state="rewatched" aria-label="Mark as rewatched" title="Rewatched">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            </button>
           </div>
         </div>
       </div>
@@ -996,10 +1008,14 @@
   }
 
   function updateStats() {
-    const completed = SHOWS.filter(s => getStatus(s.id) === 'completed');
+    const isDone = (s) => {
+      const st = getStatus(s.id);
+      return st === 'completed' || st === 'rewatched';
+    };
+    const completed = SHOWS.filter(isDone);
     const watching = SHOWS.filter(s => getStatus(s.id) === 'watching');
     const remainingHours = SHOWS.reduce((acc, s) => {
-      return getStatus(s.id) === 'completed' ? acc : acc + s.hours;
+      return isDone(s) ? acc : acc + s.hours;
     }, 0);
     document.getElementById('stat-completed').textContent = completed.length;
     document.getElementById('stat-watching').textContent = watching.length;
