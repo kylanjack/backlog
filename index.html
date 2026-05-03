@@ -609,6 +609,200 @@
   }
 
   .card.hidden { display: none; }
+
+  /* === ADD/QUICK NOTE BUTTON === */
+  .add-show-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    color: var(--bg);
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-weight: 600;
+    margin-left: auto;
+  }
+
+  .add-show-btn:hover {
+    background: var(--accent-hot);
+    border-color: var(--accent-hot);
+  }
+
+  .filters {
+    align-items: center;
+  }
+
+  /* === REMINDERS SECTION === */
+  .reminders-section {
+    margin-bottom: 56px;
+    padding: 28px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+  }
+
+  .reminders-header {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+
+  .reminders-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .reminders-name {
+    font-family: 'Anton', sans-serif;
+    font-size: 28px;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    line-height: 1;
+  }
+
+  .reminders-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-left: auto;
+  }
+
+  .reminders-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 18px;
+  }
+
+  .reminder-form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .reminder-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    padding: 12px 14px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    transition: border-color 0.15s ease;
+    min-width: 0;
+  }
+
+  .reminder-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .reminder-input::placeholder {
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  .reminder-add-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    color: var(--bg);
+    padding: 0 18px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .reminder-add-btn:hover {
+    background: var(--accent-hot);
+    border-color: var(--accent-hot);
+  }
+
+  .reminders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .reminders-list:empty {
+    display: none;
+  }
+
+  .reminder-item {
+    background: var(--bg-elevated);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: background 0.15s ease;
+  }
+
+  .reminder-item:hover {
+    background: var(--bg);
+  }
+
+  .reminder-text {
+    flex: 1;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.4;
+    min-width: 0;
+    word-wrap: break-word;
+  }
+
+  .reminder-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    text-transform: uppercase;
+  }
+
+  .reminder-clear {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0;
+  }
+
+  .reminder-clear:hover {
+    border-color: var(--tier-d);
+    color: var(--tier-d);
+  }
+
+  @media (max-width: 540px) {
+    .reminders-section { padding: 20px 18px; }
+    .reminders-name { font-size: 22px; }
+    .reminders-count { width: 100%; margin-left: 0; }
+    .reminder-date { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -651,7 +845,32 @@
     <button class="filter-btn" data-filter="watching">Watching</button>
     <button class="filter-btn" data-filter="completed">Completed</button>
     <button class="filter-btn" data-filter="rewatched">Rewatched</button>
+    <button class="add-show-btn" onclick="document.getElementById('reminder-input').focus()">+ Quick Note</button>
   </div>
+
+  <!-- HEADS UP / REMINDERS -->
+  <section class="reminders-section" id="reminders-section">
+    <div class="reminders-header">
+      <span class="reminders-eyebrow">— Heads Up</span>
+      <span class="reminders-name">Notes to Self</span>
+      <span class="reminders-count" id="reminders-count">0 NOTES</span>
+    </div>
+    <p class="reminders-desc">Heard about a show? Jot it down here so you don't forget. Add it to the canonical list later.</p>
+
+    <form class="reminder-form" id="reminder-form" onsubmit="return addReminder(event)">
+      <input
+        type="text"
+        id="reminder-input"
+        class="reminder-input"
+        placeholder="e.g. The Bear, Scavengers Reign, that show with the chef..."
+        maxlength="200"
+        autocomplete="off"
+      />
+      <button type="submit" class="reminder-add-btn">Save</button>
+    </form>
+
+    <div class="reminders-list" id="reminders-list"></div>
+  </section>
 
   <main id="ranks"></main>
 
@@ -777,6 +996,97 @@
 
   const TIER_ORDER = { S: 0, A: 1, B: 2, C: 3, D: 4 };
 
+  // ===== REMINDERS =====
+  let reminders = [];
+  const REMINDERS_KEY = 'watchlist:reminders';
+
+  function loadReminders() {
+    try {
+      const stored = localStorage.getItem(REMINDERS_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) reminders = parsed;
+      }
+    } catch (e) {
+      console.warn('Could not load reminders:', e.message);
+    }
+  }
+
+  function saveReminders() {
+    try {
+      localStorage.setItem(REMINDERS_KEY, JSON.stringify(reminders));
+    } catch (e) {
+      console.warn('Could not save reminders:', e.message);
+    }
+  }
+
+  function formatReminderDate(timestamp) {
+    const d = new Date(timestamp);
+    const now = new Date();
+    const sameYear = d.getFullYear() === now.getFullYear();
+    const opts = sameYear
+      ? { month: 'short', day: 'numeric' }
+      : { month: 'short', day: 'numeric', year: '2-digit' };
+    return d.toLocaleDateString([], opts);
+  }
+
+  function escapeHtmlText(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderReminders() {
+    const list = document.getElementById('reminders-list');
+    const count = document.getElementById('reminders-count');
+    if (!list || !count) return;
+
+    count.textContent = reminders.length === 1 ? '1 NOTE' : `${reminders.length} NOTES`;
+
+    if (reminders.length === 0) {
+      list.innerHTML = '';
+      return;
+    }
+
+    // Newest first
+    const sorted = [...reminders].sort((a, b) => b.created - a.created);
+    list.innerHTML = sorted.map(r => `
+      <div class="reminder-item" data-id="${r.id}">
+        <span class="reminder-text">${escapeHtmlText(r.text)}</span>
+        <span class="reminder-date">${formatReminderDate(r.created)}</span>
+        <button class="reminder-clear" onclick="clearReminder('${r.id}')" aria-label="Remove note" title="Remove">×</button>
+      </div>
+    `).join('');
+  }
+
+  function addReminder(event) {
+    event.preventDefault();
+    const input = document.getElementById('reminder-input');
+    const text = input.value.trim();
+    if (!text) return false;
+
+    reminders.push({
+      id: 'rem-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+      text: text,
+      created: Date.now()
+    });
+
+    saveReminders();
+    renderReminders();
+    input.value = '';
+    input.blur();
+    return false;
+  }
+
+  function clearReminder(id) {
+    reminders = reminders.filter(r => r.id !== id);
+    saveReminders();
+    renderReminders();
+  }
+
   const RANKS = [
     {
       key: 's',
@@ -828,7 +1138,11 @@
   }
 
   function exportState() {
-    const data = JSON.stringify(state, null, 2);
+    const data = JSON.stringify({
+      version: 2,
+      state: state,
+      reminders: reminders
+    }, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -848,13 +1162,23 @@
       try {
         const text = await file.text();
         const parsed = JSON.parse(text);
-        if (parsed && typeof parsed === 'object') {
+        if (!parsed || typeof parsed !== 'object') throw new Error('Invalid file format');
+
+        // v2 format: { version, state, reminders }
+        if (parsed.version === 2) {
+          state = parsed.state || {};
+          reminders = Array.isArray(parsed.reminders) ? parsed.reminders : [];
+        } else {
+          // v1 format: just the state object
           state = parsed;
-          saveState();
-          document.querySelectorAll('.card').forEach(c => updateCard(c.dataset.id));
-          updateStats();
-          applyFilter();
         }
+
+        saveState();
+        saveReminders();
+        renderRanks();
+        renderReminders();
+        updateStats();
+        applyFilter();
       } catch (err) {
         alert('Failed to import: ' + err.message);
       }
@@ -877,10 +1201,13 @@
   }
 
   function resetAll() {
-    if (!confirm('Reset all progress? This wipes every watching/completed status.')) return;
+    if (!confirm('Reset everything? This wipes all watch progress AND clears all your saved notes.')) return;
     state = {};
+    reminders = [];
     try { localStorage.removeItem(STATE_KEY); } catch (e) {}
-    document.querySelectorAll('.card').forEach(c => updateCard(c.dataset.id));
+    try { localStorage.removeItem(REMINDERS_KEY); } catch (e) {}
+    renderRanks();
+    renderReminders();
     updateStats();
     applyFilter();
   }
@@ -1057,7 +1384,9 @@
   // ===== INIT =====
   (function init() {
     loadState();
+    loadReminders();
     renderRanks();
+    renderReminders();
     updateStats();
     updateSyncTime();
   })();
