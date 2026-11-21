@@ -3,887 +3,376 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>The Backlog</title>
+<title>Backlog</title>
 
-<!-- PWA / iOS Add-to-Home-Screen -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Backlog">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0d0a08">
-<meta name="description" content="Personal anime + TV watchlist tracker">
+<meta name="theme-color" content="#1A1C2C">
+<meta name="description" content="Shows, to-dos and notes">
 
-<!-- Inline SVG favicon and apple-touch-icon -->
-<link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" fill="%230d0a08"/><text x="90" y="138" font-family="Arial Black,sans-serif" font-size="140" fill="%23ff3819" text-anchor="middle" font-weight="900">B</text></svg>'>
-<link rel="apple-touch-icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" fill="%230d0a08"/><text x="90" y="138" font-family="Arial Black,sans-serif" font-size="140" fill="%23ff3819" text-anchor="middle" font-weight="900">B</text></svg>'>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAByklEQVR42u3dwa2CQBiF0YuxANdIbAAacaUtWBkt6MpKaMCEvSXYgMBORzxny+IZ8uWfZDK8qeqmC7yz8QoQB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH4kAciANxIA4QB4u2X/zb4+24yne6P91NDiwriAPEgTgQB+JAHMQm2KoNl3bqUdsPJgeWFcSBOEAciANxIA5iE2zJ8/oo/BfuzoepR+P0owLPj5kciANxIA7EgTgQB+IgNsHKU8g5q5mdrvzU+TGTA3EgDsSBOBAH4kAciANxIA4QB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH8TlkPvcft1LG7ZAz3zyaHFhWEAfiQBwgDsSBOIhNsLgd0uRAHIgDcSAOxAHiQBzE7ZBxO6TJgTgQB+JAHIgDcSAOiNsh43ZIkwNxIA7EgTgQB+JAHIgDxIE4EAfiQByIA3EgDsSBOEAciANxIA7EgTgQB/E5ZNwO6XZILCuIA8SBOBAH4kAcxCZY3A5pcmBZQRyIA8SBOBAH4iB/sQm2mhNTJgfiAHEgDsSBOBAH4qBsVd103gImB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH4kAciANxIA4QB/Ne+mUwNWj2tbgAAAAASUVORK5CYII=">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAByklEQVR42u3dwa2CQBiF0YuxANdIbAAacaUtWBkt6MpKaMCEvSXYgMBORzxny+IZ8uWfZDK8qeqmC7yz8QoQB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH4kAciANxIA4QB4u2X/zb4+24yne6P91NDiwriAPEgTgQB+JAHMQm2KoNl3bqUdsPJgeWFcSBOEAciANxIA5iE2zJ8/oo/BfuzoepR+P0owLPj5kciANxIA7EgTgQB+IgNsHKU8g5q5mdrvzU+TGTA3EgDsSBOBAH4kAciANxIA4QB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH8TlkPvcft1LG7ZAz3zyaHFhWEAfiQBwgDsSBOIhNsLgd0uRAHIgDcSAOxAHiQBzE7ZBxO6TJgTgQB+JAHIgDcSAOiNsh43ZIkwNxIA7EgTgQB+JAHIgDxIE4EAfiQByIA3EgDsSBOEAciANxIA7EgTgQB/E5ZNwO6XZILCuIA8SBOBAH4kAcxCZY3A5pcmBZQRyIA8SBOBAH4iB/sQm2mhNTJgfiAHEgDsSBOBAH4qBsVd103gImB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH4kAciANxIA4QB/Ne+mUwNWj2tbgAAAAASUVORK5CYII=">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Silkscreen&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0d0a08;
-    --bg-elevated: #161210;
-    --bg-card: #1a1612;
-    --border: #2a241c;
-    --border-strong: #3d352a;
-    --text: #f5efe6;
-    --text-muted: #8a8074;
-    --text-dim: #5a5249;
-    --accent: #ff6b1a;
-    --accent-hot: #ff3819;
-    --tier-s: #ff3819;
-    --tier-a: #ffb01a;
-    --tier-b: #d4c19a;
-    --tier-c: #7a7164;
-    --tier-d: #8b3a2a;
-    --completed: #4a8a3a;
-    --watching: #ff6b1a;
-    --rewatched: #a78bfa;
+    --bg: #1A1C2C;
+    --panel: #333C57;
+    --panel-edge: #29366F;
+    --panel-hi: #566C86;
+    --text: #F4F4F4;
+    --muted: #94B0C2;
+    --orange: #EF7D57;
+    --yellow: #FFCD75;
+    --cyan: #73EFF7;
+    --green: #A7F070;
+    --blue: #41A6F6;
+    --red: #B13E53;
+    --px: 'Silkscreen', monospace;
+    --body: 'Pixelify Sans', monospace;
+    --tabbar-h: 64px;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
   html, body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Manrope', sans-serif;
-    font-weight: 400;
-    line-height: 1.5;
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.4;
     min-height: 100vh;
-    overflow-x: hidden;
   }
 
-  body {
-    background-image:
-      radial-gradient(circle at 15% 10%, rgba(255, 107, 26, 0.08) 0%, transparent 40%),
-      radial-gradient(circle at 85% 90%, rgba(255, 56, 25, 0.06) 0%, transparent 50%);
-    position: relative;
-  }
+  button, input { font: inherit; color: inherit; }
+  button { cursor: pointer; border: none; background: none; }
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
-    opacity: 0.04;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .container {
-    max-width: 1200px;
+  .wrap {
+    max-width: 640px;
     margin: 0 auto;
-    padding: 48px 24px 80px;
-    position: relative;
-    z-index: 2;
+    padding: calc(env(safe-area-inset-top) + 20px) 16px calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 32px);
   }
 
   /* === HEADER === */
-  .header {
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 32px;
-    margin-bottom: 32px;
-  }
-
-  .eyebrow {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.3em;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 12px;
+  .top {
     display: flex;
     align-items: center;
-    gap: 12px;
-  }
-
-  .eyebrow::before, .eyebrow::after {
-    content: '';
-    height: 1px;
-    background: var(--border-strong);
-    flex: 0 1 40px;
-  }
-  .eyebrow::before { background: var(--accent); flex: 0 0 24px; }
-
-  h1.title {
-    font-family: 'Anton', sans-serif;
-    font-size: clamp(56px, 12vw, 144px);
-    line-height: 0.85;
-    letter-spacing: -0.02em;
+    justify-content: space-between;
     margin-bottom: 16px;
-    text-transform: uppercase;
   }
-
-  h1.title .accent {
-    color: var(--accent-hot);
-    display: inline-block;
-  }
-
-  .subtitle {
-    font-family: 'Manrope', sans-serif;
-    font-size: 16px;
-    color: var(--text-muted);
-    max-width: 640px;
-    line-height: 1.6;
-    margin-bottom: 32px;
-  }
+  .logo { font-family: var(--px); font-size: 26px; letter-spacing: 1px; }
+  .logo span { color: var(--yellow); }
+  .tab-label { font-family: var(--px); font-size: 12px; color: var(--muted); }
 
   /* === STATS === */
   .stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    margin: 32px 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
   }
-
   .stat {
-    background: var(--bg-elevated);
-    padding: 20px 18px;
+    background: var(--panel);
+    box-shadow: inset 0 -4px 0 var(--panel-edge);
+    padding: 12px 12px 14px;
+  }
+  .stat-label { font-family: var(--px); font-size: 11px; color: var(--muted); display: block; }
+  .stat-value { font-family: var(--px); font-size: 26px; line-height: 1.1; }
+  .stat-value.y { color: var(--yellow); }
+  .stat-value.c { color: var(--cyan); }
+  .stat-value.g { color: var(--green); }
+  .stat-value.o { color: var(--orange); }
+
+  /* === CHIPS (filters) === */
+  .chips {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    gap: 6px;
+    overflow-x: auto;
+    margin: 0 -16px 16px;
+    padding: 0 16px 4px;
+    scrollbar-width: none;
   }
-
-  .stat-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-  }
-
-  .stat-value {
-    font-family: 'Anton', sans-serif;
-    font-size: 36px;
-    line-height: 1;
-    letter-spacing: -0.01em;
-  }
-
-  .stat-suffix {
-    font-family: 'Manrope', sans-serif;
-    font-size: 12px;
-    color: var(--text-muted);
-    font-weight: 500;
-  }
-
-  /* === CALLOUTS === */
-  .callout {
-    background: var(--bg-card);
-    border-left: 3px solid var(--accent);
-    padding: 18px 22px;
-    margin-bottom: 16px;
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-  }
-
-  .callout-icon {
-    font-family: 'JetBrains Mono', monospace;
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    font-family: var(--px);
     font-size: 11px;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    flex-shrink: 0;
-    padding-top: 2px;
-  }
-
-  .callout-body { font-size: 14px; line-height: 1.6; color: var(--text); }
-  .callout-body strong { color: var(--accent); font-weight: 700; }
-
-  .callout.warn { border-left-color: var(--tier-a); }
-  .callout.warn .callout-icon { color: var(--tier-a); }
-  .callout.warn .callout-body strong { color: var(--tier-a); }
-
-  /* === FILTERS === */
-  .filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 32px 0 24px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .filter-btn {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    background: transparent;
-    border: 1px solid var(--border-strong);
-    color: var(--text-muted);
-    padding: 8px 14px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .filter-btn:hover {
-    color: var(--text);
-    border-color: var(--text-muted);
-  }
-
-  .filter-btn.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--bg);
-    font-weight: 600;
-  }
-
-  /* === RANK SECTIONS === */
-  .rank-section {
-    margin-bottom: 64px;
-    opacity: 0;
-    animation: fadeUp 0.6s ease forwards;
-  }
-  .rank-section:nth-child(1) { animation-delay: 0.05s; }
-  .rank-section:nth-child(2) { animation-delay: 0.15s; }
-
-  @keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0); }
-    from { opacity: 0; transform: translateY(20px); }
-  }
-
-  .rank-header {
-    display: flex;
-    align-items: baseline;
-    gap: 20px;
-    margin-bottom: 8px;
-    flex-wrap: wrap;
-    border-bottom: 2px solid var(--border-strong);
-    padding-bottom: 16px;
-  }
-
-  .rank-badge {
-    font-family: 'Anton', sans-serif;
-    font-size: 80px;
-    line-height: 0.85;
-    letter-spacing: -0.02em;
+    white-space: nowrap;
+    background: var(--panel);
+    color: var(--muted);
+    padding: 10px 12px;
+    min-height: 40px;
+    box-shadow: inset 0 -3px 0 var(--panel-edge);
     flex-shrink: 0;
   }
+  .chip.active { background: var(--orange); color: var(--bg); box-shadow: inset 0 -3px 0 #B5513A; }
 
-  .rank-s .rank-badge { color: var(--tier-s); }
-  .rank-rest .rank-badge { color: var(--text); }
-
-  .rank-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .rank-name {
-    font-family: 'Anton', sans-serif;
-    font-size: 32px;
-    text-transform: uppercase;
-    letter-spacing: 0.01em;
-    line-height: 1;
-  }
-
-  .rank-count {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: var(--text-muted);
-    text-transform: uppercase;
-  }
-
-  .rank-desc {
-    font-size: 14px;
-    color: var(--text-muted);
-    margin: 16px 0 32px;
-    max-width: 720px;
-    line-height: 1.6;
-  }
-
-  /* === TYPE GROUP === */
-  .type-group {
-    margin-bottom: 36px;
-  }
-
-  .type-header {
+  /* === SECTIONS === */
+  .section-head {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-bottom: 14px;
-  }
-
-  .type-label {
-    font-family: 'Anton', sans-serif;
-    font-size: 20px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text);
-  }
-
-  .type-divider {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .type-count {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    color: var(--text-dim);
-  }
-
-  .type-group.anime .type-label { color: var(--accent); }
-  .type-group.live .type-label { color: var(--tier-b); }
-
-  .cards {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-  }
-
-  /* === CARDS === */
-  .card {
-    background: var(--bg-card);
-    padding: 20px 22px;
-    display: grid;
-    grid-template-columns: 32px 1fr auto;
-    gap: 20px;
-    align-items: center;
-    transition: background 0.15s ease;
-    cursor: pointer;
-  }
-
-  .card:hover {
-    background: var(--bg-elevated);
-  }
-
-  .card.completed {
-    opacity: 0.55;
-  }
-
-  .card.completed .card-title {
-    text-decoration: line-through;
-    text-decoration-thickness: 2px;
-    text-decoration-color: var(--completed);
-  }
-
-  .card.rewatched .card-title {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-decoration-color: var(--rewatched);
-  }
-
-  .card-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 0.05em;
-  }
-
-  .card-main {
-    min-width: 0;
-  }
-
-  .card-meta-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 6px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .card-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    padding: 2px 7px;
-    border: 1px solid var(--border-strong);
-    color: var(--text-muted);
-  }
-
-  .card-tag.anime { color: var(--accent); border-color: var(--accent); }
-  .card-tag.live { color: var(--tier-b); border-color: var(--tier-b); }
-  .card-tag.airing { color: var(--tier-a); border-color: var(--tier-a); }
-
-  .tier-chip {
-    font-family: 'Anton', sans-serif;
-    font-size: 14px;
-    width: 22px;
-    height: 22px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    border: 1px solid currentColor;
-    flex-shrink: 0;
-    letter-spacing: 0;
-  }
-  .tier-chip[data-tier="S"] { color: var(--tier-s); }
-  .tier-chip[data-tier="A"] { color: var(--tier-a); }
-  .tier-chip[data-tier="B"] { color: var(--tier-b); }
-  .tier-chip[data-tier="C"] { color: var(--tier-c); }
-  .tier-chip[data-tier="D"] { color: var(--tier-d); }
-
-  .card-title {
-    font-family: 'Anton', sans-serif;
-    font-size: 22px;
-    line-height: 1.05;
-    letter-spacing: 0.005em;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  .card-take {
-    font-size: 13px;
-    color: var(--text-muted);
-    line-height: 1.5;
-    font-style: italic;
-  }
-
-  .card-pairs {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px dashed var(--border);
-    display: flex;
-    align-items: flex-start;
     gap: 10px;
-    flex-wrap: wrap;
+    margin: 24px 0 10px;
   }
+  .section-head .big { font-family: var(--px); font-size: 22px; line-height: 1; }
+  .section-head .rule { flex: 1; height: 4px; background: var(--panel); }
+  .section-head .count { font-family: var(--px); font-size: 11px; color: var(--muted); }
 
-  .pairs-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    flex-shrink: 0;
-    padding-top: 1px;
+  .tier-S .big { color: var(--yellow); }
+  .tier-A .big { color: var(--orange); }
+  .tier-B .big { color: var(--cyan); }
+  .tier-C .big { color: var(--muted); }
+  .tier-D .big { color: var(--panel-hi); }
+
+  /* === SHOW CARDS === */
+  .card {
+    background: var(--panel);
+    box-shadow: inset 0 -4px 0 var(--panel-edge);
+    padding: 14px 14px 16px;
+    margin-bottom: 8px;
   }
+  .card.hidden { display: none; }
+  .card.completed .card-title { text-decoration: line-through; text-decoration-color: var(--green); text-decoration-thickness: 2px; color: var(--muted); }
+  .card.completed .card-take { display: none; }
+  .card.rewatched .card-title { color: var(--blue); }
 
-  .pairs-list {
-    font-size: 12px;
-    color: var(--text-dim);
-    line-height: 1.5;
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .tag {
+    font-family: var(--px);
+    font-size: 11px;
+    padding: 2px 6px;
+    background: var(--bg);
+    color: var(--muted);
   }
+  .tag.anime { color: var(--orange); }
+  .tag.live { color: var(--cyan); }
+  .tag.airing { background: var(--yellow); color: var(--bg); }
 
-  .pairs-list .sep {
-    color: var(--border-strong);
-    margin: 0 6px;
-  }
+  .card-title { font-size: 19px; font-weight: 600; line-height: 1.2; margin-bottom: 4px; }
+  .card-take { font-size: 14px; color: var(--muted); line-height: 1.45; }
+  .card-pairs { font-size: 13px; color: var(--panel-hi); margin-top: 8px; }
+  .card-pairs b { font-family: var(--px); font-weight: 400; font-size: 11px; color: var(--muted); margin-right: 4px; }
 
-  .card-stats {
+  .card-foot {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
-    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 12px;
   }
+  .card-len { font-family: var(--px); font-size: 12px; color: var(--muted); }
+  .card-len span { color: var(--text); }
 
-  .card-eps {
-    font-family: 'Anton', sans-serif;
-    font-size: 18px;
-    color: var(--text);
-    line-height: 1;
-  }
-
-  .card-hours {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 0.1em;
-  }
-
-  /* === STATUS SEGMENTED CONTROL === */
-  .status-segmented {
-    display: flex;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-
-  .status-pill {
-    width: 36px;
-    height: 36px;
-    border: 1.5px solid var(--border-strong);
-    background: transparent;
-    cursor: pointer;
-    transition: all 0.15s ease;
+  .status { display: flex; gap: 6px; }
+  .st {
+    width: 44px;
+    height: 44px;
+    background: var(--bg);
+    color: var(--panel-hi);
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: inset 0 -3px 0 #11121D;
+  }
+  .st svg { width: 18px; height: 18px; }
+  .st.active[data-state="not-started"] { background: var(--panel-hi); color: var(--text); box-shadow: inset 0 -3px 0 #3E4E62; }
+  .st.active[data-state="watching"]    { background: var(--cyan); color: var(--bg); box-shadow: inset 0 -3px 0 #3FB8C2; }
+  .st.active[data-state="completed"]   { background: var(--green); color: var(--bg); box-shadow: inset 0 -3px 0 #6FB83F; }
+  .st.active[data-state="rewatched"]   { background: var(--blue); color: var(--bg); box-shadow: inset 0 -3px 0 #2A72B0; }
+
+  .empty-filter { font-family: var(--px); font-size: 12px; color: var(--muted); text-align: center; padding: 32px 0; display: none; }
+
+  /* === ADD FORM === */
+  .add-form { display: flex; gap: 8px; margin-bottom: 16px; }
+  .add-input {
+    flex: 1;
+    min-width: 0;
+    background: var(--bg);
+    border: 3px solid var(--panel);
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 0;
+    -webkit-appearance: none;
+  }
+  .add-input:focus { outline: none; border-color: var(--yellow); }
+  .add-input::placeholder { color: var(--panel-hi); }
+  .add-btn {
+    font-family: var(--px);
+    font-size: 13px;
+    background: var(--yellow);
+    color: var(--bg);
+    padding: 0 16px;
+    min-height: 50px;
+    box-shadow: inset 0 -4px 0 #C99A48;
     flex-shrink: 0;
-    color: var(--text-dim);
-    padding: 0;
   }
+  .add-btn:active, .chip:active, .st:active, .tab:active { transform: translateY(2px); }
 
-  .status-pill:hover {
-    border-color: var(--text-muted);
-    color: var(--text);
-  }
-
-  .status-pill svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  /* Active states */
-  .status-pill.active[data-state="not-started"] {
-    border-color: var(--text-muted);
-    background: rgba(138, 128, 116, 0.15);
-    color: var(--text);
-  }
-
-  .status-pill.active[data-state="watching"] {
-    border-color: var(--watching);
-    background: rgba(255, 107, 26, 0.15);
-    color: var(--watching);
-  }
-
-  .status-pill.active[data-state="completed"] {
-    border-color: var(--completed);
-    background: var(--completed);
-    color: var(--bg);
-  }
-
-  .status-pill.active[data-state="rewatched"] {
-    border-color: var(--rewatched);
-    background: var(--rewatched);
-    color: var(--bg);
-  }
-
-  /* === FOOTER === */
-  .footer {
-    margin-top: 64px;
-    padding-top: 32px;
-    border-top: 1px solid var(--border);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    color: var(--text-dim);
-    text-transform: uppercase;
+  /* === LIST ITEMS (to-do + notes) === */
+  .list-label { font-family: var(--px); font-size: 11px; color: var(--muted); margin: 20px 0 8px; display: flex; justify-content: space-between; align-items: center; }
+  .item {
     display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .reset-btn {
-    font-family: inherit;
-    font-size: inherit;
-    letter-spacing: inherit;
-    background: transparent;
-    border: none;
-    color: var(--tier-d);
-    cursor: pointer;
-    text-transform: uppercase;
-    text-decoration: underline;
-  }
-
-  .reset-btn:hover { color: var(--accent-hot); }
-
-  .reset-btn.export, .reset-btn.import {
-    color: var(--text-muted);
-  }
-  .reset-btn.export:hover, .reset-btn.import:hover {
-    color: var(--accent);
-  }
-
-  .footer-actions {
-    display: flex;
-    gap: 18px;
-    flex-wrap: wrap;
-  }
-
-  /* === RESPONSIVE === */
-  @media (max-width: 720px) {
-    .container { padding: 32px 16px 64px; }
-    .card { grid-template-columns: 1fr auto; padding: 16px; gap: 16px; }
-    .card-num { display: none; }
-    .card-stats { gap: 6px; }
-    .status-segmented { gap: 3px; }
-    .status-pill { width: 30px; height: 30px; }
-    .status-pill svg { width: 15px; height: 15px; }
-    .rank-badge { font-size: 60px; }
-    .rank-name { font-size: 24px; }
-  }
-
-  @media (min-width: 900px) {
-    .cards { grid-template-columns: 1fr 1fr; }
-  }
-
-  .card.hidden { display: none; }
-
-  /* === ADD/QUICK NOTE BUTTON === */
-  .add-show-btn {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    background: var(--accent);
-    border: 1px solid var(--accent);
-    color: var(--bg);
-    padding: 8px 14px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    font-weight: 600;
-    margin-left: auto;
-  }
-
-  .add-show-btn:hover {
-    background: var(--accent-hot);
-    border-color: var(--accent-hot);
-  }
-
-  .filters {
     align-items: center;
-  }
-
-  /* === REMINDERS SECTION === */
-  .reminders-section {
-    margin-bottom: 56px;
-    padding: 28px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--accent);
-  }
-
-  .reminders-header {
-    display: flex;
-    align-items: baseline;
-    gap: 14px;
-    flex-wrap: wrap;
+    gap: 10px;
+    background: var(--panel);
+    box-shadow: inset 0 -4px 0 var(--panel-edge);
+    padding: 8px 8px 12px;
     margin-bottom: 6px;
   }
-
-  .reminders-eyebrow {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.3em;
-    color: var(--accent);
-    text-transform: uppercase;
-  }
-
-  .reminders-name {
-    font-family: 'Anton', sans-serif;
-    font-size: 28px;
-    text-transform: uppercase;
-    letter-spacing: 0.01em;
-    line-height: 1;
-  }
-
-  .reminders-count {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    margin-left: auto;
-  }
-
-  .reminders-desc {
-    font-size: 13px;
-    color: var(--text-muted);
-    line-height: 1.5;
-    margin-bottom: 18px;
-  }
-
-  .reminder-form {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .reminder-input {
-    flex: 1;
-    background: var(--bg);
-    border: 1px solid var(--border-strong);
-    color: var(--text);
-    padding: 12px 14px;
-    font-family: 'Manrope', sans-serif;
-    font-size: 14px;
-    transition: border-color 0.15s ease;
-    min-width: 0;
-  }
-
-  .reminder-input:focus {
-    outline: none;
-    border-color: var(--accent);
-  }
-
-  .reminder-input::placeholder {
-    color: var(--text-dim);
-    font-style: italic;
-  }
-
-  .reminder-add-btn {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    background: var(--accent);
-    border: 1px solid var(--accent);
-    color: var(--bg);
-    padding: 0 18px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    font-weight: 600;
+  .check {
+    width: 44px;
+    height: 44px;
     flex-shrink: 0;
-  }
-
-  .reminder-add-btn:hover {
-    background: var(--accent-hot);
-    border-color: var(--accent-hot);
-  }
-
-  .reminders-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-  }
-
-  .reminders-list:empty {
-    display: none;
-  }
-
-  .reminder-item {
-    background: var(--bg-elevated);
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    transition: background 0.15s ease;
-  }
-
-  .reminder-item:hover {
     background: var(--bg);
-  }
-
-  .reminder-text {
-    flex: 1;
-    font-size: 14px;
-    color: var(--text);
-    line-height: 1.4;
-    min-width: 0;
-    word-wrap: break-word;
-  }
-
-  .reminder-date {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    color: var(--text-dim);
-    flex-shrink: 0;
-    text-transform: uppercase;
-  }
-
-  .reminder-clear {
-    width: 28px;
-    height: 28px;
-    border: 1px solid var(--border-strong);
-    background: transparent;
-    color: var(--text-dim);
-    cursor: pointer;
-    transition: all 0.15s ease;
+    color: var(--green);
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: inset 0 -3px 0 #11121D;
+  }
+  .check svg { width: 20px; height: 20px; visibility: hidden; }
+  .item.done .check { background: var(--green); color: var(--bg); box-shadow: inset 0 -3px 0 #6FB83F; }
+  .item.done .check svg { visibility: visible; }
+  .item-text { flex: 1; min-width: 0; font-size: 16px; overflow-wrap: anywhere; }
+  .item.done .item-text { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--green); }
+  .item-date { font-family: var(--px); font-size: 11px; color: var(--muted); flex-shrink: 0; }
+  .del {
+    width: 44px;
+    height: 44px;
     flex-shrink: 0;
+    color: var(--panel-hi);
+    font-family: var(--px);
     font-size: 16px;
-    line-height: 1;
-    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .del:active { color: var(--red); }
+  .note-item { padding-left: 14px; }
+
+  .text-btn {
+    font-family: var(--px);
+    font-size: 11px;
+    color: var(--muted);
+    padding: 8px 0;
+    min-height: 36px;
+  }
+  .text-btn.danger { color: var(--red); }
+
+  .empty {
+    font-family: var(--px);
+    font-size: 12px;
+    color: var(--panel-hi);
+    text-align: center;
+    padding: 32px 0;
   }
 
-  .reminder-clear:hover {
-    border-color: var(--tier-d);
-    color: var(--tier-d);
+  /* === DATA FOOTER === */
+  .data {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 4px solid var(--panel);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+    align-items: center;
   }
+  .data .saved { font-family: var(--px); font-size: 11px; color: var(--panel-hi); width: 100%; }
 
-  @media (max-width: 540px) {
-    .reminders-section { padding: 20px 18px; }
-    .reminders-name { font-size: 22px; }
-    .reminders-count { width: 100%; margin-left: 0; }
-    .reminder-date { display: none; }
+  /* === TABS === */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .tabbar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    background: var(--bg);
+    border-top: 4px solid var(--panel);
+    padding: 8px 12px calc(env(safe-area-inset-bottom) + 8px);
+    z-index: 10;
   }
+  .tabbar-inner { max-width: 640px; margin: 0 auto; display: flex; gap: 8px; }
+  .tab {
+    flex: 1;
+    font-family: var(--px);
+    font-size: 13px;
+    min-height: 48px;
+    background: var(--panel);
+    color: var(--muted);
+    box-shadow: inset 0 -4px 0 var(--panel-edge);
+  }
+  .tab.active { background: var(--orange); color: var(--bg); box-shadow: inset 0 -4px 0 #B5513A; }
+  .tab .n { font-size: 11px; opacity: .8; margin-left: 4px; }
 </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
 
-  <header class="header">
-    <div class="eyebrow">— Vol. 01 / Personal Watchlist</div>
-    <h1 class="title">The<br>Back<span class="accent">log</span>.</h1>
-
-    <div class="stats">
-      <div class="stat">
-        <span class="stat-label">Total</span>
-        <span class="stat-value" id="stat-total">32</span>
-        <span class="stat-suffix">titles</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Completed</span>
-        <span class="stat-value" id="stat-completed">0</span>
-        <span class="stat-suffix">finished</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Watching</span>
-        <span class="stat-value" id="stat-watching">0</span>
-        <span class="stat-suffix">in progress</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Hours Left</span>
-        <span class="stat-value" id="stat-hours">1479</span>
-        <span class="stat-suffix">remaining</span>
-      </div>
-    </div>
-
-  </header>
-
-  <div class="filters" id="filters">
-    <button class="filter-btn active" data-filter="all">All / 32</button>
-    <button class="filter-btn" data-filter="anime">Anime</button>
-    <button class="filter-btn" data-filter="live">Live-Action</button>
-    <button class="filter-btn" data-filter="not-started">Not Started</button>
-    <button class="filter-btn" data-filter="watching">Watching</button>
-    <button class="filter-btn" data-filter="completed">Completed</button>
-    <button class="filter-btn" data-filter="rewatched">Rewatched</button>
-    <button class="add-show-btn" onclick="document.getElementById('reminder-input').focus()">+ Quick Note</button>
+  <div class="top">
+    <div class="logo">BACK<span>LOG</span></div>
+    <div class="tab-label" id="tab-label">SHOWS</div>
   </div>
 
-  <!-- HEADS UP / REMINDERS -->
-  <section class="reminders-section" id="reminders-section">
-    <div class="reminders-header">
-      <span class="reminders-eyebrow">— Heads Up</span>
-      <span class="reminders-name">Notes to Self</span>
-      <span class="reminders-count" id="reminders-count">0 NOTES</span>
+  <!-- ===== SHOWS ===== -->
+  <section class="panel" id="panel-shows">
+    <div class="stats">
+      <div class="stat"><span class="stat-label">Total</span><span class="stat-value" id="stat-total">0</span></div>
+      <div class="stat"><span class="stat-label">Watching</span><span class="stat-value c" id="stat-watching">0</span></div>
+      <div class="stat"><span class="stat-label">Done</span><span class="stat-value g" id="stat-completed">0</span></div>
+      <div class="stat"><span class="stat-label">Hours left</span><span class="stat-value y" id="stat-hours">0</span></div>
     </div>
-    <p class="reminders-desc">Heard about a show? Jot it down here so you don't forget. Add it to the canonical list later.</p>
 
-    <form class="reminder-form" id="reminder-form" onsubmit="return addReminder(event)">
-      <input
-        type="text"
-        id="reminder-input"
-        class="reminder-input"
-        placeholder="e.g. The Bear, Scavengers Reign, that show with the chef..."
-        maxlength="200"
-        autocomplete="off"
-      />
-      <button type="submit" class="reminder-add-btn">Save</button>
-    </form>
+    <div class="chips" id="filters">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="watching">Watching</button>
+      <button class="chip" data-filter="not-started">Not started</button>
+      <button class="chip" data-filter="completed">Done</button>
+      <button class="chip" data-filter="rewatched">Rewatched</button>
+      <button class="chip" data-filter="anime">Anime</button>
+      <button class="chip" data-filter="live">Live-action</button>
+    </div>
 
-    <div class="reminders-list" id="reminders-list"></div>
+    <div id="tiers"></div>
+    <div class="empty-filter" id="empty-filter">Nothing here</div>
   </section>
 
-  <main id="ranks"></main>
+  <!-- ===== TO-DO ===== -->
+  <section class="panel" id="panel-todo">
+    <form class="add-form" onsubmit="return addTodo(event)">
+      <input class="add-input" id="todo-input" type="text" placeholder="Add a to-do" maxlength="200" autocomplete="off">
+      <button class="add-btn" type="submit">ADD</button>
+    </form>
+    <div id="todo-open"></div>
+    <div id="todo-done-wrap"></div>
+  </section>
 
-  <footer class="footer">
-    <span>Last synced: <span id="sync-time">—</span></span>
-    <span class="footer-actions">
-      <button class="reset-btn export" id="export-btn" onclick="exportState()">Export state</button>
-      <button class="reset-btn import" onclick="importState()">Import state</button>
-      <button class="reset-btn" onclick="resetAll()">Reset all progress</button>
-    </span>
-  </footer>
+  <!-- ===== NOTES ===== -->
+  <section class="panel" id="panel-notes">
+    <form class="add-form" onsubmit="return addNote(event)">
+      <input class="add-input" id="note-input" type="text" placeholder="Show to check out, idea" maxlength="200" autocomplete="off">
+      <button class="add-btn" type="submit">SAVE</button>
+    </form>
+    <div id="notes-list"></div>
+  </section>
+
+  <div class="data">
+    <span class="saved">Last saved: <span id="sync-time">—</span></span>
+    <button class="text-btn" onclick="exportState()">Export</button>
+    <button class="text-btn" onclick="importState()">Import</button>
+    <button class="text-btn danger" onclick="resetAll()">Reset all</button>
+  </div>
 
 </div>
+
+<nav class="tabbar">
+  <div class="tabbar-inner">
+    <button class="tab" data-tab="shows">SHOWS</button>
+    <button class="tab" data-tab="todo">TO-DO<span class="n" id="tab-todo-n"></span></button>
+    <button class="tab" data-tab="notes">NOTES<span class="n" id="tab-notes-n"></span></button>
+  </div>
+</nav>
 
 <script>
   const SHOWS = [
@@ -994,160 +483,290 @@
       pairs: ['Fairy Tail', 'Edens Zero', 'Black Clover'] },
   ];
 
-  const TIER_ORDER = { S: 0, A: 1, B: 2, C: 3, D: 4 };
+  const TIERS = ['S', 'A', 'B', 'C', 'D'];
+  const STATUSES = ['not-started', 'watching', 'completed', 'rewatched'];
 
-  // ===== REMINDERS =====
-  let reminders = [];
-  const REMINDERS_KEY = 'watchlist:reminders';
+  // Storage keys. The first two are from the original Backlog — do not rename or existing data is lost.
+  const STATE_KEY = 'watchlist:state';
+  const NOTES_KEY = 'watchlist:reminders';
+  const TODOS_KEY = 'backlog:todos';
+  const TAB_KEY = 'backlog:tab';
 
-  function loadReminders() {
+  let state = {};
+  let notes = [];
+  let todos = [];
+  let currentFilter = 'all';
+
+  // ===== STORAGE =====
+  function load(key, fallback, check) {
     try {
-      const stored = localStorage.getItem(REMINDERS_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) reminders = parsed;
-      }
+      const raw = localStorage.getItem(key);
+      if (!raw) return fallback;
+      const parsed = JSON.parse(raw);
+      return check(parsed) ? parsed : fallback;
     } catch (e) {
-      console.warn('Could not load reminders:', e.message);
+      console.warn('Could not load ' + key + ':', e.message);
+      return fallback;
     }
   }
-
-  function saveReminders() {
+  function save(key, value) {
     try {
-      localStorage.setItem(REMINDERS_KEY, JSON.stringify(reminders));
+      localStorage.setItem(key, JSON.stringify(value));
+      updateSyncTime();
     } catch (e) {
-      console.warn('Could not save reminders:', e.message);
+      console.warn('Could not save ' + key + ':', e.message);
     }
   }
+  const isObj = v => v && typeof v === 'object' && !Array.isArray(v);
+  const isArr = v => Array.isArray(v);
 
-  function formatReminderDate(timestamp) {
-    const d = new Date(timestamp);
-    const now = new Date();
-    const sameYear = d.getFullYear() === now.getFullYear();
-    const opts = sameYear
-      ? { month: 'short', day: 'numeric' }
-      : { month: 'short', day: 'numeric', year: '2-digit' };
-    return d.toLocaleDateString([], opts);
+  function updateSyncTime() {
+    const el = document.getElementById('sync-time');
+    if (el) el.textContent = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   }
 
-  function escapeHtmlText(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+  function uid(prefix) {
+    return prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
   }
 
-  function renderReminders() {
-    const list = document.getElementById('reminders-list');
-    const count = document.getElementById('reminders-count');
-    if (!list || !count) return;
+  function esc(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
 
-    count.textContent = reminders.length === 1 ? '1 NOTE' : `${reminders.length} NOTES`;
+  function shortDate(ts) {
+    const d = new Date(ts);
+    const sameYear = d.getFullYear() === new Date().getFullYear();
+    return d.toLocaleDateString([], sameYear ? { month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric', year: '2-digit' });
+  }
 
-    if (reminders.length === 0) {
-      list.innerHTML = '';
-      return;
+  // ===== TABS =====
+  function setTab(name) {
+    if (!['shows', 'todo', 'notes'].includes(name)) name = 'shows';
+    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    document.getElementById('tab-label').textContent = { shows: 'SHOWS', todo: 'TO-DO', notes: 'NOTES' }[name];
+    try { localStorage.setItem(TAB_KEY, name); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+  document.querySelector('.tabbar').addEventListener('click', e => {
+    const t = e.target.closest('.tab');
+    if (t) setTab(t.dataset.tab);
+  });
+
+  function updateTabCounts() {
+    const open = todos.filter(t => !t.done).length;
+    document.getElementById('tab-todo-n').textContent = open ? open : '';
+    document.getElementById('tab-notes-n').textContent = notes.length ? notes.length : '';
+  }
+
+  // ===== SHOWS =====
+  const getStatus = id => STATUSES.includes(state[id]) ? state[id] : 'not-started';
+
+  const ICONS = {
+    'not-started': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" shape-rendering="crispEdges"><rect x="5" y="5" width="14" height="14"/></svg>',
+    'watching':    '<svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M7 4h3v2h3v2h3v2h3v4h-3v2h-3v2h-3v2H7z"/></svg>',
+    'completed':   '<svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M19 6h3v3h-3v3h-3v3h-3v3h-3v3H7v-3H4v-3H1v-3h3v3h3v3h3v-3h3v-3h3V9h3z"/></svg>',
+    'rewatched':   '<svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M6 4h12v3h3v6h-3V7H6v3h3v3H3V7h3zM18 20H6v-3H3v-6h3v6h12v-3h-3v-3h6v6h-3z"/></svg>'
+  };
+  const STATUS_LABEL = { 'not-started': 'Not started', 'watching': 'Watching', 'completed': 'Done', 'rewatched': 'Rewatched' };
+
+  function renderShows() {
+    const root = document.getElementById('tiers');
+    root.innerHTML = TIERS.map(tier => {
+      const shows = SHOWS.filter(s => s.tier === tier);
+      if (!shows.length) return '';
+      return `
+        <div class="tier-block" data-tier="${tier}">
+          <div class="section-head tier-${tier}">
+            <span class="big">${tier}</span>
+            <span class="rule"></span>
+            <span class="count" data-count></span>
+          </div>
+          ${shows.map(renderCard).join('')}
+        </div>`;
+    }).join('');
+  }
+
+  function renderCard(s) {
+    const status = getStatus(s.id);
+    const pairs = s.pairs && s.pairs.length
+      ? `<div class="card-pairs"><b>Pairs with</b>${s.pairs.map(esc).join(' · ')}</div>` : '';
+    return `
+      <div class="card ${status}" data-id="${s.id}" data-type="${s.type}" data-status="${status}">
+        <div class="tags">
+          <span class="tag ${s.type}">${s.type === 'anime' ? 'Anime' : 'Live-action'}</span>
+          ${s.airing ? '<span class="tag airing">Airing</span>' : ''}
+        </div>
+        <div class="card-title">${esc(s.title)}</div>
+        <div class="card-take">${esc(s.take)}</div>
+        ${pairs}
+        <div class="card-foot">
+          <span class="card-len"><span>${s.episodes}</span> EP · ~${s.hours}H</span>
+          <div class="status" role="group" aria-label="Watch status">
+            ${STATUSES.map(st => `
+              <button class="st ${status === st ? 'active' : ''}" data-state="${st}" aria-label="${STATUS_LABEL[st]}" title="${STATUS_LABEL[st]}">${ICONS[st]}</button>
+            `).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  document.getElementById('tiers').addEventListener('click', e => {
+    const btn = e.target.closest('.st');
+    if (!btn) return;
+    e.stopPropagation();
+    const card = btn.closest('.card');
+    setStatus(card.dataset.id, btn.dataset.state);
+  });
+
+  function setStatus(id, status) {
+    if (!STATUSES.includes(status)) return;
+    state[id] = status;
+    save(STATE_KEY, state);
+    const card = document.querySelector(`.card[data-id="${id}"]`);
+    if (card) {
+      card.className = 'card ' + status;
+      card.dataset.status = status;
+      card.querySelectorAll('.st').forEach(b => b.classList.toggle('active', b.dataset.state === status));
     }
-
-    // Newest first
-    const sorted = [...reminders].sort((a, b) => b.created - a.created);
-    list.innerHTML = sorted.map(r => `
-      <div class="reminder-item" data-id="${r.id}">
-        <span class="reminder-text">${escapeHtmlText(r.text)}</span>
-        <span class="reminder-date">${formatReminderDate(r.created)}</span>
-        <button class="reminder-clear" onclick="clearReminder('${r.id}')" aria-label="Remove note" title="Remove">×</button>
-      </div>
-    `).join('');
+    updateStats();
+    applyFilter();
   }
 
-  function addReminder(event) {
-    event.preventDefault();
-    const input = document.getElementById('reminder-input');
+  function updateStats() {
+    const isDone = s => ['completed', 'rewatched'].includes(getStatus(s.id));
+    document.getElementById('stat-total').textContent = SHOWS.length;
+    document.getElementById('stat-watching').textContent = SHOWS.filter(s => getStatus(s.id) === 'watching').length;
+    document.getElementById('stat-completed').textContent = SHOWS.filter(isDone).length;
+    document.getElementById('stat-hours').textContent = SHOWS.reduce((a, s) => isDone(s) ? a : a + s.hours, 0);
+  }
+
+  function applyFilter() {
+    let anyVisible = false;
+    document.querySelectorAll('.tier-block').forEach(block => {
+      let n = 0;
+      block.querySelectorAll('.card').forEach(card => {
+        let show;
+        if (currentFilter === 'all') show = true;
+        else if (currentFilter === 'anime' || currentFilter === 'live') show = card.dataset.type === currentFilter;
+        else show = card.dataset.status === currentFilter;
+        card.classList.toggle('hidden', !show);
+        if (show) n++;
+      });
+      block.style.display = n ? '' : 'none';
+      block.querySelector('[data-count]').textContent = n + (n === 1 ? ' TITLE' : ' TITLES');
+      if (n) anyVisible = true;
+    });
+    document.getElementById('empty-filter').style.display = anyVisible ? 'none' : 'block';
+  }
+
+  document.getElementById('filters').addEventListener('click', e => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
+    currentFilter = chip.dataset.filter;
+    applyFilter();
+  });
+
+  // ===== TO-DO =====
+  function renderTodos() {
+    const open = todos.filter(t => !t.done).sort((a, b) => b.created - a.created);
+    const done = todos.filter(t => t.done).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
+
+    document.getElementById('todo-open').innerHTML = open.length
+      ? open.map(todoItem).join('')
+      : '<div class="empty">All clear</div>';
+
+    document.getElementById('todo-done-wrap').innerHTML = done.length ? `
+      <div class="list-label"><span>Done · ${done.length}</span><button class="text-btn" onclick="clearDone()">Clear done</button></div>
+      ${done.map(todoItem).join('')}` : '';
+
+    updateTabCounts();
+  }
+
+  function todoItem(t) {
+    return `
+      <div class="item ${t.done ? 'done' : ''}">
+        <button class="check" onclick="toggleTodo('${t.id}')" aria-label="${t.done ? 'Mark not done' : 'Mark done'}">${ICONS.completed}</button>
+        <span class="item-text">${esc(t.text)}</span>
+        <button class="del" onclick="deleteTodo('${t.id}')" aria-label="Delete">X</button>
+      </div>`;
+  }
+
+  function addTodo(e) {
+    e.preventDefault();
+    const input = document.getElementById('todo-input');
     const text = input.value.trim();
     if (!text) return false;
-
-    reminders.push({
-      id: 'rem-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
-      text: text,
-      created: Date.now()
-    });
-
-    saveReminders();
-    renderReminders();
+    todos.push({ id: uid('todo'), text, done: false, created: Date.now() });
+    save(TODOS_KEY, todos);
     input.value = '';
-    input.blur();
+    renderTodos();
     return false;
   }
 
-  function clearReminder(id) {
-    reminders = reminders.filter(r => r.id !== id);
-    saveReminders();
-    renderReminders();
+  function toggleTodo(id) {
+    const t = todos.find(x => x.id === id);
+    if (!t) return;
+    t.done = !t.done;
+    t.doneAt = t.done ? Date.now() : null;
+    save(TODOS_KEY, todos);
+    renderTodos();
   }
 
-  const RANKS = [
-    {
-      key: 's',
-      label: 'S',
-      name: 'S-Rank',
-      desc: 'The masterpieces. Universal critical acclaim, hold up on rewatch, will outlive their medium.',
-      filter: s => s.tier === 'S'
-    },
-    {
-      key: 'rest',
-      label: '02',
-      name: 'The Rest',
-      desc: 'Everything else, sorted by tier within each subgroup. Tier badge on each card tells you where it lands.',
-      filter: s => s.tier !== 'S'
-    },
-  ];
-
-  const STATE_KEY = 'watchlist:state';
-  let state = {};
-  let currentFilter = 'all';
-
-  // ===== STORAGE (localStorage — works everywhere outside of Claude artifacts) =====
-  function loadState() {
-    try {
-      const stored = localStorage.getItem(STATE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed && typeof parsed === 'object') state = parsed;
-      }
-    } catch (e) {
-      console.warn('Could not load state:', e.message);
-    }
+  function deleteTodo(id) {
+    todos = todos.filter(t => t.id !== id);
+    save(TODOS_KEY, todos);
+    renderTodos();
   }
 
-  function saveState() {
-    updateSyncTime();
-    try {
-      localStorage.setItem(STATE_KEY, JSON.stringify(state));
-    } catch (e) {
-      console.warn('Could not save state:', e.message);
-    }
+  function clearDone() {
+    todos = todos.filter(t => !t.done);
+    save(TODOS_KEY, todos);
+    renderTodos();
   }
 
-  function updateSyncTime() {
-    const now = new Date();
-    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const el = document.getElementById('sync-time');
-    if (el) el.textContent = time;
+  // ===== NOTES =====
+  function renderNotes() {
+    const sorted = [...notes].sort((a, b) => b.created - a.created);
+    document.getElementById('notes-list').innerHTML = sorted.length
+      ? sorted.map(n => `
+          <div class="item note-item">
+            <span class="item-text">${esc(n.text)}</span>
+            <span class="item-date">${shortDate(n.created)}</span>
+            <button class="del" onclick="deleteNote('${n.id}')" aria-label="Delete">X</button>
+          </div>`).join('')
+      : '<div class="empty">No notes</div>';
+    updateTabCounts();
   }
 
+  function addNote(e) {
+    e.preventDefault();
+    const input = document.getElementById('note-input');
+    const text = input.value.trim();
+    if (!text) return false;
+    notes.push({ id: uid('rem'), text, created: Date.now() });
+    save(NOTES_KEY, notes);
+    input.value = '';
+    renderNotes();
+    return false;
+  }
+
+  function deleteNote(id) {
+    notes = notes.filter(n => n.id !== id);
+    save(NOTES_KEY, notes);
+    renderNotes();
+  }
+
+  // ===== EXPORT / IMPORT / RESET =====
   function exportState() {
-    const data = JSON.stringify({
-      version: 2,
-      state: state,
-      reminders: reminders
-    }, null, 2);
+    const data = JSON.stringify({ version: 3, state, reminders: notes, todos }, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'backlog-state.json';
+    a.download = 'backlog-' + new Date().toISOString().slice(0, 10) + '.json';
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -1156,239 +775,54 @@
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'application/json';
-    input.onchange = async (e) => {
+    input.onchange = async e => {
       const file = e.target.files[0];
       if (!file) return;
       try {
-        const text = await file.text();
-        const parsed = JSON.parse(text);
-        if (!parsed || typeof parsed !== 'object') throw new Error('Invalid file format');
-
-        // v2 format: { version, state, reminders }
-        if (parsed.version === 2) {
-          state = parsed.state || {};
-          reminders = Array.isArray(parsed.reminders) ? parsed.reminders : [];
+        const parsed = JSON.parse(await file.text());
+        if (!isObj(parsed)) throw new Error('Not a Backlog export');
+        if (parsed.version === 2 || parsed.version === 3) {
+          state = isObj(parsed.state) ? parsed.state : {};
+          notes = isArr(parsed.reminders) ? parsed.reminders : [];
+          if (parsed.version === 3) todos = isArr(parsed.todos) ? parsed.todos : [];
         } else {
-          // v1 format: just the state object
-          state = parsed;
+          state = parsed; // v1: bare state object
         }
-
-        saveState();
-        saveReminders();
-        renderRanks();
-        renderReminders();
-        updateStats();
-        applyFilter();
+        save(STATE_KEY, state);
+        save(NOTES_KEY, notes);
+        save(TODOS_KEY, todos);
+        renderAll();
       } catch (err) {
-        alert('Failed to import: ' + err.message);
+        alert('Import failed: ' + err.message);
       }
     };
     input.click();
   }
 
-  // ===== STATE =====
-  function getStatus(id) {
-    return state[id] || 'not-started';
-  }
-
-  function setStatus(id, newStatus) {
-    if (!['not-started', 'watching', 'completed', 'rewatched'].includes(newStatus)) return;
-    state[id] = newStatus;
-    saveState();
-    updateCard(id);
-    updateStats();
-    applyFilter();
-  }
-
   function resetAll() {
-    if (!confirm('Reset everything? This wipes all watch progress AND clears all your saved notes.')) return;
-    state = {};
-    reminders = [];
-    try { localStorage.removeItem(STATE_KEY); } catch (e) {}
-    try { localStorage.removeItem(REMINDERS_KEY); } catch (e) {}
-    renderRanks();
-    renderReminders();
-    updateStats();
-    applyFilter();
+    if (!confirm('Wipe all show progress, to-dos and notes? Export first if you want a backup.')) return;
+    state = {}; notes = []; todos = [];
+    [STATE_KEY, NOTES_KEY, TODOS_KEY].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+    renderAll();
   }
-
-  // ===== RENDER =====
-  function renderRanks() {
-    const root = document.getElementById('ranks');
-    let globalIdx = 0;
-    root.innerHTML = RANKS.map(r => {
-      const shows = SHOWS.filter(r.filter);
-      const anime = shows.filter(s => s.type === 'anime')
-        .sort((a, b) => TIER_ORDER[a.tier] - TIER_ORDER[b.tier]);
-      const live = shows.filter(s => s.type === 'live')
-        .sort((a, b) => TIER_ORDER[a.tier] - TIER_ORDER[b.tier]);
-
-      const animeHtml = anime.length ? `
-        <div class="type-group anime" data-type="anime">
-          <div class="type-header">
-            <span class="type-label">Anime</span>
-            <span class="type-divider"></span>
-            <span class="type-count">${anime.length} TITLES</span>
-          </div>
-          <div class="cards">
-            ${anime.map(s => renderCard(s, ++globalIdx)).join('')}
-          </div>
-        </div>
-      ` : '';
-
-      const liveHtml = live.length ? `
-        <div class="type-group live" data-type="live">
-          <div class="type-header">
-            <span class="type-label">Live-Action</span>
-            <span class="type-divider"></span>
-            <span class="type-count">${live.length} TITLES</span>
-          </div>
-          <div class="cards">
-            ${live.map(s => renderCard(s, ++globalIdx)).join('')}
-          </div>
-        </div>
-      ` : '';
-
-      return `
-        <section class="rank-section rank-${r.key}">
-          <div class="rank-header">
-            <span class="rank-badge">${r.label}</span>
-            <div class="rank-meta">
-              <span class="rank-name">${r.name}</span>
-              <span class="rank-count">${shows.length} TITLES</span>
-            </div>
-          </div>
-          <p class="rank-desc">${r.desc}</p>
-          ${animeHtml}
-          ${liveHtml}
-        </section>
-      `;
-    }).join('');
-
-    document.querySelectorAll('.card').forEach(card => {
-      card.querySelectorAll('.status-pill').forEach(pill => {
-        pill.addEventListener('click', e => {
-          e.stopPropagation();
-          setStatus(card.dataset.id, pill.dataset.state);
-        });
-      });
-    });
-  }
-
-  function escapeHtml(str) {
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
-
-  function renderCard(s, idx) {
-    const status = getStatus(s.id);
-    const num = String(idx).padStart(2, '0');
-    const pairsHtml = s.pairs && s.pairs.length ? `
-      <div class="card-pairs">
-        <span class="pairs-label">PAIRS WITH</span>
-        <span class="pairs-list">${s.pairs.map(escapeHtml).join('<span class="sep">·</span>')}</span>
-      </div>
-    ` : '';
-    return `
-      <div class="card ${status}" data-id="${s.id}" data-type="${s.type}" data-status="${status}">
-        <span class="card-num">${num}</span>
-        <div class="card-main">
-          <div class="card-meta-row">
-            <span class="tier-chip" data-tier="${s.tier}">${s.tier}</span>
-            <span class="card-tag ${s.type}">${s.type === 'anime' ? 'Anime' : 'Live-Action'}</span>
-            ${s.airing ? '<span class="card-tag airing">Airing</span>' : ''}
-          </div>
-          <div class="card-title">${escapeHtml(s.title)}</div>
-          <div class="card-take">${escapeHtml(s.take)}</div>
-          ${pairsHtml}
-        </div>
-        <div class="card-stats">
-          <span class="card-eps">${s.episodes} <span style="font-size:11px; color: var(--text-dim); letter-spacing: 0.15em;">EP</span></span>
-          <span class="card-hours">~${s.hours}h</span>
-          <div class="status-segmented" role="group" aria-label="Watch status">
-            <button class="status-pill ${status === 'not-started' ? 'active' : ''}" data-state="not-started" aria-label="Mark as not started" title="Not started">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
-            </button>
-            <button class="status-pill ${status === 'watching' ? 'active' : ''}" data-state="watching" aria-label="Mark as watching" title="Watching">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4" fill="currentColor"/></svg>
-            </button>
-            <button class="status-pill ${status === 'completed' ? 'active' : ''}" data-state="completed" aria-label="Mark as completed" title="Done">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </button>
-            <button class="status-pill ${status === 'rewatched' ? 'active' : ''}" data-state="rewatched" aria-label="Mark as rewatched" title="Rewatched">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  function updateCard(id) {
-    const card = document.querySelector(`.card[data-id="${id}"]`);
-    if (!card) return;
-    const status = getStatus(id);
-    card.className = `card ${status}`;
-    card.dataset.status = status;
-    card.querySelectorAll('.status-pill').forEach(pill => {
-      pill.classList.toggle('active', pill.dataset.state === status);
-    });
-  }
-
-  function updateStats() {
-    const isDone = (s) => {
-      const st = getStatus(s.id);
-      return st === 'completed' || st === 'rewatched';
-    };
-    const completed = SHOWS.filter(isDone);
-    const watching = SHOWS.filter(s => getStatus(s.id) === 'watching');
-    const remainingHours = SHOWS.reduce((acc, s) => {
-      return isDone(s) ? acc : acc + s.hours;
-    }, 0);
-    document.getElementById('stat-completed').textContent = completed.length;
-    document.getElementById('stat-watching').textContent = watching.length;
-    document.getElementById('stat-hours').textContent = remainingHours;
-  }
-
-  // ===== FILTER =====
-  function applyFilter() {
-    document.querySelectorAll('.card').forEach(card => {
-      const type = card.dataset.type;
-      const status = card.dataset.status;
-      let show = false;
-      if (currentFilter === 'all') show = true;
-      else if (currentFilter === 'anime' || currentFilter === 'live') show = (type === currentFilter);
-      else show = (status === currentFilter);
-      card.classList.toggle('hidden', !show);
-    });
-
-    document.querySelectorAll('.type-group').forEach(group => {
-      const visible = [...group.querySelectorAll('.card')].some(c => !c.classList.contains('hidden'));
-      group.style.display = visible ? '' : 'none';
-    });
-
-    document.querySelectorAll('.rank-section').forEach(section => {
-      const visibleGroups = [...section.querySelectorAll('.type-group')].some(g => g.style.display !== 'none');
-      section.style.display = visibleGroups ? '' : 'none';
-    });
-  }
-
-  document.getElementById('filters').addEventListener('click', e => {
-    const btn = e.target.closest('.filter-btn');
-    if (!btn) return;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFilter = btn.dataset.filter;
-    applyFilter();
-  });
 
   // ===== INIT =====
-  (function init() {
-    loadState();
-    loadReminders();
-    renderRanks();
-    renderReminders();
+  function renderAll() {
+    renderShows();
     updateStats();
-    updateSyncTime();
+    applyFilter();
+    renderTodos();
+    renderNotes();
+  }
+
+  (function init() {
+    state = load(STATE_KEY, {}, isObj);
+    notes = load(NOTES_KEY, [], isArr);
+    todos = load(TODOS_KEY, [], isArr);
+    renderAll();
+    let tab = 'shows';
+    try { tab = localStorage.getItem(TAB_KEY) || 'shows'; } catch (e) {}
+    setTab(tab);
   })();
 </script>
 </body>
