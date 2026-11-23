@@ -178,6 +178,22 @@
   .form-actions .add-btn { flex: 1; }
   .form-err { font-family: var(--px); font-size: 11px; color: var(--orange); margin-top: 8px; min-height: 14px; }
 
+  /* === BOOK SEARCH === */
+  .suggest { margin-top: 6px; }
+  .suggest-status { font-family: var(--px); font-size: 11px; color: var(--muted); padding: 6px 0; }
+  .sug {
+    display: flex; gap: 10px; align-items: center; width: 100%; text-align: left;
+    background: var(--bg); padding: 8px; margin-bottom: 4px; min-height: 64px;
+    box-shadow: inset 0 -3px 0 #11121D;
+  }
+  .sug:active { transform: translateY(2px); }
+  .sug img, .sug .no-cover { width: 34px; height: 50px; object-fit: cover; flex-shrink: 0; background: var(--panel); }
+  .sug-title { font-size: 15px; font-weight: 600; line-height: 1.2; }
+  .sug-meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .picked { display: flex; gap: 10px; align-items: center; margin-top: 8px; font-family: var(--px); font-size: 11px; color: var(--green); }
+  .picked img { width: 34px; height: 50px; object-fit: cover; }
+  .cover { width: 48px; height: 72px; object-fit: cover; flex-shrink: 0; background: var(--bg); }
+
   /* === LIST ITEMS (to-do + notes) === */
   .list-label { font-family: var(--px); font-size: 11px; color: var(--muted); margin: 20px 0 8px; display: flex; justify-content: space-between; align-items: center; }
   .item {
@@ -287,7 +303,9 @@
     <button class="add-btn add-toggle" id="book-toggle" onclick="toggleForm('book')">+ ADD BOOK</button>
     <form class="big-form" id="book-form" onsubmit="return addBook(event)">
       <label class="field-label" for="book-title">Title</label>
-      <input class="add-input" id="book-title" type="text" maxlength="160" autocomplete="off" placeholder="Book title">
+      <input class="add-input" id="book-title" type="text" maxlength="160" autocomplete="off" autocorrect="off" placeholder="Start typing a title">
+      <div class="suggest" id="book-suggest"></div>
+      <div id="book-picked"></div>
       <label class="field-label" for="book-author">Author (optional)</label>
       <input class="add-input" id="book-author" type="text" maxlength="120" autocomplete="off" placeholder="Author">
       <span class="field-label">Format</span>
@@ -301,7 +319,7 @@
       </div>
       <div class="form-err" id="book-err"></div>
       <div class="form-actions">
-        <button type="button" class="ghost-btn" onclick="toggleForm('book', false)">Cancel</button>
+        <button type="button" class="ghost-btn" onclick="clearPick(); toggleForm('book', false)">Cancel</button>
         <button type="submit" class="add-btn">SAVE BOOK</button>
       </div>
     </form>
@@ -687,6 +705,7 @@
     return `
       <div class="card ${st === 'finished' ? 'is-done' : ''}" data-id="${esc(b.id)}">
         <div class="card-top">
+          ${safeCover(b.cover) ? `<img class="cover" src="${esc(b.cover)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
           <div class="card-main">
             <div class="tags">
               <span class="tag ${b.format}">${audio ? 'Audiobook' : 'Physical'}</span>
@@ -756,10 +775,12 @@
       id: uid('book'), title, author: authorEl.value.trim(), format,
       status: 'want', current: 0,
       total: format === 'physical' && pages > 0 ? Math.min(pages, 10000) : null,
+      cover: picked && picked.title === title ? safeCover(picked.cover) : null,
       added: Date.now(), finishedAt: null
     });
     save(BOOKS_KEY, books);
     titleEl.value = ''; authorEl.value = ''; pagesEl.value = '';
+    clearPick();
     toggleForm('book', false);
     renderBooks();
     return false;
@@ -769,6 +790,116 @@
     books = books.filter(b => b.id !== id);
     save(BOOKS_KEY, books);
     renderBooks();
+  }
+
+  // ===== BOOK SEARCH (Google Books, Open Library fallback) =====
+  // Both are free and need no key. Results only fill the form; nothing is sent anywhere else.
+  let picked = null, searchTimer = null, searchCtl = null, lastQuery = '';
+
+  function safeCover(url) {
+    return typeof url === 'string' && /^https:\/\/(books\.google\.com|books\.googleusercontent\.com|covers\.openlibrary\.org)\//.test(url) ? url : null;
+  }
+
+  async function searchGoogle(q, signal) {
+    const url = 'https://www.googleapis.com/books/v1/volumes?maxResults=6&printType=books&q=' + encodeURIComponent(q) +
+      '&fields=items(volumeInfo(title,subtitle,authors,pageCount,publishedDate,imageLinks/thumbnail))';
+    const res = await fetch(url, { signal });
+    if (!res.ok) throw new Error('google ' + res.status);
+    const data = await res.json();
+    return (data.items || []).map(it => {
+      const v = it.volumeInfo || {};
+      const thumb = v.imageLinks && v.imageLinks.thumbnail;
+      return {
+        title: v.title || '',
+        author: (v.authors || []).join(', '),
+        pages: v.pageCount || null,
+        year: (v.publishedDate || '').slice(0, 4),
+        cover: thumb ? thumb.replace(/^http:/, 'https:').replace('&edge=curl', '') : null
+      };
+    }).filter(r => r.title);
+  }
+
+  async function searchOpenLibrary(q, signal) {
+    const url = 'https://openlibrary.org/search.json?limit=6&fields=title,author_name,number_of_pages_median,cover_i,first_publish_year&q=' + encodeURIComponent(q);
+    const res = await fetch(url, { signal });
+    if (!res.ok) throw new Error('openlibrary ' + res.status);
+    const data = await res.json();
+    return (data.docs || []).map(d => ({
+      title: d.title || '',
+      author: (d.author_name || []).slice(0, 2).join(', '),
+      pages: d.number_of_pages_median || null,
+      year: d.first_publish_year ? String(d.first_publish_year) : '',
+      cover: d.cover_i ? 'https://covers.openlibrary.org/b/id/' + d.cover_i + '-M.jpg' : null
+    })).filter(r => r.title);
+  }
+
+  let lastResults = [];
+  async function runSearch(q) {
+    const box = document.getElementById('book-suggest');
+    if (searchCtl) searchCtl.abort();
+    searchCtl = new AbortController();
+    const signal = searchCtl.signal;
+    box.innerHTML = '<div class="suggest-status">Searching…</div>';
+    let results = null;
+    try { results = await searchGoogle(q, signal); }
+    catch (e) {
+      if (e.name === 'AbortError') return;
+      console.warn('Google Books failed:', e.message);
+    }
+    if (!results || !results.length) {
+      try { results = await searchOpenLibrary(q, signal); }
+      catch (e) {
+        if (e.name === 'AbortError') return;
+        console.warn('Open Library failed:', e.message);
+        if (!results) { box.innerHTML = '<div class="suggest-status">Search unavailable. Type it in.</div>'; return; }
+      }
+    }
+    if (q !== lastQuery) return;
+    lastResults = results || [];
+    box.innerHTML = lastResults.length ? lastResults.map((r, i) => `
+      <button type="button" class="sug" data-i="${i}">
+        ${safeCover(r.cover) ? `<img src="${esc(r.cover)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'no-cover'}))">` : '<span class="no-cover"></span>'}
+        <span>
+          <div class="sug-title">${esc(r.title)}</div>
+          <div class="sug-meta">${esc([r.author, r.year, r.pages ? r.pages + ' pg' : ''].filter(Boolean).join(' · '))}</div>
+        </span>
+      </button>`).join('') : '<div class="suggest-status">No matches. Type it in.</div>';
+  }
+
+  document.getElementById('book-suggest').addEventListener('click', e => {
+    const b = e.target.closest('.sug');
+    if (!b) return;
+    const r = lastResults[toInt(b.dataset.i)];
+    if (!r) return;
+    picked = r;
+    document.getElementById('book-title').value = r.title;
+    document.getElementById('book-author').value = r.author;
+    document.getElementById('book-pages').value = r.pages || '';
+    document.getElementById('book-suggest').innerHTML = '';
+    document.getElementById('book-picked').innerHTML = `
+      <div class="picked">${safeCover(r.cover) ? `<img src="${esc(r.cover)}" alt="" onerror="this.remove()">` : ''}<span>Filled in. Pick format, then save.</span></div>`;
+    document.getElementById('book-err').textContent = '';
+  });
+
+  document.getElementById('book-title').addEventListener('input', e => {
+    const q = e.target.value.trim();
+    if (picked && picked.title !== e.target.value) { picked = null; document.getElementById('book-picked').innerHTML = ''; }
+    clearTimeout(searchTimer);
+    lastQuery = q;
+    if (q.length < 3) {
+      if (searchCtl) searchCtl.abort();
+      document.getElementById('book-suggest').innerHTML = '';
+      return;
+    }
+    searchTimer = setTimeout(() => runSearch(q), 450);
+  });
+
+  function clearPick() {
+    picked = null;
+    clearTimeout(searchTimer);
+    if (searchCtl) searchCtl.abort();
+    document.getElementById('book-suggest').innerHTML = '';
+    document.getElementById('book-picked').innerHTML = '';
   }
 
   // ===== TO-DO =====
