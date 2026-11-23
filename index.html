@@ -15,6 +15,16 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.json">
+<link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1320x2868.png">
+<link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1290x2796.png">
+<link rel="apple-touch-startup-image" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1260x2736.png">
+<link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1206x2622.png">
+<link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1179x2556.png">
+<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1284x2778.png">
+<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1170x2532.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/1125x2436.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/828x1792.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/750x1334.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Silkscreen&display=swap" rel="stylesheet">
@@ -73,6 +83,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
   html, body {
+    overscroll-behavior-y: none;
     background: var(--bg);
     color: var(--text);
     font-family: var(--body);
@@ -104,6 +115,42 @@
   }
   .gear svg { width: 20px; height: 20px; }
   .gear.on { background: var(--accent); color: var(--ink); box-shadow: inset 0 -3px 0 var(--accent-edge); }
+
+  /* === SWIPE + TOAST === */
+  .item { position: relative; touch-action: pan-y; transition: transform .18s ease-out; }
+  .item.swiping { transition: none; }
+  .item.swipe-r { box-shadow: inset 0 -4px 0 var(--panel-edge), inset 6px 0 0 var(--green); }
+  .item.swipe-l { box-shadow: inset 0 -4px 0 var(--panel-edge), inset -6px 0 0 var(--red); }
+  .toast {
+    position: fixed; left: 12px; right: 12px; bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 16px);
+    max-width: 616px; margin: 0 auto; z-index: 20;
+    display: none; align-items: center; justify-content: space-between; gap: 12px;
+    background: var(--text); color: var(--bg); padding: 6px 6px 6px 14px;
+    font-family: var(--px); font-size: calc(12px * var(--fs));
+  }
+  .toast.show { display: flex; }
+  .toast button { font-family: var(--px); font-size: calc(12px * var(--fs)); background: var(--accent); color: var(--ink); min-height: 40px; padding: 0 14px; }
+
+  /* === SEARCH === */
+  .flash { animation: flash 1.2s steps(4); }
+  @keyframes flash { 0%, 50% { outline: 3px solid var(--accent); outline-offset: 2px; } 100% { outline: 3px solid transparent; } }
+  .res {
+    display: block; width: 100%; text-align: left; background: var(--panel);
+    box-shadow: inset 0 -3px 0 var(--panel-edge); padding: 12px 14px 14px; margin-bottom: 6px;
+  }
+  .res-t { font-size: calc(16px * var(--fs)); overflow-wrap: anywhere; }
+  .res-m { font-family: var(--px); font-size: calc(11px * var(--fs)); color: var(--muted); margin-top: 2px; }
+
+  /* === ACCOUNT === */
+  .acct-msg { font-family: var(--px); font-size: calc(11px * var(--fs)); color: var(--muted); margin-top: 10px; min-height: 14px; overflow-wrap: anywhere; }
+  .acct-msg.err { color: var(--t-orange); }
+  .acct-who { font-size: calc(16px * var(--fs)); overflow-wrap: anywhere; margin-bottom: 4px; }
+  .acct-row { display: flex; gap: 8px; margin-top: 12px; }
+  .acct-row > * { flex: 1; }
+  .sync-dot { display: inline-block; width: 8px; height: 8px; margin-right: 6px; background: var(--panel-hi); vertical-align: 1px; }
+  .sync-dot.ok { background: var(--green); }
+  .sync-dot.busy { background: var(--yellow); }
+  .sync-dot.bad { background: var(--orange); }
 
   /* === SETTINGS === */
   .set-group { background: var(--panel); box-shadow: inset 0 -4px 0 var(--panel-edge); padding: 14px 14px 18px; margin-bottom: 12px; }
@@ -295,7 +342,10 @@
   <div class="top">
     <div class="logo">BACK<span>LOG</span></div>
     <div class="top-right">
-      <div class="tab-label" id="tab-label">TO-DO</div>
+
+      <button class="gear" id="search-btn" aria-label="Search">
+        <svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M8 2h6v2h2v2h2v6h-2v2h-2v2H8v-2H6v-2H4V6h2V4h2zm0 4v6h6V6zM16 16h2v2h2v2h2v2h-2v-2h-2v-2h-2z"/></svg>
+      </button>
       <button class="gear" id="gear" aria-label="Settings">
         <svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M10 2h4v3h2V4h2v2h2v2h-1v2h3v4h-3v2h1v2h-2v2h-2v-1h-2v3h-4v-3H8v1H6v-2H4v-2h1v-2H2v-4h3V8H4V6h2V4h2v1h2zm0 7v6h4V9z"/></svg>
       </button>
@@ -397,8 +447,17 @@
     <div id="notes-list"></div>
   </section>
 
+  <!-- ===== SEARCH ===== -->
+  <section class="panel" id="panel-search">
+    <div class="add-form">
+      <input class="add-input" id="search-input" type="search" placeholder="Search everything" autocomplete="off" autocorrect="off">
+    </div>
+    <div id="search-results"></div>
+  </section>
+
   <!-- ===== SETTINGS ===== -->
   <section class="panel" id="panel-settings">
+    <div class="set-group" id="account"></div>
     <div class="set-group">
       <span class="field-label">Mode</span>
       <div class="seg" data-set="theme">
@@ -443,11 +502,13 @@
         <button class="text-btn" onclick="resetLook()">Reset look</button>
         <button class="text-btn danger" onclick="resetAll()">Reset all data</button>
       </div>
-      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 3.3</span>
+      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 4.0</span>
     </div>
   </section>
 
 </div>
+
+<div class="toast" id="toast"><span id="toast-text"></span><button type="button" id="toast-undo">UNDO</button></div>
 
 <nav class="tabbar">
   <div class="tabbar-inner">
@@ -531,6 +592,7 @@
       localStorage.setItem(key, JSON.stringify(value));
       document.getElementById('sync-time').textContent =
         new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      if (typeof onLocalChange === 'function') onLocalChange(key);
     } catch (e) {
       console.warn('Could not save ' + key + ':', e.message);
     }
@@ -571,19 +633,27 @@
   }
 
   // ===== TABS =====
-  const TAB_NAMES = { todo: 'TO-DO', shows: 'SHOWS', books: 'BOOKS', notes: 'NOTES', settings: 'SETTINGS' };
+  const TAB_NAMES = { todo: 'TO-DO', shows: 'SHOWS', books: 'BOOKS', notes: 'NOTES', settings: 'SETTINGS', search: 'SEARCH' };
   function setTab(name) {
     if (!TAB_NAMES[name]) name = 'todo';
     document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-    document.getElementById('tab-label').textContent = TAB_NAMES[name];
     document.getElementById('gear').classList.toggle('on', name === 'settings');
-    lastTab = name === 'settings' ? lastTab : name;
+    document.getElementById('search-btn').classList.toggle('on', name === 'search');
+    if (name !== 'settings' && name !== 'search') lastTab = name;
     window.scrollTo(0, 0);
   }
   let lastTab = 'todo';
   document.getElementById('gear').addEventListener('click', () => {
     setTab(document.getElementById('panel-settings').classList.contains('active') ? lastTab : 'settings');
+  });
+  document.getElementById('search-btn').addEventListener('click', () => {
+    if (document.getElementById('panel-search').classList.contains('active')) { setTab(lastTab); return; }
+    setTab('search');
+    const inp = document.getElementById('search-input');
+    inp.value = '';
+    renderSearch();
+    inp.focus();
   });
   document.querySelector('.tabbar').addEventListener('click', e => {
     const t = e.target.closest('.tab');
@@ -1024,7 +1094,7 @@
   }
   function todoItem(t) {
     return `
-      <div class="item ${t.done ? 'done' : ''}">
+      <div class="item ${t.done ? 'done' : ''}" data-id="${esc(t.id)}">
         <button class="check" onclick="toggleTodo('${esc(t.id)}')" aria-label="${t.done ? 'Mark not done' : 'Mark done'}">${ICONS.check}</button>
         <span class="item-text">${esc(t.text)}</span>
         ${delBtn('todo', t.id)}
@@ -1052,12 +1122,104 @@
   function deleteTodo(id) { todos = todos.filter(t => t.id !== id); save(TODOS_KEY, todos); renderTodos(); }
   function clearDone() { todos = todos.filter(t => !t.done); save(TODOS_KEY, todos); renderTodos(); }
 
+  // ===== SWIPE ON TO-DOS =====
+  // Swipe right: toggle done. Swipe left: delete (with undo).
+  (function () {
+    const panel = document.getElementById('panel-todo');
+    let el = null, x0 = 0, y0 = 0, dx = 0, locked = null;
+    panel.addEventListener('touchstart', e => {
+      const item = e.target.closest('.item');
+      if (!item || e.target.closest('button')) { el = null; return; }
+      el = item; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; dx = 0; locked = null;
+    }, { passive: true });
+    panel.addEventListener('touchmove', e => {
+      if (!el) return;
+      const mx = e.touches[0].clientX - x0, my = e.touches[0].clientY - y0;
+      if (locked === null && (Math.abs(mx) > 8 || Math.abs(my) > 8)) locked = Math.abs(mx) > Math.abs(my) ? 'x' : 'y';
+      if (locked !== 'x') return;
+      e.preventDefault();
+      dx = mx;
+      el.classList.add('swiping');
+      el.style.transform = `translateX(${dx}px)`;
+      el.classList.toggle('swipe-r', dx > 80);
+      el.classList.toggle('swipe-l', dx < -80);
+    }, { passive: false });
+    panel.addEventListener('touchend', () => {
+      if (!el) return;
+      const item = el, d = dx;
+      el = null;
+      item.classList.remove('swiping', 'swipe-r', 'swipe-l');
+      item.style.transform = '';
+      if (locked !== 'x') return;
+      if (d > 80) toggleTodo(item.dataset.id);
+      else if (d < -80) deleteTodoUndo(item.dataset.id);
+    });
+  })();
+
+  let undoFn = null, toastTimer = null;
+  function showToast(text, onUndo) {
+    undoFn = onUndo;
+    document.getElementById('toast-text').textContent = text;
+    document.getElementById('toast').classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, 4000);
+  }
+  function hideToast() { document.getElementById('toast').classList.remove('show'); undoFn = null; }
+  document.getElementById('toast-undo').addEventListener('click', () => { if (undoFn) undoFn(); hideToast(); });
+
+  function deleteTodoUndo(id) {
+    const i = todos.findIndex(t => t.id === id);
+    if (i < 0) return;
+    const removed = todos[i];
+    deleteTodo(id);
+    showToast('Deleted', () => { todos.splice(i, 0, removed); save(TODOS_KEY, todos); renderTodos(); });
+  }
+
+  // ===== SEARCH =====
+  function renderSearch() {
+    const q = document.getElementById('search-input').value.trim().toLowerCase();
+    const box = document.getElementById('search-results');
+    if (!q) { box.innerHTML = '<div class="empty">To-dos, shows, books, notes</div>'; return; }
+    const has = v => String(v || '').toLowerCase().includes(q);
+    const groups = [
+      ['To-dos', 'todo', todos.filter(t => has(t.text)).map(t => [t.id, t.text, t.done ? 'Done' : 'Open'])],
+      ['Shows', 'shows', shows.filter(s => has(s.title)).map(s => [s.id, s.title, ({ 'not-started': 'Up next', watching: 'Watching', completed: 'Done', rewatched: 'Rewatched' })[showStatus(s.id)]])],
+      ['Books', 'books', books.filter(b => has(b.title) || has(b.author)).map(b => [b.id, b.title, [b.author, ({ want: 'Up next', reading: 'Reading', finished: 'Finished' })[bookStatus(b)]].filter(Boolean).join(' · ')])],
+      ['Notes', 'notes', notes.filter(n => has(n.text)).map(n => [n.id, n.text, shortDate(n.created)])]
+    ];
+    const html = groups.filter(g => g[2].length).map(([label, tab, rows]) => `
+      <div class="list-label"><span>${label} · ${rows.length}</span></div>
+      ${rows.slice(0, 20).map(([id, title, meta]) => `
+        <button class="res" type="button" data-go="${tab}|${esc(id)}">
+          <div class="res-t">${esc(title)}</div><div class="res-m">${esc(meta)}</div>
+        </button>`).join('')}`).join('');
+    box.innerHTML = html || '<div class="empty">No matches</div>';
+  }
+  document.getElementById('search-input').addEventListener('input', renderSearch);
+  document.getElementById('search-results').addEventListener('click', e => {
+    const b = e.target.closest('[data-go]');
+    if (!b) return;
+    const [tab, id] = b.dataset.go.split('|');
+    if (tab === 'shows' || tab === 'books') {
+      const kind = tab === 'shows' ? 'show' : 'book';
+      filters[kind] = 'all';
+      document.querySelectorAll(`[data-chips="${kind}"] .chip`).forEach(c => c.classList.toggle('active', c.dataset.filter === 'all'));
+      tab === 'shows' ? renderShows() : renderBooks();
+    }
+    setTab(tab);
+    const target = document.querySelector(`#panel-${tab} [data-id="${CSS.escape(id)}"]`);
+    if (target) {
+      target.scrollIntoView({ block: 'center' });
+      target.classList.remove('flash'); void target.offsetWidth; target.classList.add('flash');
+    }
+  });
+
   // ===== NOTES =====
   function renderNotes() {
     const sorted = [...notes].sort((a, b) => b.created - a.created);
     document.getElementById('notes-list').innerHTML = sorted.length
       ? sorted.map(n => `
-          <div class="item note-item">
+          <div class="item note-item" data-id="${esc(n.id)}">
             <span class="item-text">${esc(n.text)}</span>
             <span class="item-date">${shortDate(n.created)}</span>
             ${delBtn('note', n.id)}
@@ -1131,7 +1293,7 @@
   function resetAll() {
     if (!confirm('Wipe everything (shows, books, to-dos, notes)? Export first if you want a backup.')) return;
     state = {}; progress = {}; notes = []; todos = []; books = [];
-    shows = seedShows();
+    shows = [];
     saveAll();
     renderAll();
   }
@@ -1199,7 +1361,280 @@
     applyLook();
   }
 
+  // ===== ACCOUNT + CLOUD SYNC (Supabase) =====
+  // Publishable key is safe in the browser: row level security limits each user to their own row.
+  const SB_URL = 'https://twfrvoelwdizseunrrzj.supabase.co';
+  const SB_KEY = 'sb_publishable_4ZsqPQ8cCckNizfdbugc4w_F9PDlwvD';
+  const SESSION_KEY = 'backlog:session';
+  const SYNC_KEY = 'backlog:sync';
+  const DATA_KEYS = [SHOWS_KEY, STATE_KEY, PROGRESS_KEY, BOOKS_KEY, TODOS_KEY, NOTES_KEY, LOOK_KEY];
+
+  let session = load(SESSION_KEY, null, isObj);
+  let syncMeta = Object.assign({ syncedAt: null, dirty: false }, load(SYNC_KEY, {}, isObj));
+  let acct = { step: 'email', email: '', msg: '', err: false, status: 'idle', choice: null };
+  let applyingRemote = false, pushTimer = null, syncing = false;
+
+  function rawSave(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {} }
+  function setSyncMeta(patch) { Object.assign(syncMeta, patch); rawSave(SYNC_KEY, syncMeta); }
+
+  function onLocalChange(key) {
+    if (applyingRemote || !session || !DATA_KEYS.includes(key)) return;
+    if (!syncMeta.dirty) setSyncMeta({ dirty: true });
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(() => syncNow(), 1500);
+  }
+
+  async function sb(path, opts = {}) {
+    const headers = Object.assign({ apikey: SB_KEY, 'Content-Type': 'application/json' }, opts.headers || {});
+    const res = await fetch(SB_URL + path, Object.assign({}, opts, { headers }));
+    let body = null;
+    try { body = await res.json(); } catch (e) {}
+    if (!res.ok) {
+      const msg = (body && (body.msg || body.message || body.error_description || body.error)) || ('HTTP ' + res.status);
+      const err = new Error(msg); err.status = res.status; throw err;
+    }
+    return body;
+  }
+
+  function storeSession(t) {
+    session = {
+      access_token: t.access_token,
+      refresh_token: t.refresh_token,
+      expires_at: Math.floor(Date.now() / 1000) + (t.expires_in || 3600),
+      user_id: t.user && t.user.id,
+      email: t.user && t.user.email
+    };
+    rawSave(SESSION_KEY, session);
+  }
+
+  async function accessToken() {
+    if (!session) throw new Error('Not signed in');
+    if (session.expires_at - 60 > Date.now() / 1000) return session.access_token;
+    try {
+      const t = await sb('/auth/v1/token?grant_type=refresh_token', {
+        method: 'POST', body: JSON.stringify({ refresh_token: session.refresh_token })
+      });
+      storeSession(Object.assign({ user: { id: session.user_id, email: session.email } }, t));
+      return session.access_token;
+    } catch (e) {
+      if (e.status === 400 || e.status === 401) {
+        // Refresh token is dead. Keep local data, ask to sign in again.
+        session = null;
+        try { localStorage.removeItem(SESSION_KEY); } catch (x) {}
+        acct.step = 'email'; acct.msg = 'Signed out. Sign in again to keep syncing.'; acct.err = true;
+        renderAccount();
+      }
+      throw e;
+    }
+  }
+
+  function snapshot() {
+    return { v: 5, shows, state, progress, books, todos, reminders: notes, look };
+  }
+  function localHasData() {
+    return shows.length || books.length || todos.length || notes.length;
+  }
+  function applyData(d) {
+    if (!isObj(d)) return;
+    applyingRemote = true;
+    shows = isArr(d.shows) ? d.shows : [];
+    state = isObj(d.state) ? d.state : {};
+    progress = isObj(d.progress) ? d.progress : {};
+    books = isArr(d.books) ? d.books : [];
+    todos = isArr(d.todos) ? d.todos : [];
+    notes = isArr(d.reminders) ? d.reminders : [];
+    if (isObj(d.look)) { look = Object.assign({}, LOOK_DEFAULT, d.look); save(LOOK_KEY, look); applyLook(); }
+    saveAll();
+    applyingRemote = false;
+    renderAll();
+  }
+
+  async function pullRemote() {
+    const token = await accessToken();
+    const rows = await sb('/rest/v1/backlog_data?select=data,updated_at', {
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    return rows && rows[0] ? rows[0] : null;
+  }
+
+  async function pushLocal() {
+    const token = await accessToken();
+    const rows = await sb('/rest/v1/backlog_data?on_conflict=user_id', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + token, Prefer: 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify({ user_id: session.user_id, data: snapshot(), updated_at: new Date().toISOString() })
+    });
+    const row = rows && rows[0];
+    setSyncMeta({ dirty: false, syncedAt: row ? row.updated_at : new Date().toISOString() });
+  }
+
+  async function syncNow() {
+    if (!session || syncing || acct.choice) return;
+    if (!navigator.onLine) { acct.status = 'offline'; renderAccount(); return; }
+    syncing = true; acct.status = 'busy'; renderAccount();
+    try {
+      if (syncMeta.dirty) {
+        await pushLocal();
+      } else {
+        const row = await pullRemote();
+        if (!row) await pushLocal();
+        else if (!syncMeta.syncedAt || new Date(row.updated_at) > new Date(syncMeta.syncedAt)) {
+          applyData(row.data);
+          setSyncMeta({ syncedAt: row.updated_at, dirty: false });
+        }
+      }
+      acct.status = 'ok'; acct.msg = ''; acct.err = false;
+    } catch (e) {
+      acct.status = 'bad'; acct.msg = 'Sync failed: ' + e.message; acct.err = true;
+    }
+    syncing = false;
+    renderAccount();
+  }
+
+  // First sign-in on this device: decide what happens to data already here.
+  async function afterSignIn() {
+    acct.status = 'busy'; renderAccount();
+    try {
+      const row = await pullRemote();
+      const remoteHas = row && isObj(row.data) &&
+        ['shows', 'books', 'todos', 'reminders'].some(k => isArr(row.data[k]) && row.data[k].length);
+      if (!row || !remoteHas) {
+        await pushLocal();
+      } else if (!localHasData()) {
+        applyData(row.data);
+        setSyncMeta({ syncedAt: row.updated_at, dirty: false });
+      } else {
+        acct.choice = row;   // both have data: let the person pick
+      }
+      acct.status = 'ok'; acct.msg = ''; acct.err = false;
+    } catch (e) {
+      acct.status = 'bad'; acct.msg = 'Sync failed: ' + e.message; acct.err = true;
+    }
+    renderAccount();
+  }
+
+  async function sendCode() {
+    const email = document.getElementById('acct-email').value.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { acct.msg = 'Enter a valid email'; acct.err = true; renderAccount(); return; }
+    acct.email = email; acct.msg = 'Sending…'; acct.err = false; renderAccount();
+    try {
+      await sb('/auth/v1/otp', { method: 'POST', body: JSON.stringify({ email, create_user: true }) });
+      acct.step = 'code'; acct.msg = 'Code sent. Check your email (and spam).'; acct.err = false;
+    } catch (e) {
+      acct.msg = e.status === 429 ? 'Too many codes requested. Wait a few minutes.' : 'Could not send code: ' + e.message;
+      acct.err = true;
+    }
+    renderAccount();
+  }
+
+  async function verifyCode() {
+    const code = document.getElementById('acct-code').value.replace(/\D/g, '');
+    if (code.length < 6) { acct.msg = 'Enter the code from the email'; acct.err = true; renderAccount(); return; }
+    acct.msg = 'Checking…'; acct.err = false; renderAccount();
+    try {
+      const t = await sb('/auth/v1/verify', { method: 'POST', body: JSON.stringify({ type: 'email', email: acct.email, token: code }) });
+      storeSession(t);
+      setSyncMeta({ syncedAt: null, dirty: false });
+      acct.step = 'in'; acct.msg = '';
+      await afterSignIn();
+    } catch (e) {
+      acct.msg = 'Wrong or expired code. Try again or resend.'; acct.err = true;
+      renderAccount();
+    }
+  }
+
+  async function resolveChoice(useAccount) {
+    const row = acct.choice;
+    acct.choice = null;
+    try {
+      if (useAccount) { applyData(row.data); setSyncMeta({ syncedAt: row.updated_at, dirty: false }); }
+      else await pushLocal();
+      acct.status = 'ok';
+    } catch (e) { acct.status = 'bad'; acct.msg = 'Sync failed: ' + e.message; acct.err = true; }
+    renderAccount();
+  }
+
+  async function signOut() {
+    if (!confirm('Sign out? Your data stays in your account and is removed from this phone.')) return;
+    try { if (syncMeta.dirty) await pushLocal(); } catch (e) {
+      if (!confirm('Could not save your latest changes to the cloud. Sign out anyway and lose them?')) return;
+    }
+    try {
+      const token = session.access_token;
+      fetch(SB_URL + '/auth/v1/logout', { method: 'POST', headers: { apikey: SB_KEY, Authorization: 'Bearer ' + token } }).catch(() => {});
+    } catch (e) {}
+    session = null;
+    [SESSION_KEY, SYNC_KEY].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+    syncMeta = { syncedAt: null, dirty: false };
+    applyingRemote = true;
+    shows = []; state = {}; progress = {}; books = []; todos = []; notes = [];
+    saveAll();
+    applyingRemote = false;
+    acct = { step: 'email', email: '', msg: 'Signed out', err: false, status: 'idle', choice: null };
+    renderAll();
+    renderAccount();
+  }
+
+  function renderAccount() {
+    const box = document.getElementById('account');
+    if (!box) return;
+    const msg = `<div class="acct-msg ${acct.err ? 'err' : ''}">${esc(acct.msg)}</div>`;
+    if (session && acct.choice) {
+      box.innerHTML = `
+        <span class="field-label">Account</span>
+        <div class="acct-who">This phone and your account both have data.</div>
+        <div class="font-sample">Pick which to keep. The other is replaced. Export first if unsure.</div>
+        <div class="acct-row">
+          <button class="ghost-btn" type="button" onclick="resolveChoice(false)">KEEP THIS PHONE</button>
+          <button class="add-btn" type="button" onclick="resolveChoice(true)">USE ACCOUNT</button>
+        </div>${msg}`;
+      return;
+    }
+    if (session) {
+      const st = acct.status;
+      const label = st === 'busy' ? 'Syncing…' : st === 'bad' ? 'Not synced' : st === 'offline' ? 'Offline, will sync' :
+        syncMeta.syncedAt ? 'Synced ' + new Date(syncMeta.syncedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : 'Not synced yet';
+      box.innerHTML = `
+        <span class="field-label">Account</span>
+        <div class="acct-who">${esc(session.email || '')}</div>
+        <div class="font-sample"><span class="sync-dot ${st === 'busy' ? 'busy' : st === 'bad' || st === 'offline' ? 'bad' : syncMeta.syncedAt ? 'ok' : ''}"></span>${label}</div>
+        <div class="acct-row">
+          <button class="ghost-btn" type="button" onclick="syncNow()">SYNC NOW</button>
+          <button class="ghost-btn" type="button" onclick="signOut()">SIGN OUT</button>
+        </div>${msg}`;
+      return;
+    }
+    if (acct.step === 'code') {
+      box.innerHTML = `
+        <span class="field-label">Account</span>
+        <div class="font-sample">Code sent to ${esc(acct.email)}</div>
+        <div class="add-form" style="margin:10px 0 0">
+          <input class="add-input" id="acct-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="6-digit code">
+          <button class="add-btn" type="button" onclick="verifyCode()">SIGN IN</button>
+        </div>
+        <div class="acct-row">
+          <button class="ghost-btn" type="button" onclick="acct.step='email';acct.msg='';renderAccount()">CHANGE EMAIL</button>
+          <button class="ghost-btn" type="button" onclick="sendCode()">RESEND</button>
+        </div>
+        <input type="hidden" id="acct-email" value="${esc(acct.email)}">${msg}`;
+      return;
+    }
+    box.innerHTML = `
+      <span class="field-label">Account</span>
+      <div class="font-sample">Sign in to back up and sync. No password, we email you a code.</div>
+      <div class="add-form" style="margin:10px 0 0">
+        <input class="add-input" id="acct-email" type="email" autocomplete="email" autocapitalize="off" placeholder="you@email.com" value="${esc(acct.email)}">
+        <button class="add-btn" type="button" onclick="sendCode()">SEND CODE</button>
+      </div>${msg}`;
+  }
+
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') syncNow(); });
+  window.addEventListener('online', () => syncNow());
+
   // ===== INIT =====
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW:', e.message)));
+  }
   function renderAll() { renderTodos(); renderShows(); renderBooks(); renderNotes(); }
 
   (function init() {
@@ -1212,15 +1647,20 @@
     if (saved) {
       shows = saved.filter(s => s && s.id && s.title);
     } else {
-      // First run on this version: starter list plus any shows added in V2.
-      shows = seedShows(load(OLD_CUSTOM_KEY, [], isArr));
+      // First run on this version. Existing users get the starter list plus V2 shows;
+      // brand-new installs (new accounts) start empty.
+      const hadOldData = localStorage.getItem(STATE_KEY) !== null || localStorage.getItem(OLD_CUSTOM_KEY) !== null;
+      shows = hadOldData ? seedShows(load(OLD_CUSTOM_KEY, [], isArr)) : [];
       save(SHOWS_KEY, shows);
       try { localStorage.removeItem(OLD_CUSTOM_KEY); } catch (e) {}
     }
     look = Object.assign({}, LOOK_DEFAULT, load(LOOK_KEY, {}, isObj));
     applyLook();
     renderAll();
+    if (session) acct.step = 'in';
+    renderAccount();
     setTab('todo');
+    if (session) syncNow();
   })();
 </script>
 </body>
