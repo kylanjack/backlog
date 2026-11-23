@@ -135,7 +135,6 @@
   }
   .card.hidden { display: none; }
   .card.completed .card-title { text-decoration: line-through; text-decoration-color: var(--green); text-decoration-thickness: 2px; color: var(--muted); }
-  .card.completed .card-take { display: none; }
   .card.rewatched .card-title { color: var(--blue); }
 
   .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
@@ -151,16 +150,13 @@
   .tag.airing { background: var(--yellow); color: var(--bg); }
 
   .card-title { font-size: 19px; font-weight: 600; line-height: 1.2; margin-bottom: 4px; }
-  .card-take { font-size: 14px; color: var(--muted); line-height: 1.45; }
-  .card-pairs { font-size: 13px; color: var(--panel-hi); margin-top: 8px; }
-  .card-pairs b { font-family: var(--px); font-weight: 400; font-size: 11px; color: var(--muted); margin-right: 4px; }
 
   .card-foot {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    margin-top: 12px;
+    margin-top: 10px;
   }
   .card-len { font-family: var(--px); font-size: 12px; color: var(--muted); }
   .card-len span { color: var(--text); }
@@ -377,110 +373,46 @@
 <script>
   const SHOWS = [
     // ===== S-TIER =====
-    { id: 'breaking-bad', title: 'Breaking Bad', type: 'live', tier: 'S', episodes: 62, hours: 49,
-      take: "62 episodes of escalating dread. Walter White's transformation is one of TV's greatest character arcs. Slow burn early, locked-in finish.",
-      pairs: ['Better Call Saul', 'Ozark', 'The Wire'] },
-    { id: 'frieren', title: "Frieren: Beyond Journey's End", type: 'anime', tier: 'S', episodes: 28, hours: 11,
-      take: "Quiet, devastating, the best new anime in years. Post-quest fantasy — what happens after the heroes save the world. Tone is melancholy and patient.",
-      pairs: ['Mushishi', 'Violet Evergarden', 'Spice and Wolf'] },
-    { id: 'vinland-saga', title: 'Vinland Saga', type: 'anime', tier: 'S', episodes: 48, hours: 19,
-      take: "Brutal opening, transcendent middle. Season 2 trades Viking warfare for a meditation on violence and atonement. The shift is intentional and rewarded.",
-      pairs: ['Berserk (1997)', 'Vagabond (manga)', 'Kingdom'] },
-    { id: 'avatar', title: 'Avatar: The Last Airbender', type: 'live', tier: 'S', episodes: 61, hours: 23,
-      take: "Holds up better than 95% of TV. Three seasons of tight worldbuilding, real character growth, and one of animation's cleanest finales.",
-      pairs: ['Legend of Korra', 'Arcane', 'Code Geass'] },
-    { id: 'mob-psycho', title: 'Mob Psycho 100', type: 'anime', tier: 'S', episodes: 37, hours: 15,
-      take: "ONE's writing with elite Bones animation. Coming-of-age story disguised as psychic action. Season 3 finale earns every emotional beat.",
-      pairs: ['One Punch Man', 'Hunter x Hunter (2011)', 'Chainsaw Man'] },
-    { id: 'dark', title: 'Dark', type: 'live', tier: 'S', episodes: 26, hours: 24,
-      take: "German sci-fi mystery, tightly plotted across three timelines. Watch in German with subs. You will need a notebook.",
-      pairs: ['Severance', 'Devs', '1899'] },
-    { id: 'one-piece', title: 'One Piece', type: 'anime', tier: 'S', episodes: 1156, hours: 462, airing: true,
-      take: "You're already in it. 1,156+ episodes — goofy on the surface, profound underneath. Best emotional payoffs in shounen (Marineford, Whole Cake, Wano). Anime just slowed to 26 ep/year — the weekly grind is over.",
-      pairs: ['Hunter x Hunter (2011)', 'Toriko', 'Fairy Tail'] },
+    { id: 'breaking-bad', title: 'Breaking Bad', type: 'live', tier: 'S', episodes: 62, hours: 49 },
+    { id: 'frieren', title: "Frieren: Beyond Journey's End", type: 'anime', tier: 'S', episodes: 28, hours: 11 },
+    { id: 'vinland-saga', title: 'Vinland Saga', type: 'anime', tier: 'S', episodes: 48, hours: 19 },
+    { id: 'avatar', title: 'Avatar: The Last Airbender', type: 'live', tier: 'S', episodes: 61, hours: 23 },
+    { id: 'mob-psycho', title: 'Mob Psycho 100', type: 'anime', tier: 'S', episodes: 37, hours: 15 },
+    { id: 'dark', title: 'Dark', type: 'live', tier: 'S', episodes: 26, hours: 24 },
+    { id: 'one-piece', title: 'One Piece', type: 'anime', tier: 'S', episodes: 1156, hours: 462, airing: true },
 
     // ===== A-TIER =====
-    { id: 'aot', title: 'Attack on Titan', type: 'anime', tier: 'A', episodes: 94, hours: 38,
-      take: "Starts as survival horror, ends as geopolitical tragedy. The Marley arc reframes everything. Stick with it through the pacing dips.",
-      pairs: ['86', 'Code Geass', 'Vinland Saga'] },
-    { id: 'code-geass', title: 'Code Geass', type: 'anime', tier: 'A', episodes: 50, hours: 20,
-      take: "Mecha + political chess. Lelouch is one of anime's great morally complex protagonists. R2's finale is a top-five anime ending.",
-      pairs: ['Death Note', 'Attack on Titan', 'Ergo Proxy'] },
-    { id: 'death-note', title: 'Death Note', type: 'anime', tier: 'A', episodes: 37, hours: 14,
-      take: "Cat-and-mouse psychological thriller. First half is essential. Pacing changes after a major plot turn — fans debate the second half.",
-      pairs: ['Code Geass', 'Monster', 'Psycho-Pass'] },
-    { id: 'rezero', title: 'Re:Zero', type: 'anime', tier: 'A', episodes: 65, hours: 26,
-      take: "Time-loop psychological horror under an isekai shell. Subaru's character work is the engine. Season 2 demands attention; season 3 pays it back.",
-      pairs: ['Steins;Gate', 'Madoka Magica', '86'] },
-    { id: '86', title: '86', type: 'anime', tier: 'A', episodes: 23, hours: 9,
-      take: "Military sci-fi about the cost of war and the people who get used up. Earns its emotional moments. Underseen for what it pulls off.",
-      pairs: ['Attack on Titan', 'Code Geass', 'Re:Zero'] },
-    { id: 'vikings', title: 'Vikings', type: 'live', tier: 'A', episodes: 89, hours: 67,
-      take: "Ragnar Lothbrok's saga across the first 4 seasons is great historical drama. After his exit the show shifts — opinions split there.",
-      pairs: ['The Last Kingdom', 'Knightfall', 'Spartacus'] },
-    { id: 'jjk', title: 'Jujutsu Kaisen', type: 'anime', tier: 'A', episodes: 47, hours: 19,
-      take: "MAPPA at peak. Season 2's Shibuya Incident reset what TV-anime fights can look like. Sharp humor, brutal stakes.",
-      pairs: ["Hell's Paradise", 'Chainsaw Man', 'Bleach: TYBW'] },
-    { id: 'naruto', title: 'Naruto', type: 'anime', tier: 'A', episodes: 220, hours: 84,
-      take: "Foundational shounen. Pacing is rough, but Chunin Exams and Sasuke retrieval are still genre-defining. Long road, but you've cleared it.",
-      pairs: ['Bleach', 'Hunter x Hunter (2011)', 'Boruto'] },
-    { id: 'shippuden', title: 'Naruto Shippuden', type: 'anime', tier: 'A', episodes: 500, hours: 192,
-      take: "Where the show levels up. Pain arc forward is genre-defining. Filler is real — skip lists exist for a reason. The 192-hour boss of this list.",
-      pairs: ['Boruto', 'Bleach', 'My Hero Academia'] },
+    { id: 'aot', title: 'Attack on Titan', type: 'anime', tier: 'A', episodes: 94, hours: 38 },
+    { id: 'code-geass', title: 'Code Geass', type: 'anime', tier: 'A', episodes: 50, hours: 20 },
+    { id: 'death-note', title: 'Death Note', type: 'anime', tier: 'A', episodes: 37, hours: 14 },
+    { id: 'rezero', title: 'Re:Zero', type: 'anime', tier: 'A', episodes: 65, hours: 26 },
+    { id: '86', title: '86', type: 'anime', tier: 'A', episodes: 23, hours: 9 },
+    { id: 'vikings', title: 'Vikings', type: 'live', tier: 'A', episodes: 89, hours: 67 },
+    { id: 'jjk', title: 'Jujutsu Kaisen', type: 'anime', tier: 'A', episodes: 47, hours: 19 },
+    { id: 'naruto', title: 'Naruto', type: 'anime', tier: 'A', episodes: 220, hours: 84 },
+    { id: 'shippuden', title: 'Naruto Shippuden', type: 'anime', tier: 'A', episodes: 500, hours: 192 },
 
     // ===== B-TIER =====
-    { id: 'solo-leveling', title: 'Solo Leveling', type: 'anime', tier: 'B', episodes: 25, hours: 10,
-      take: "Power fantasy with elite A-1 production. Sung Jin-Woo's leveling-up loop is the entire pitch — and it looks incredible.",
-      pairs: ['The Beginning After the End', 'Re:Monster', 'Wind Breaker'] },
-    { id: 'suits', title: 'Suits', type: 'live', tier: 'B', episodes: 134, hours: 94,
-      take: "Sharp dialogue and charismatic leads. Legal cases are mostly pretexts for Harvey/Mike chemistry. Comfort rewatch energy through ~5 seasons.",
-      pairs: ['Better Call Saul', 'Billions', 'The Good Wife'] },
-    { id: 'big-bang-theory', title: 'The Big Bang Theory', type: 'live', tier: 'B', episodes: 279, hours: 98,
-      take: "12 seasons of geek-culture sitcom that ran 2007-2019. Ensemble chemistry is the engine; humor leans on running jokes and character tics. Easy to drop in/out of, no hard arcs.",
-      pairs: ['Young Sheldon', 'The IT Crowd', 'Brooklyn Nine-Nine'] },
-    { id: 'dandadan', title: 'Dan Da Dan', type: 'anime', tier: 'B', episodes: 24, hours: 10,
-      take: "Aliens, ghosts, teen romance, and Science Saru animation going feral. Tonally unhinged in the best way. Surprisingly emotional core.",
-      pairs: ['Mob Psycho 100', 'Chainsaw Man', 'FLCL'] },
-    { id: 'hells-paradise', title: "Hell's Paradise", type: 'anime', tier: 'B', episodes: 13, hours: 5,
-      take: "MAPPA shounen with strong production and an interesting world. Convicts hunting an elixir of immortality. Above-average action, mid character work.",
-      pairs: ['Jujutsu Kaisen', 'Chainsaw Man', 'Demon Slayer'] },
-    { id: 'witch-hat', title: 'Witch Hat Atelier', type: 'anime', tier: 'B', episodes: 12, hours: 5, airing: true,
-      take: "Harry Potter for adults who care about craft. Methodical magic system, gorgeous art direction. Currently airing — manga readers will compare closely.",
-      pairs: ['Frieren', 'Mushishi', 'Spice and Wolf'] },
-    { id: 'dragon-ball', title: 'Dragon Ball', type: 'anime', tier: 'B', episodes: 153, hours: 61,
-      take: "Goku's origin before Z. More adventure-comedy than action — closer in tone to old kung-fu films than the franchise it became. Foundational to every shounen that followed.",
-      pairs: ['Dr. Slump', 'Saiyuki', 'Dragon Ball Z'] },
-    { id: 'sentenced', title: 'Sentenced to Be a Hero', type: 'anime', tier: 'B', episodes: 12, hours: 6,
-      take: "Studio Kai dark fantasy (2026). A penal unit of immortal criminal-heroes is forced to fight demons in an endless death-resurrection loop. 12 episodes plus an extended 60-min premiere. Season 2 already greenlit.",
-      pairs: ['86', 'Goblin Slayer', 'Re:Zero'] },
+    { id: 'solo-leveling', title: 'Solo Leveling', type: 'anime', tier: 'B', episodes: 25, hours: 10 },
+    { id: 'suits', title: 'Suits', type: 'live', tier: 'B', episodes: 134, hours: 94 },
+    { id: 'big-bang-theory', title: 'The Big Bang Theory', type: 'live', tier: 'B', episodes: 279, hours: 98 },
+    { id: 'dandadan', title: 'Dan Da Dan', type: 'anime', tier: 'B', episodes: 24, hours: 10 },
+    { id: 'hells-paradise', title: "Hell's Paradise", type: 'anime', tier: 'B', episodes: 13, hours: 5 },
+    { id: 'witch-hat', title: 'Witch Hat Atelier', type: 'anime', tier: 'B', episodes: 12, hours: 5, airing: true },
+    { id: 'dragon-ball', title: 'Dragon Ball', type: 'anime', tier: 'B', episodes: 153, hours: 61 },
+    { id: 'sentenced', title: 'Sentenced to Be a Hero', type: 'anime', tier: 'B', episodes: 12, hours: 6 },
 
     // ===== C-TIER =====
-    { id: 'soul-eater', title: 'Soul Eater', type: 'anime', tier: 'C', episodes: 51, hours: 20,
-      take: "Iconic 2008 visual style — Halloween palette, Tim Burton energy. Storyline diverges from the manga and wraps abruptly, but the vibe alone earns the watch.",
-      pairs: ['Bleach', 'FMA: Brotherhood', 'Blood+'] },
-    { id: 'tower-of-god', title: 'Tower of God', type: 'anime', tier: 'C', episodes: 25, hours: 10,
-      take: "Webtoon source is genre-defining. Anime adaptation rushes setup but covers the basics. Once hooked, the manhwa is where the story really opens up.",
-      pairs: ['Solo Leveling', 'God of High School', 'Noblesse'] },
-    { id: 'shangri-la', title: 'Shangri-La Frontier', type: 'anime', tier: 'C', episodes: 25, hours: 10,
-      take: "VRMMO power fantasy that takes its game design seriously. Sunraku's love of crappy games gives it personality. Comfort watch.",
-      pairs: ['Sword Art Online (Aincrad)', 'Log Horizon', 'Overlord'] },
-    { id: 'lost-in-space', title: 'Lost in Space', type: 'live', tier: 'C', episodes: 28, hours: 23,
-      take: "Netflix family-survival sci-fi. Gorgeous production design, three tight seasons with a real ending — rare for streaming originals.",
-      pairs: ['For All Mankind', 'Foundation', 'The Expanse'] },
-    { id: 'falling-skies', title: 'Falling Skies', type: 'live', tier: 'C', episodes: 52, hours: 37,
-      take: "Spielberg-produced post-alien-invasion drama. Earnest tone, five complete seasons. A period piece for the early-2010s sci-fi era.",
-      pairs: ['The Walking Dead', 'V (2009)', 'War of the Worlds (2019)'] },
+    { id: 'soul-eater', title: 'Soul Eater', type: 'anime', tier: 'C', episodes: 51, hours: 20 },
+    { id: 'tower-of-god', title: 'Tower of God', type: 'anime', tier: 'C', episodes: 25, hours: 10 },
+    { id: 'shangri-la', title: 'Shangri-La Frontier', type: 'anime', tier: 'C', episodes: 25, hours: 10 },
+    { id: 'lost-in-space', title: 'Lost in Space', type: 'live', tier: 'C', episodes: 28, hours: 23 },
+    { id: 'falling-skies', title: 'Falling Skies', type: 'live', tier: 'C', episodes: 52, hours: 37 },
 
     // ===== D-TIER =====
-    { id: 'kingdoms-ruin', title: 'The Kingdoms of Ruin', type: 'anime', tier: 'D', episodes: 12, hours: 5,
-      take: "Revenge-driven dark fantasy — wizard hunted by mages. Gore-forward and deliberately bleak. 12 episodes, vibes-first viewing.",
-      pairs: ['Goblin Slayer', 'Berserk', 'Hellsing Ultimate'] },
-    { id: 'gachiakuta', title: 'Gachiakuta', type: 'anime', tier: 'D', episodes: 12, hours: 5, airing: true,
-      take: "Bones-animated, currently airing. A slum-born protagonist falls into a trash dimension to hunt murderers. Strong street-art aesthetic, solid early word.",
-      pairs: ['Dorohedoro', 'Chainsaw Man', 'Jujutsu Kaisen'] },
-    { id: 'daemons', title: 'Daemons of the Shadow Realm', type: 'anime', tier: 'D', episodes: 12, hours: 5,
-      take: "From the creator of Fairy Tail. Twin protagonists, magic-system-forward shounen. Aimed squarely at fans of that exact lane.",
-      pairs: ['Fairy Tail', 'Edens Zero', 'Black Clover'] },
+    { id: 'kingdoms-ruin', title: 'The Kingdoms of Ruin', type: 'anime', tier: 'D', episodes: 12, hours: 5 },
+    { id: 'gachiakuta', title: 'Gachiakuta', type: 'anime', tier: 'D', episodes: 12, hours: 5, airing: true },
+    { id: 'daemons', title: 'Daemons of the Shadow Realm', type: 'anime', tier: 'D', episodes: 12, hours: 5 },
   ];
 
   const TIERS = ['S', 'A', 'B', 'C', 'D'];
@@ -590,8 +522,6 @@
 
   function renderCard(s) {
     const status = getStatus(s.id);
-    const pairs = s.pairs && s.pairs.length
-      ? `<div class="card-pairs"><b>Pairs with</b>${s.pairs.map(esc).join(' · ')}</div>` : '';
     return `
       <div class="card ${status}" data-id="${s.id}" data-type="${s.type}" data-status="${status}">
         <div class="tags">
@@ -599,8 +529,6 @@
           ${s.airing ? '<span class="tag airing">Airing</span>' : ''}
         </div>
         <div class="card-title">${esc(s.title)}</div>
-        <div class="card-take">${esc(s.take)}</div>
-        ${pairs}
         <div class="card-foot">
           <span class="card-len"><span>${s.episodes}</span> EP · ~${s.hours}H</span>
           <div class="status" role="group" aria-label="Watch status">
