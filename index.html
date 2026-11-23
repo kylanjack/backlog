@@ -342,7 +342,7 @@
   </section>
 
   <div class="data">
-    <span class="saved">Last saved: <span id="sync-time">—</span></span>
+    <span class="saved">Last saved: <span id="sync-time">—</span> · Build 3.2</span>
     <button class="text-btn" onclick="exportState()">Export</button>
     <button class="text-btn" onclick="importState()">Import</button>
     <button class="text-btn danger" onclick="resetAll()">Reset all</button>
@@ -841,17 +841,22 @@
     const signal = searchCtl.signal;
     box.innerHTML = '<div class="suggest-status">Searching…</div>';
     let results = null;
+    const fails = [];
     try { results = await searchGoogle(q, signal); }
     catch (e) {
       if (e.name === 'AbortError') return;
-      console.warn('Google Books failed:', e.message);
+      fails.push('Google: ' + e.message);
     }
     if (!results || !results.length) {
       try { results = await searchOpenLibrary(q, signal); }
       catch (e) {
         if (e.name === 'AbortError') return;
-        console.warn('Open Library failed:', e.message);
-        if (!results) { box.innerHTML = '<div class="suggest-status">Search unavailable. Type it in.</div>'; return; }
+        fails.push('Open Library: ' + e.message);
+        if (!results) {
+          if (q !== lastQuery) return;
+          box.innerHTML = '<div class="suggest-status">Search failed. Type it in.<br>' + esc(fails.join(' / ')) + '</div>';
+          return;
+        }
       }
     }
     if (q !== lastQuery) return;
