@@ -57,221 +57,137 @@
     padding: calc(env(safe-area-inset-top) + 20px) 16px calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 32px);
   }
 
+
   /* === HEADER === */
-  .top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
+  .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .logo { font-family: var(--px); font-size: 26px; letter-spacing: 1px; }
   .logo span { color: var(--yellow); }
   .tab-label { font-family: var(--px); font-size: 12px; color: var(--muted); }
 
   /* === STATS === */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  .stat {
-    background: var(--panel);
-    box-shadow: inset 0 -4px 0 var(--panel-edge);
-    padding: 12px 12px 14px;
-  }
+  .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+  .stat { background: var(--panel); box-shadow: inset 0 -4px 0 var(--panel-edge); padding: 12px 12px 14px; }
   .stat-label { font-family: var(--px); font-size: 11px; color: var(--muted); display: block; }
   .stat-value { font-family: var(--px); font-size: 26px; line-height: 1.1; }
   .stat-value.y { color: var(--yellow); }
   .stat-value.c { color: var(--cyan); }
   .stat-value.g { color: var(--green); }
-  .stat-value.o { color: var(--orange); }
 
-  /* === CHIPS (filters) === */
-  .chips {
-    display: flex;
-    gap: 6px;
-    overflow-x: auto;
-    margin: 0 -16px 16px;
-    padding: 0 16px 4px;
-    scrollbar-width: none;
-  }
+  /* === CHIPS === */
+  .chips { display: flex; gap: 6px; overflow-x: auto; margin: 0 -16px 8px; padding: 0 16px 4px; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
   .chip {
-    font-family: var(--px);
-    font-size: 11px;
-    white-space: nowrap;
-    background: var(--panel);
-    color: var(--muted);
-    padding: 10px 12px;
-    min-height: 40px;
-    box-shadow: inset 0 -3px 0 var(--panel-edge);
-    flex-shrink: 0;
+    font-family: var(--px); font-size: 11px; white-space: nowrap;
+    background: var(--panel); color: var(--muted);
+    padding: 10px 14px; min-height: 40px;
+    box-shadow: inset 0 -3px 0 var(--panel-edge); flex-shrink: 0;
   }
   .chip.active { background: var(--orange); color: var(--bg); box-shadow: inset 0 -3px 0 #B5513A; }
 
   /* === SECTIONS === */
-  .section-head {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 24px 0 10px;
-  }
-  .section-head .big { font-family: var(--px); font-size: 22px; line-height: 1; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin: 22px 0 10px; }
+  .section-head .big { font-family: var(--px); font-size: 15px; line-height: 1; }
   .section-head .rule { flex: 1; height: 4px; background: var(--panel); }
   .section-head .count { font-family: var(--px); font-size: 11px; color: var(--muted); }
+  .sec-active .big { color: var(--cyan); }
+  .sec-next .big { color: var(--yellow); }
+  .sec-done .big { color: var(--green); }
 
-  .tier-S .big { color: var(--yellow); }
-  .tier-A .big { color: var(--orange); }
-  .tier-B .big { color: var(--cyan); }
-  .tier-C .big { color: var(--muted); }
-  .tier-D .big { color: var(--panel-hi); }
-
-  /* === SHOW CARDS === */
-  .card {
-    background: var(--panel);
-    box-shadow: inset 0 -4px 0 var(--panel-edge);
-    padding: 14px 14px 16px;
-    margin-bottom: 8px;
-  }
-  .card.hidden { display: none; }
-  .card.completed .card-title { text-decoration: line-through; text-decoration-color: var(--green); text-decoration-thickness: 2px; color: var(--muted); }
-  .card.rewatched .card-title { color: var(--blue); }
-
-  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
-  .tag {
-    font-family: var(--px);
-    font-size: 11px;
-    padding: 2px 6px;
-    background: var(--bg);
-    color: var(--muted);
-  }
-  .tag.anime { color: var(--orange); }
-  .tag.live { color: var(--cyan); }
+  /* === CARDS === */
+  .card { background: var(--panel); box-shadow: inset 0 -4px 0 var(--panel-edge); padding: 12px 14px 16px; margin-bottom: 8px; }
+  .card-top { display: flex; align-items: flex-start; gap: 10px; }
+  .card-main { flex: 1; min-width: 0; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+  .tag { font-family: var(--px); font-size: 11px; padding: 2px 6px; background: var(--bg); color: var(--muted); }
+  .tag.anime, .tag.physical { color: var(--orange); }
+  .tag.live, .tag.audio { color: var(--cyan); }
   .tag.airing { background: var(--yellow); color: var(--bg); }
+  .card-title { font-size: 19px; font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
+  .card-sub { font-size: 14px; color: var(--muted); margin-top: 2px; }
+  .card.is-done .card-title { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--green); text-decoration-thickness: 2px; }
+  .card.rewatched .card-title { color: var(--blue); text-decoration: none; }
 
-  .card-title { font-size: 19px; font-weight: 600; line-height: 1.2; margin-bottom: 4px; }
-
-  .card-foot {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 10px;
-  }
+  .card-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
   .card-len { font-family: var(--px); font-size: 12px; color: var(--muted); }
   .card-len span { color: var(--text); }
 
   .status { display: flex; gap: 6px; }
   .st {
-    width: 44px;
-    height: 44px;
-    background: var(--bg);
-    color: var(--panel-hi);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 44px; height: 44px; background: var(--bg); color: var(--panel-hi);
+    display: flex; align-items: center; justify-content: center;
     box-shadow: inset 0 -3px 0 #11121D;
   }
   .st svg { width: 18px; height: 18px; }
-  .st.active[data-state="not-started"] { background: var(--panel-hi); color: var(--text); box-shadow: inset 0 -3px 0 #3E4E62; }
-  .st.active[data-state="watching"]    { background: var(--cyan); color: var(--bg); box-shadow: inset 0 -3px 0 #3FB8C2; }
-  .st.active[data-state="completed"]   { background: var(--green); color: var(--bg); box-shadow: inset 0 -3px 0 #6FB83F; }
-  .st.active[data-state="rewatched"]   { background: var(--blue); color: var(--bg); box-shadow: inset 0 -3px 0 #2A72B0; }
+  .st.active[data-state="not-started"], .st.active[data-state="want"] { background: var(--panel-hi); color: var(--text); box-shadow: inset 0 -3px 0 #3E4E62; }
+  .st.active[data-state="watching"], .st.active[data-state="reading"] { background: var(--cyan); color: var(--bg); box-shadow: inset 0 -3px 0 #3FB8C2; }
+  .st.active[data-state="completed"], .st.active[data-state="finished"] { background: var(--green); color: var(--bg); box-shadow: inset 0 -3px 0 #6FB83F; }
+  .st.active[data-state="rewatched"] { background: var(--blue); color: var(--bg); box-shadow: inset 0 -3px 0 #2A72B0; }
 
-  /* === EPISODE PROGRESS === */
-  .prog { display: none; align-items: center; gap: 8px; margin-top: 10px; }
-  .card.watching .prog { display: flex; }
+  /* === PROGRESS === */
+  .prog { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
   .prog-btn {
-    font-family: var(--px);
-    font-size: 14px;
-    min-width: 44px;
-    height: 44px;
-    padding: 0 10px;
-    background: var(--bg);
-    color: var(--muted);
-    box-shadow: inset 0 -3px 0 #11121D;
+    font-family: var(--px); font-size: 14px; min-width: 44px; height: 44px; padding: 0 10px;
+    background: var(--bg); color: var(--muted); box-shadow: inset 0 -3px 0 #11121D;
   }
   .prog-btn.plus { background: var(--cyan); color: var(--bg); box-shadow: inset 0 -3px 0 #3FB8C2; flex: 1; }
-  .prog-num { font-family: var(--px); font-size: 14px; color: var(--cyan); min-width: 92px; min-height: 44px; text-align: center; text-decoration: underline dotted; text-underline-offset: 4px; }
-  .prog-bar { height: 4px; background: var(--bg); margin-top: 8px; display: none; }
-  .card.watching .prog-bar { display: block; }
-  .prog-bar i { display: block; height: 100%; background: var(--cyan); }
-  .tag.custom { color: var(--yellow); }
-  .card-del { font-family: var(--px); font-size: 11px; color: var(--panel-hi); margin-left: auto; padding: 4px 0 4px 12px; min-height: 28px; }
-  .card-del:active { color: var(--red); }
-
-  /* === ADD SHOW FORM === */
-  .add-show-toggle { width: 100%; margin-bottom: 12px; }
-  .show-form { display: none; background: var(--panel); box-shadow: inset 0 -4px 0 var(--panel-edge); padding: 14px 14px 18px; margin-bottom: 16px; }
-  .show-form.open { display: block; }
-  .field-label { font-family: var(--px); font-size: 11px; color: var(--muted); margin: 12px 0 6px; display: block; }
-  .field-label:first-child { margin-top: 0; }
-  .seg { display: flex; gap: 6px; }
-  .seg button {
-    flex: 1;
-    font-family: var(--px);
-    font-size: 12px;
-    min-height: 44px;
-    background: var(--bg);
-    color: var(--muted);
-    box-shadow: inset 0 -3px 0 #11121D;
+  .prog-num {
+    font-family: var(--px); font-size: 14px; color: var(--cyan); min-width: 96px; min-height: 44px;
+    text-align: center; text-decoration: underline dotted; text-underline-offset: 4px;
   }
-  .seg button.on { background: var(--orange); color: var(--bg); box-shadow: inset 0 -3px 0 #B5513A; }
-  .show-form .add-input { width: 100%; }
-  .form-actions { display: flex; gap: 8px; margin-top: 16px; }
-  .form-actions .add-btn { flex: 1; }
-  .form-err { font-family: var(--px); font-size: 11px; color: var(--orange); margin-top: 8px; min-height: 14px; }
+  .prog-bar { height: 4px; background: var(--bg); margin-top: 8px; }
+  .prog-bar i { display: block; height: 100%; background: var(--cyan); }
 
-  .empty-filter { font-family: var(--px); font-size: 12px; color: var(--muted); text-align: center; padding: 32px 0; display: none; }
+  /* === DELETE (two-tap) === */
+  .del {
+    font-family: var(--px); font-size: 11px; flex-shrink: 0;
+    min-width: 52px; height: 36px; padding: 0 8px;
+    background: var(--bg); color: var(--muted); box-shadow: inset 0 -3px 0 #11121D;
+  }
+  .del.arm { background: var(--red); color: var(--text); box-shadow: inset 0 -3px 0 #7A2A3A; }
 
-  /* === ADD FORM === */
+  /* === ADD FORMS === */
   .add-form { display: flex; gap: 8px; margin-bottom: 16px; }
   .add-input {
-    flex: 1;
-    min-width: 0;
-    background: var(--bg);
-    border: 3px solid var(--panel);
-    padding: 12px;
-    font-size: 16px;
-    border-radius: 0;
-    -webkit-appearance: none;
+    flex: 1; min-width: 0; width: 100%; background: var(--bg); border: 3px solid var(--panel);
+    padding: 12px; font-size: 16px; border-radius: 0; -webkit-appearance: none;
   }
   .add-input:focus { outline: none; border-color: var(--yellow); }
   .add-input::placeholder { color: var(--panel-hi); }
   .add-btn {
-    font-family: var(--px);
-    font-size: 13px;
-    background: var(--yellow);
-    color: var(--bg);
-    padding: 0 16px;
-    min-height: 50px;
-    box-shadow: inset 0 -4px 0 #C99A48;
-    flex-shrink: 0;
+    font-family: var(--px); font-size: 13px; background: var(--yellow); color: var(--bg);
+    padding: 0 16px; min-height: 50px; box-shadow: inset 0 -4px 0 #C99A48; flex-shrink: 0;
   }
-  .add-btn:active, .chip:active, .st:active, .tab:active { transform: translateY(2px); }
+  .add-toggle { width: 100%; margin-bottom: 12px; }
+  .ghost-btn {
+    font-family: var(--px); font-size: 12px; background: var(--bg); color: var(--muted);
+    padding: 0 16px; min-height: 50px; box-shadow: inset 0 -3px 0 #11121D;
+  }
+  .add-btn:active, .chip:active, .st:active, .tab:active, .prog-btn:active, .del:active, .check:active, .ghost-btn:active { transform: translateY(2px); }
+
+  .big-form { display: none; background: var(--panel); box-shadow: inset 0 -4px 0 var(--panel-edge); padding: 14px 14px 18px; margin-bottom: 16px; }
+  .big-form.open { display: block; }
+  .field-label { font-family: var(--px); font-size: 11px; color: var(--muted); margin: 12px 0 6px; display: block; }
+  .field-label:first-child { margin-top: 0; }
+  .seg { display: flex; gap: 6px; }
+  .seg button {
+    flex: 1; font-family: var(--px); font-size: 12px; min-height: 44px;
+    background: var(--bg); color: var(--muted); box-shadow: inset 0 -3px 0 #11121D;
+  }
+  .seg button.on { background: var(--orange); color: var(--bg); box-shadow: inset 0 -3px 0 #B5513A; }
+  .form-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .form-actions .add-btn { flex: 1; }
+  .form-err { font-family: var(--px); font-size: 11px; color: var(--orange); margin-top: 8px; min-height: 14px; }
 
   /* === LIST ITEMS (to-do + notes) === */
   .list-label { font-family: var(--px); font-size: 11px; color: var(--muted); margin: 20px 0 8px; display: flex; justify-content: space-between; align-items: center; }
   .item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--panel);
-    box-shadow: inset 0 -4px 0 var(--panel-edge);
-    padding: 8px 8px 12px;
-    margin-bottom: 6px;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--panel); box-shadow: inset 0 -4px 0 var(--panel-edge);
+    padding: 8px 8px 12px; margin-bottom: 6px;
   }
   .check {
-    width: 44px;
-    height: 44px;
-    flex-shrink: 0;
-    background: var(--bg);
-    color: var(--green);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: inset 0 -3px 0 #11121D;
+    width: 44px; height: 44px; flex-shrink: 0; background: var(--bg); color: var(--green);
+    display: flex; align-items: center; justify-content: center; box-shadow: inset 0 -3px 0 #11121D;
   }
   .check svg { width: 20px; height: 20px; visibility: hidden; }
   .item.done .check { background: var(--green); color: var(--bg); box-shadow: inset 0 -3px 0 #6FB83F; }
@@ -279,73 +195,31 @@
   .item-text { flex: 1; min-width: 0; font-size: 16px; overflow-wrap: anywhere; }
   .item.done .item-text { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--green); }
   .item-date { font-family: var(--px); font-size: 11px; color: var(--muted); flex-shrink: 0; }
-  .del {
-    width: 44px;
-    height: 44px;
-    flex-shrink: 0;
-    color: var(--panel-hi);
-    font-family: var(--px);
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .del:active { color: var(--red); }
   .note-item { padding-left: 14px; }
 
-  .text-btn {
-    font-family: var(--px);
-    font-size: 11px;
-    color: var(--muted);
-    padding: 8px 0;
-    min-height: 36px;
-  }
+  .text-btn { font-family: var(--px); font-size: 11px; color: var(--muted); padding: 8px 0; min-height: 36px; }
   .text-btn.danger { color: var(--red); }
-
-  .empty {
-    font-family: var(--px);
-    font-size: 12px;
-    color: var(--panel-hi);
-    text-align: center;
-    padding: 32px 0;
-  }
+  .empty { font-family: var(--px); font-size: 12px; color: var(--panel-hi); text-align: center; padding: 28px 0; }
 
   /* === DATA FOOTER === */
-  .data {
-    margin-top: 40px;
-    padding-top: 16px;
-    border-top: 4px solid var(--panel);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 18px;
-    align-items: center;
-  }
+  .data { margin-top: 40px; padding-top: 16px; border-top: 4px solid var(--panel); display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: center; }
   .data .saved { font-family: var(--px); font-size: 11px; color: var(--panel-hi); width: 100%; }
 
   /* === TABS === */
   .panel { display: none; }
   .panel.active { display: block; }
-
   .tabbar {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    background: var(--bg);
+    position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg);
     border-top: 4px solid var(--panel);
-    padding: 8px 12px calc(env(safe-area-inset-bottom) + 8px);
-    z-index: 10;
+    padding: 8px 10px calc(env(safe-area-inset-bottom) + 8px); z-index: 10;
   }
-  .tabbar-inner { max-width: 640px; margin: 0 auto; display: flex; gap: 8px; }
+  .tabbar-inner { max-width: 640px; margin: 0 auto; display: flex; gap: 6px; }
   .tab {
-    flex: 1;
-    font-family: var(--px);
-    font-size: 13px;
-    min-height: 48px;
-    background: var(--panel);
-    color: var(--muted);
-    box-shadow: inset 0 -4px 0 var(--panel-edge);
+    flex: 1; font-family: var(--px); font-size: 12px; min-height: 48px; padding: 0 2px;
+    background: var(--panel); color: var(--muted); box-shadow: inset 0 -4px 0 var(--panel-edge);
   }
   .tab.active { background: var(--orange); color: var(--bg); box-shadow: inset 0 -4px 0 #B5513A; }
-  .tab .n { font-size: 11px; opacity: .8; margin-left: 4px; }
+  .tab .n { font-size: 10px; opacity: .8; margin-left: 3px; }
 </style>
 </head>
 <body>
@@ -353,57 +227,8 @@
 
   <div class="top">
     <div class="logo">BACK<span>LOG</span></div>
-    <div class="tab-label" id="tab-label">SHOWS</div>
+    <div class="tab-label" id="tab-label">TO-DO</div>
   </div>
-
-  <!-- ===== SHOWS ===== -->
-  <section class="panel" id="panel-shows">
-    <div class="stats">
-      <div class="stat"><span class="stat-label">Total</span><span class="stat-value" id="stat-total">0</span></div>
-      <div class="stat"><span class="stat-label">Watching</span><span class="stat-value c" id="stat-watching">0</span></div>
-      <div class="stat"><span class="stat-label">Done</span><span class="stat-value g" id="stat-completed">0</span></div>
-      <div class="stat"><span class="stat-label">Hours left</span><span class="stat-value y" id="stat-hours">0</span></div>
-    </div>
-
-    <button class="add-btn add-show-toggle" id="add-show-toggle" onclick="toggleShowForm()">+ ADD SHOW</button>
-    <form class="show-form" id="show-form" onsubmit="return addShow(event)">
-      <label class="field-label" for="show-title">Name</label>
-      <input class="add-input" id="show-title" type="text" maxlength="120" autocomplete="off" placeholder="Show name">
-      <span class="field-label">Type</span>
-      <div class="seg" data-field="type">
-        <button type="button" data-v="anime" class="on">Anime</button>
-        <button type="button" data-v="live">Live-action</button>
-      </div>
-      <span class="field-label">Tier</span>
-      <div class="seg" data-field="tier">
-        <button type="button" data-v="S">S</button>
-        <button type="button" data-v="A">A</button>
-        <button type="button" data-v="B" class="on">B</button>
-        <button type="button" data-v="C">C</button>
-        <button type="button" data-v="D">D</button>
-      </div>
-      <label class="field-label" for="show-eps">Episodes (optional)</label>
-      <input class="add-input" id="show-eps" type="number" inputmode="numeric" min="1" max="5000" placeholder="24">
-      <div class="form-err" id="show-err"></div>
-      <div class="form-actions">
-        <button type="button" class="chip" style="background:var(--bg)" onclick="toggleShowForm(false)">Cancel</button>
-        <button type="submit" class="add-btn">SAVE SHOW</button>
-      </div>
-    </form>
-
-    <div class="chips" id="filters">
-      <button class="chip active" data-filter="all">All</button>
-      <button class="chip" data-filter="watching">Watching</button>
-      <button class="chip" data-filter="not-started">Not started</button>
-      <button class="chip" data-filter="completed">Done</button>
-      <button class="chip" data-filter="rewatched">Rewatched</button>
-      <button class="chip" data-filter="anime">Anime</button>
-      <button class="chip" data-filter="live">Live-action</button>
-    </div>
-
-    <div id="tiers"></div>
-    <div class="empty-filter" id="empty-filter">Nothing here</div>
-  </section>
 
   <!-- ===== TO-DO ===== -->
   <section class="panel" id="panel-todo">
@@ -415,10 +240,84 @@
     <div id="todo-done-wrap"></div>
   </section>
 
+  <!-- ===== SHOWS ===== -->
+  <section class="panel" id="panel-shows">
+    <div class="stats">
+      <div class="stat"><span class="stat-label">Watching</span><span class="stat-value c" id="sh-watching">0</span></div>
+      <div class="stat"><span class="stat-label">Up next</span><span class="stat-value y" id="sh-next">0</span></div>
+      <div class="stat"><span class="stat-label">Done</span><span class="stat-value g" id="sh-done">0</span></div>
+      <div class="stat"><span class="stat-label">Hours left</span><span class="stat-value" id="sh-hours">0</span></div>
+    </div>
+
+    <button class="add-btn add-toggle" id="show-toggle" onclick="toggleForm('show')">+ ADD SHOW</button>
+    <form class="big-form" id="show-form" onsubmit="return addShow(event)">
+      <label class="field-label" for="show-title">Name</label>
+      <input class="add-input" id="show-title" type="text" maxlength="120" autocomplete="off" placeholder="Show name">
+      <span class="field-label">Type</span>
+      <div class="seg" data-form="show" data-field="type">
+        <button type="button" data-v="anime" class="on">Anime</button>
+        <button type="button" data-v="live">Live-action</button>
+      </div>
+      <label class="field-label" for="show-eps">Episodes (optional)</label>
+      <input class="add-input" id="show-eps" type="number" inputmode="numeric" min="1" max="5000" placeholder="24">
+      <div class="form-err" id="show-err"></div>
+      <div class="form-actions">
+        <button type="button" class="ghost-btn" onclick="toggleForm('show', false)">Cancel</button>
+        <button type="submit" class="add-btn">SAVE SHOW</button>
+      </div>
+    </form>
+
+    <div class="chips" data-chips="show">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="anime">Anime</button>
+      <button class="chip" data-filter="live">Live-action</button>
+    </div>
+    <div id="shows-list"></div>
+  </section>
+
+  <!-- ===== BOOKS ===== -->
+  <section class="panel" id="panel-books">
+    <div class="stats">
+      <div class="stat"><span class="stat-label">Reading</span><span class="stat-value c" id="bk-reading">0</span></div>
+      <div class="stat"><span class="stat-label">Up next</span><span class="stat-value y" id="bk-next">0</span></div>
+      <div class="stat"><span class="stat-label">Finished</span><span class="stat-value g" id="bk-done">0</span></div>
+      <div class="stat"><span class="stat-label" id="bk-year-label">This year</span><span class="stat-value" id="bk-year">0</span></div>
+    </div>
+
+    <button class="add-btn add-toggle" id="book-toggle" onclick="toggleForm('book')">+ ADD BOOK</button>
+    <form class="big-form" id="book-form" onsubmit="return addBook(event)">
+      <label class="field-label" for="book-title">Title</label>
+      <input class="add-input" id="book-title" type="text" maxlength="160" autocomplete="off" placeholder="Book title">
+      <label class="field-label" for="book-author">Author (optional)</label>
+      <input class="add-input" id="book-author" type="text" maxlength="120" autocomplete="off" placeholder="Author">
+      <span class="field-label">Format</span>
+      <div class="seg" data-form="book" data-field="format">
+        <button type="button" data-v="physical" class="on">Physical</button>
+        <button type="button" data-v="audio">Audiobook</button>
+      </div>
+      <div id="book-pages-wrap">
+        <label class="field-label" for="book-pages">Pages (optional)</label>
+        <input class="add-input" id="book-pages" type="number" inputmode="numeric" min="1" max="10000" placeholder="320">
+      </div>
+      <div class="form-err" id="book-err"></div>
+      <div class="form-actions">
+        <button type="button" class="ghost-btn" onclick="toggleForm('book', false)">Cancel</button>
+        <button type="submit" class="add-btn">SAVE BOOK</button>
+      </div>
+    </form>
+
+    <div class="chips" data-chips="book">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="physical">Physical</button>
+      <button class="chip" data-filter="audio">Audiobook</button>
+    </div>
+    <div id="books-list"></div>
+  </section>
+
   <!-- ===== NOTES ===== -->
   <section class="panel" id="panel-notes">
     <form class="add-form" onsubmit="return addNote(event)">
-      <input class="add-input" id="note-input" type="text" placeholder="Show to check out, idea" maxlength="200" autocomplete="off">
+      <input class="add-input" id="note-input" type="text" placeholder="Idea, thing to check out" maxlength="200" autocomplete="off">
       <button class="add-btn" type="submit">SAVE</button>
     </form>
     <div id="notes-list"></div>
@@ -435,79 +334,74 @@
 
 <nav class="tabbar">
   <div class="tabbar-inner">
-    <button class="tab" data-tab="shows">SHOWS</button>
     <button class="tab" data-tab="todo">TO-DO<span class="n" id="tab-todo-n"></span></button>
-    <button class="tab" data-tab="notes">NOTES<span class="n" id="tab-notes-n"></span></button>
+    <button class="tab" data-tab="shows">SHOWS</button>
+    <button class="tab" data-tab="books">BOOKS</button>
+    <button class="tab" data-tab="notes">NOTES</button>
   </div>
 </nav>
 
 <script>
-  const SHOWS = [
-    // ===== S-TIER =====
-    { id: 'breaking-bad', title: 'Breaking Bad', type: 'live', tier: 'S', episodes: 62, hours: 49 },
-    { id: 'frieren', title: "Frieren: Beyond Journey's End", type: 'anime', tier: 'S', episodes: 28, hours: 11 },
-    { id: 'vinland-saga', title: 'Vinland Saga', type: 'anime', tier: 'S', episodes: 48, hours: 19 },
-    { id: 'avatar', title: 'Avatar: The Last Airbender', type: 'live', tier: 'S', episodes: 61, hours: 23 },
-    { id: 'mob-psycho', title: 'Mob Psycho 100', type: 'anime', tier: 'S', episodes: 37, hours: 15 },
-    { id: 'dark', title: 'Dark', type: 'live', tier: 'S', episodes: 26, hours: 24 },
-    { id: 'one-piece', title: 'One Piece', type: 'anime', tier: 'S', episodes: 1156, hours: 462, airing: true },
-
-    // ===== A-TIER =====
-    { id: 'aot', title: 'Attack on Titan', type: 'anime', tier: 'A', episodes: 94, hours: 38 },
-    { id: 'code-geass', title: 'Code Geass', type: 'anime', tier: 'A', episodes: 50, hours: 20 },
-    { id: 'death-note', title: 'Death Note', type: 'anime', tier: 'A', episodes: 37, hours: 14 },
-    { id: 'rezero', title: 'Re:Zero', type: 'anime', tier: 'A', episodes: 65, hours: 26 },
-    { id: '86', title: '86', type: 'anime', tier: 'A', episodes: 23, hours: 9 },
-    { id: 'vikings', title: 'Vikings', type: 'live', tier: 'A', episodes: 89, hours: 67 },
-    { id: 'jjk', title: 'Jujutsu Kaisen', type: 'anime', tier: 'A', episodes: 47, hours: 19 },
-    { id: 'naruto', title: 'Naruto', type: 'anime', tier: 'A', episodes: 220, hours: 84 },
-    { id: 'shippuden', title: 'Naruto Shippuden', type: 'anime', tier: 'A', episodes: 500, hours: 192 },
-
-    // ===== B-TIER =====
-    { id: 'solo-leveling', title: 'Solo Leveling', type: 'anime', tier: 'B', episodes: 25, hours: 10 },
-    { id: 'suits', title: 'Suits', type: 'live', tier: 'B', episodes: 134, hours: 94 },
-    { id: 'big-bang-theory', title: 'The Big Bang Theory', type: 'live', tier: 'B', episodes: 279, hours: 98 },
-    { id: 'dandadan', title: 'Dan Da Dan', type: 'anime', tier: 'B', episodes: 24, hours: 10 },
-    { id: 'hells-paradise', title: "Hell's Paradise", type: 'anime', tier: 'B', episodes: 13, hours: 5 },
-    { id: 'witch-hat', title: 'Witch Hat Atelier', type: 'anime', tier: 'B', episodes: 12, hours: 5, airing: true },
-    { id: 'dragon-ball', title: 'Dragon Ball', type: 'anime', tier: 'B', episodes: 153, hours: 61 },
-    { id: 'sentenced', title: 'Sentenced to Be a Hero', type: 'anime', tier: 'B', episodes: 12, hours: 6 },
-
-    // ===== C-TIER =====
-    { id: 'soul-eater', title: 'Soul Eater', type: 'anime', tier: 'C', episodes: 51, hours: 20 },
-    { id: 'tower-of-god', title: 'Tower of God', type: 'anime', tier: 'C', episodes: 25, hours: 10 },
-    { id: 'shangri-la', title: 'Shangri-La Frontier', type: 'anime', tier: 'C', episodes: 25, hours: 10 },
-    { id: 'lost-in-space', title: 'Lost in Space', type: 'live', tier: 'C', episodes: 28, hours: 23 },
-    { id: 'falling-skies', title: 'Falling Skies', type: 'live', tier: 'C', episodes: 52, hours: 37 },
-
-    // ===== D-TIER =====
-    { id: 'kingdoms-ruin', title: 'The Kingdoms of Ruin', type: 'anime', tier: 'D', episodes: 12, hours: 5 },
-    { id: 'gachiakuta', title: 'Gachiakuta', type: 'anime', tier: 'D', episodes: 12, hours: 5, airing: true },
-    { id: 'daemons', title: 'Daemons of the Shadow Realm', type: 'anime', tier: 'D', episodes: 12, hours: 5 },
+  // Starter list, used only the first time the app runs (or after Reset all).
+  const SEED_SHOWS = [
+    { id: 'breaking-bad', title: 'Breaking Bad', type: 'live', episodes: 62, hours: 49 },
+    { id: 'frieren', title: "Frieren: Beyond Journey's End", type: 'anime', episodes: 28, hours: 11 },
+    { id: 'vinland-saga', title: 'Vinland Saga', type: 'anime', episodes: 48, hours: 19 },
+    { id: 'avatar', title: 'Avatar: The Last Airbender', type: 'live', episodes: 61, hours: 23 },
+    { id: 'mob-psycho', title: 'Mob Psycho 100', type: 'anime', episodes: 37, hours: 15 },
+    { id: 'dark', title: 'Dark', type: 'live', episodes: 26, hours: 24 },
+    { id: 'one-piece', title: 'One Piece', type: 'anime', episodes: 1156, hours: 462, airing: true },
+    { id: 'aot', title: 'Attack on Titan', type: 'anime', episodes: 94, hours: 38 },
+    { id: 'code-geass', title: 'Code Geass', type: 'anime', episodes: 50, hours: 20 },
+    { id: 'death-note', title: 'Death Note', type: 'anime', episodes: 37, hours: 14 },
+    { id: 'rezero', title: 'Re:Zero', type: 'anime', episodes: 65, hours: 26 },
+    { id: '86', title: '86', type: 'anime', episodes: 23, hours: 9 },
+    { id: 'vikings', title: 'Vikings', type: 'live', episodes: 89, hours: 67 },
+    { id: 'jjk', title: 'Jujutsu Kaisen', type: 'anime', episodes: 47, hours: 19 },
+    { id: 'naruto', title: 'Naruto', type: 'anime', episodes: 220, hours: 84 },
+    { id: 'shippuden', title: 'Naruto Shippuden', type: 'anime', episodes: 500, hours: 192 },
+    { id: 'solo-leveling', title: 'Solo Leveling', type: 'anime', episodes: 25, hours: 10 },
+    { id: 'suits', title: 'Suits', type: 'live', episodes: 134, hours: 94 },
+    { id: 'big-bang-theory', title: 'The Big Bang Theory', type: 'live', episodes: 279, hours: 98 },
+    { id: 'dandadan', title: 'Dan Da Dan', type: 'anime', episodes: 24, hours: 10 },
+    { id: 'hells-paradise', title: "Hell's Paradise", type: 'anime', episodes: 13, hours: 5 },
+    { id: 'witch-hat', title: 'Witch Hat Atelier', type: 'anime', episodes: 12, hours: 5, airing: true },
+    { id: 'dragon-ball', title: 'Dragon Ball', type: 'anime', episodes: 153, hours: 61 },
+    { id: 'sentenced', title: 'Sentenced to Be a Hero', type: 'anime', episodes: 12, hours: 6 },
+    { id: 'soul-eater', title: 'Soul Eater', type: 'anime', episodes: 51, hours: 20 },
+    { id: 'tower-of-god', title: 'Tower of God', type: 'anime', episodes: 25, hours: 10 },
+    { id: 'shangri-la', title: 'Shangri-La Frontier', type: 'anime', episodes: 25, hours: 10 },
+    { id: 'lost-in-space', title: 'Lost in Space', type: 'live', episodes: 28, hours: 23 },
+    { id: 'falling-skies', title: 'Falling Skies', type: 'live', episodes: 52, hours: 37 },
+    { id: 'kingdoms-ruin', title: 'The Kingdoms of Ruin', type: 'anime', episodes: 12, hours: 5 },
+    { id: 'gachiakuta', title: 'Gachiakuta', type: 'anime', episodes: 12, hours: 5, airing: true },
+    { id: 'daemons', title: 'Daemons of the Shadow Realm', type: 'anime', episodes: 12, hours: 5 }
   ];
 
-  const TIERS = ['S', 'A', 'B', 'C', 'D'];
-  const STATUSES = ['not-started', 'watching', 'completed', 'rewatched'];
-
-  // Storage keys. The first two are from the original Backlog — do not rename or existing data is lost.
-  const STATE_KEY = 'watchlist:state';
+  // Storage keys. Do not rename: existing data lives under these.
+  const STATE_KEY = 'watchlist:state';        // show status by id
   const NOTES_KEY = 'watchlist:reminders';
   const TODOS_KEY = 'backlog:todos';
-  const CUSTOM_KEY = 'backlog:custom-shows';
-  const PROGRESS_KEY = 'backlog:progress';
+  const PROGRESS_KEY = 'backlog:progress';    // show episode by id
+  const SHOWS_KEY = 'backlog:shows';
+  const BOOKS_KEY = 'backlog:books';
+  const OLD_CUSTOM_KEY = 'backlog:custom-shows'; // V2 only, migrated into SHOWS_KEY
 
-  let state = {};
-  let notes = [];
-  let todos = [];
-  let customShows = [];
-  let progress = {};
-  let currentFilter = 'all';
+  const SHOW_STATUSES = ['not-started', 'watching', 'completed', 'rewatched'];
+  const BOOK_STATUSES = ['want', 'reading', 'finished'];
 
-  // ===== STORAGE =====
+  let shows = [], books = [], state = {}, progress = {}, notes = [], todos = [];
+  const filters = { show: 'all', book: 'all' };
+  const formChoice = { show: { type: 'anime' }, book: { format: 'physical' } };
+
+  // ===== HELPERS =====
+  const isObj = v => v && typeof v === 'object' && !Array.isArray(v);
+  const isArr = v => Array.isArray(v);
+
   function load(key, fallback, check) {
     try {
       const raw = localStorage.getItem(key);
-      if (!raw) return fallback;
+      if (raw === null) return fallback;
       const parsed = JSON.parse(raw);
       return check(parsed) ? parsed : fallback;
     } catch (e) {
@@ -518,40 +412,54 @@
   function save(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
-      updateSyncTime();
+      document.getElementById('sync-time').textContent =
+        new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
     } catch (e) {
       console.warn('Could not save ' + key + ':', e.message);
     }
   }
-  const isObj = v => v && typeof v === 'object' && !Array.isArray(v);
-  const isArr = v => Array.isArray(v);
-
-  function updateSyncTime() {
-    const el = document.getElementById('sync-time');
-    if (el) el.textContent = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-  }
-
-  function uid(prefix) {
-    return prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
-  }
-
-  function esc(str) {
-    return String(str == null ? '' : str)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
+  const uid = p => p + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+  const esc = str => String(str == null ? '' : str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   function shortDate(ts) {
     const d = new Date(ts);
-    const sameYear = d.getFullYear() === new Date().getFullYear();
-    return d.toLocaleDateString([], sameYear ? { month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric', year: '2-digit' });
+    const opts = d.getFullYear() === new Date().getFullYear()
+      ? { month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric', year: '2-digit' };
+    return d.toLocaleDateString([], opts);
+  }
+  const toInt = v => { const n = parseInt(v, 10); return isNaN(n) ? null : n; };
+
+  const ICONS = {
+    box:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" shape-rendering="crispEdges"><rect x="5" y="5" width="14" height="14"/></svg>',
+    play:  '<svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M7 4h3v2h3v2h3v2h3v4h-3v2h-3v2h-3v2H7z"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M19 6h3v3h-3v3h-3v3h-3v3h-3v3H7v-3H4v-3H1v-3h3v3h3v3h3v-3h3v-3h3V9h3z"/></svg>',
+    again: '<svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M6 4h12v3h3v6h-3V7H6v3h3v3H3V7h3zM18 20H6v-3H3v-6h3v6h12v-3h-3v-3h6v6h-3z"/></svg>'
+  };
+  const SHOW_BTNS = [
+    ['not-started', ICONS.box, 'Not started'], ['watching', ICONS.play, 'Watching'],
+    ['completed', ICONS.check, 'Done'], ['rewatched', ICONS.again, 'Rewatched']
+  ];
+  const BOOK_BTNS = [
+    ['want', ICONS.box, 'Up next'], ['reading', ICONS.play, 'Reading'], ['finished', ICONS.check, 'Finished']
+  ];
+
+  function section(cls, label, items, renderFn) {
+    if (!items.length) return '';
+    return `
+      <div class="section-head ${cls}">
+        <span class="big">${label}</span><span class="rule"></span>
+        <span class="count">${items.length}</span>
+      </div>
+      ${items.map(renderFn).join('')}`;
   }
 
   // ===== TABS =====
+  const TAB_NAMES = { todo: 'TO-DO', shows: 'SHOWS', books: 'BOOKS', notes: 'NOTES' };
   function setTab(name) {
-    if (!['shows', 'todo', 'notes'].includes(name)) name = 'shows';
+    if (!TAB_NAMES[name]) name = 'todo';
     document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-    document.getElementById('tab-label').textContent = { shows: 'SHOWS', todo: 'TO-DO', notes: 'NOTES' }[name];
+    document.getElementById('tab-label').textContent = TAB_NAMES[name];
     window.scrollTo(0, 0);
   }
   document.querySelector('.tabbar').addEventListener('click', e => {
@@ -559,279 +467,328 @@
     if (t) setTab(t.dataset.tab);
   });
 
-  function updateTabCounts() {
-    const open = todos.filter(t => !t.done).length;
-    document.getElementById('tab-todo-n').textContent = open ? open : '';
-    document.getElementById('tab-notes-n').textContent = notes.length ? notes.length : '';
+  // ===== TWO-TAP DELETE =====
+  // First tap arms the button ("SURE?"), second tap within 3s deletes.
+  let armed = null, armTimer = null;
+  function disarm() {
+    if (armed) { armed.classList.remove('arm'); armed.textContent = 'DEL'; }
+    armed = null;
+    clearTimeout(armTimer);
   }
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.del');
+    if (!btn) { disarm(); return; }
+    e.stopPropagation();
+    if (armed !== btn) {
+      disarm();
+      armed = btn;
+      btn.classList.add('arm');
+      btn.textContent = 'SURE?';
+      armTimer = setTimeout(disarm, 3000);
+      return;
+    }
+    const [kind, id] = btn.dataset.del.split('|');
+    disarm();
+    ({ show: deleteShow, book: deleteBook, todo: deleteTodo, note: deleteNote })[kind](id);
+  }, true);
+  const delBtn = (kind, id) => `<button class="del" type="button" data-del="${kind}|${esc(id)}" aria-label="Delete">DEL</button>`;
+
+  // ===== ADD FORMS =====
+  function toggleForm(kind, force) {
+    const form = document.getElementById(kind + '-form');
+    const open = typeof force === 'boolean' ? force : !form.classList.contains('open');
+    form.classList.toggle('open', open);
+    document.getElementById(kind + '-toggle').style.display = open ? 'none' : '';
+    document.getElementById(kind + '-err').textContent = '';
+    if (open) document.getElementById(kind + '-title').focus();
+  }
+  document.querySelectorAll('.seg').forEach(seg => seg.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    seg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    formChoice[seg.dataset.form][seg.dataset.field] = b.dataset.v;
+    if (seg.dataset.form === 'book') {
+      document.getElementById('book-pages-wrap').style.display = b.dataset.v === 'physical' ? '' : 'none';
+    }
+  }));
+  ['show', 'book'].forEach(k => document.getElementById(k + '-title').addEventListener('input', () => {
+    document.getElementById(k + '-err').textContent = '';
+  }));
+
+  document.querySelectorAll('[data-chips]').forEach(row => row.addEventListener('click', e => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    row.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
+    filters[row.dataset.chips] = chip.dataset.filter;
+    row.dataset.chips === 'show' ? renderShows() : renderBooks();
+  }));
 
   // ===== SHOWS =====
-  const allShows = () => SHOWS.concat(customShows);
-  const findShow = id => allShows().find(s => s.id === id);
-  const getProg = id => Math.max(0, parseInt(progress[id], 10) || 0);
-  const isDoneShow = s => ['completed', 'rewatched'].includes(getStatus(s.id));
-  function hoursLeft(s) {
-    if (isDoneShow(s)) return 0;
-    if (!s.episodes) return s.hours || 0;
-    const left = Math.max(0, s.episodes - getProg(s.id));
-    return (s.hours || 0) * left / s.episodes;
-  }
-  const getStatus = id => STATUSES.includes(state[id]) ? state[id] : 'not-started';
+  const showStatus = id => SHOW_STATUSES.includes(state[id]) ? state[id] : 'not-started';
+  const showProg = id => Math.max(0, toInt(progress[id]) || 0);
+  const showDone = s => ['completed', 'rewatched'].includes(showStatus(s.id));
+  const findShow = id => shows.find(s => s.id === id);
 
-  const ICONS = {
-    'not-started': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" shape-rendering="crispEdges"><rect x="5" y="5" width="14" height="14"/></svg>',
-    'watching':    '<svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M7 4h3v2h3v2h3v2h3v4h-3v2h-3v2h-3v2H7z"/></svg>',
-    'completed':   '<svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M19 6h3v3h-3v3h-3v3h-3v3h-3v3H7v-3H4v-3H1v-3h3v3h3v3h3v-3h3v-3h3V9h3z"/></svg>',
-    'rewatched':   '<svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M6 4h12v3h3v6h-3V7H6v3h3v3H3V7h3zM18 20H6v-3H3v-6h3v6h12v-3h-3v-3h6v6h-3z"/></svg>'
-  };
-  const STATUS_LABEL = { 'not-started': 'Not started', 'watching': 'Watching', 'completed': 'Done', 'rewatched': 'Rewatched' };
+  function showHoursLeft(s) {
+    if (showDone(s)) return 0;
+    if (!s.episodes) return s.hours || 0;
+    return (s.hours || 0) * Math.max(0, s.episodes - showProg(s.id)) / s.episodes;
+  }
 
   function renderShows() {
-    const root = document.getElementById('tiers');
-    root.innerHTML = TIERS.map(tier => {
-      const shows = allShows().filter(s => s.tier === tier);
-      if (!shows.length) return '';
-      return `
-        <div class="tier-block" data-tier="${tier}">
-          <div class="section-head tier-${tier}">
-            <span class="big">${tier}</span>
-            <span class="rule"></span>
-            <span class="count" data-count></span>
-          </div>
-          ${shows.map(renderCard).join('')}
-        </div>`;
-    }).join('');
+    const f = filters.show;
+    const list = shows.filter(s => f === 'all' || s.type === f);
+    const html =
+      section('sec-active', 'Watching', list.filter(s => showStatus(s.id) === 'watching'), showCard) +
+      section('sec-next', 'Up next', list.filter(s => showStatus(s.id) === 'not-started'), showCard) +
+      section('sec-done', 'Done', list.filter(showDone), showCard);
+    document.getElementById('shows-list').innerHTML = html || '<div class="empty">No shows</div>';
+
+    document.getElementById('sh-watching').textContent = shows.filter(s => showStatus(s.id) === 'watching').length;
+    document.getElementById('sh-next').textContent = shows.filter(s => showStatus(s.id) === 'not-started').length;
+    document.getElementById('sh-done').textContent = shows.filter(showDone).length;
+    document.getElementById('sh-hours').textContent = Math.round(shows.reduce((a, s) => a + showHoursLeft(s), 0));
   }
 
-  function progLabel(s) {
-    const n = getProg(s.id);
-    return s.episodes ? `EP ${n} / ${s.episodes}` : `EP ${n}`;
-  }
-  function progPct(s) {
-    return s.episodes ? Math.min(100, Math.round(getProg(s.id) / s.episodes * 100)) : 0;
-  }
-
-  function renderCard(s) {
-    const status = getStatus(s.id);
+  function showCard(s) {
+    const st = showStatus(s.id);
+    const n = showProg(s.id);
+    const prog = st !== 'watching' ? '' : `
+      <div class="prog">
+        <button class="prog-btn" data-act="ep" data-step="-1" aria-label="Back one episode">-1</button>
+        <button class="prog-num" data-act="ep-set" aria-label="Set episode">${s.episodes ? `EP ${n} / ${s.episodes}` : `EP ${n}`}</button>
+        <button class="prog-btn plus" data-act="ep" data-step="1" aria-label="Watched one more episode">+1 EP</button>
+      </div>
+      ${s.episodes ? `<div class="prog-bar"><i style="width:${Math.min(100, Math.round(n / s.episodes * 100))}%"></i></div>` : ''}`;
     return `
-      <div class="card ${status}" data-id="${s.id}" data-type="${s.type}" data-status="${status}">
-        <div class="tags">
-          <span class="tag ${s.type}">${s.type === 'anime' ? 'Anime' : 'Live-action'}</span>
-          ${s.airing ? '<span class="tag airing">Airing</span>' : ''}
-          ${s.custom ? `<span class="tag custom">Added</span><button class="card-del" data-del="${s.id}" aria-label="Delete show">Delete</button>` : ''}
+      <div class="card ${st} ${showDone(s) ? 'is-done' : ''}" data-id="${esc(s.id)}">
+        <div class="card-top">
+          <div class="card-main">
+            <div class="tags">
+              <span class="tag ${s.type}">${s.type === 'anime' ? 'Anime' : 'Live-action'}</span>
+              ${s.airing ? '<span class="tag airing">Airing</span>' : ''}
+            </div>
+            <div class="card-title">${esc(s.title)}</div>
+          </div>
+          ${delBtn('show', s.id)}
         </div>
-        <div class="card-title">${esc(s.title)}</div>
-        <div class="prog">
-          <button class="prog-btn" data-step="-1" aria-label="Back one episode">-1</button>
-          <button class="prog-num" data-prog aria-label="Set episode">${progLabel(s)}</button>
-          <button class="prog-btn plus" data-step="1" aria-label="Watched one more episode">+1 EP</button>
-        </div>
-        <div class="prog-bar"><i data-bar style="width:${progPct(s)}%"></i></div>
+        ${prog}
         <div class="card-foot">
           <span class="card-len">${s.episodes ? `<span>${s.episodes}</span> EP` : '? EP'}${s.hours ? ` · ~${Math.round(s.hours)}H` : ''}</span>
-          <div class="status" role="group" aria-label="Watch status">
-            ${STATUSES.map(st => `
-              <button class="st ${status === st ? 'active' : ''}" data-state="${st}" aria-label="${STATUS_LABEL[st]}" title="${STATUS_LABEL[st]}">${ICONS[st]}</button>
-            `).join('')}
+          <div class="status">
+            ${SHOW_BTNS.map(([v, icon, label]) =>
+              `<button class="st ${st === v ? 'active' : ''}" data-act="status" data-state="${v}" aria-label="${label}">${icon}</button>`).join('')}
           </div>
         </div>
       </div>`;
   }
 
-  document.getElementById('tiers').addEventListener('click', e => {
-    const st = e.target.closest('.st');
-    if (st) {
-      e.stopPropagation();
-      setStatus(st.closest('.card').dataset.id, st.dataset.state);
-      return;
-    }
-    const step = e.target.closest('.prog-btn');
-    if (step) {
-      e.stopPropagation();
-      stepEpisode(step.closest('.card').dataset.id, parseInt(step.dataset.step, 10));
-      return;
-    }
-    const num = e.target.closest('.prog-num');
-    if (num) {
-      e.stopPropagation();
-      const id = num.closest('.card').dataset.id;
-      const v = prompt('Episode you are on', getProg(id));
-      if (v === null) return;
-      const n = parseInt(v, 10);
-      if (!isNaN(n)) stepEpisode(id, n - getProg(id));
-      return;
-    }
-    const del = e.target.closest('.card-del');
-    if (del) {
-      e.stopPropagation();
-      deleteShow(del.dataset.del);
-    }
-  });
-
-  function stepEpisode(id, delta) {
+  document.getElementById('shows-list').addEventListener('click', e => {
+    const btn = e.target.closest('[data-act]');
+    if (!btn) return;
+    const id = btn.closest('.card').dataset.id;
     const s = findShow(id);
     if (!s) return;
-    let n = getProg(id) + delta;
-    if (n < 0) n = 0;
-    if (s.episodes && n > s.episodes) n = s.episodes;
-    progress[id] = n;
-    save(PROGRESS_KEY, progress);
-    const card = document.querySelector(`.card[data-id="${id}"]`);
-    if (card) {
-      card.querySelector('[data-prog]').textContent = progLabel(s);
-      card.querySelector('[data-bar]').style.width = progPct(s) + '%';
+    const act = btn.dataset.act;
+    if (act === 'status') {
+      state[id] = btn.dataset.state;
+      save(STATE_KEY, state);
+    } else if (act === 'ep' || act === 'ep-set') {
+      let n;
+      if (act === 'ep') n = showProg(id) + toInt(btn.dataset.step);
+      else {
+        const v = prompt('Episode you are on', showProg(id));
+        if (v === null || toInt(v) === null) return;
+        n = toInt(v);
+      }
+      n = Math.max(0, s.episodes ? Math.min(n, s.episodes) : n);
+      progress[id] = n;
+      save(PROGRESS_KEY, progress);
+      if (s.episodes && n === s.episodes) { state[id] = 'completed'; save(STATE_KEY, state); }
     }
-    if (s.episodes && n === s.episodes && delta > 0) {
-      setStatus(id, 'completed');
-    } else {
-      updateStats();
-    }
-  }
-
-  // ===== ADD / DELETE SHOWS =====
-  const showForm = { type: 'anime', tier: 'B' };
-
-  function toggleShowForm(force) {
-    const form = document.getElementById('show-form');
-    const open = typeof force === 'boolean' ? force : !form.classList.contains('open');
-    form.classList.toggle('open', open);
-    document.getElementById('add-show-toggle').style.display = open ? 'none' : '';
-    document.getElementById('show-err').textContent = '';
-    if (open) document.getElementById('show-title').focus();
-  }
-
-  document.getElementById('show-form').addEventListener('click', e => {
-    const b = e.target.closest('.seg button');
-    if (!b) return;
-    e.stopPropagation();
-    const seg = b.parentElement;
-    seg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
-    showForm[seg.dataset.field] = b.dataset.v;
-  });
-  document.getElementById('show-title').addEventListener('input', () => {
-    document.getElementById('show-err').textContent = '';
+    renderShows();
   });
 
   function addShow(e) {
     e.preventDefault();
     const titleEl = document.getElementById('show-title');
     const epsEl = document.getElementById('show-eps');
-    const title = titleEl.value.trim();
     const err = document.getElementById('show-err');
+    const title = titleEl.value.trim();
     if (!title) { err.textContent = 'Enter a name'; return false; }
-    if (allShows().some(s => s.title.toLowerCase() === title.toLowerCase())) { err.textContent = 'Already on the list'; return false; }
-    const eps = parseInt(epsEl.value, 10);
+    if (shows.some(s => s.title.toLowerCase() === title.toLowerCase())) { err.textContent = 'Already on the list'; return false; }
+    const eps = toInt(epsEl.value);
     const episodes = eps > 0 ? Math.min(eps, 5000) : null;
-    const perEp = showForm.type === 'anime' ? 0.4 : 0.75;
-    customShows.push({
-      id: uid('custom'),
-      title,
-      type: showForm.type,
-      tier: showForm.tier,
-      episodes,
-      hours: episodes ? Math.round(episodes * perEp) : 0,
-      custom: true,
-      created: Date.now()
+    const type = formChoice.show.type;
+    shows.unshift({
+      id: uid('show'), title, type, episodes,
+      hours: episodes ? Math.round(episodes * (type === 'anime' ? 0.4 : 0.75)) : 0,
+      added: Date.now()
     });
-    save(CUSTOM_KEY, customShows);
-    titleEl.value = '';
-    epsEl.value = '';
-    toggleShowForm(false);
+    save(SHOWS_KEY, shows);
+    titleEl.value = ''; epsEl.value = '';
+    toggleForm('show', false);
     renderShows();
-    updateStats();
-    applyFilter();
     return false;
   }
 
   function deleteShow(id) {
-    const s = customShows.find(x => x.id === id);
-    if (!s) return;
-    if (!confirm('Delete "' + s.title + '"?')) return;
-    customShows = customShows.filter(x => x.id !== id);
+    shows = shows.filter(s => s.id !== id);
     delete state[id];
     delete progress[id];
-    save(CUSTOM_KEY, customShows);
-    save(STATE_KEY, state);
-    save(PROGRESS_KEY, progress);
+    save(SHOWS_KEY, shows); save(STATE_KEY, state); save(PROGRESS_KEY, progress);
     renderShows();
-    updateStats();
-    applyFilter();
   }
 
-  function setStatus(id, status) {
-    if (!STATUSES.includes(status)) return;
-    state[id] = status;
-    save(STATE_KEY, state);
-    const card = document.querySelector(`.card[data-id="${id}"]`);
-    if (card) {
-      card.className = 'card ' + status;
-      card.dataset.status = status;
-      card.querySelectorAll('.st').forEach(b => b.classList.toggle('active', b.dataset.state === status));
+  // ===== BOOKS =====
+  const bookStatus = b => BOOK_STATUSES.includes(b.status) ? b.status : 'want';
+  const findBook = id => books.find(b => b.id === id);
+
+  function bookProgLabel(b) {
+    const n = b.current || 0;
+    if (b.format === 'audio') return n + '%';
+    return b.total ? `PG ${n} / ${b.total}` : `PG ${n}`;
+  }
+  function bookPct(b) {
+    if (b.format === 'audio') return Math.min(100, b.current || 0);
+    return b.total ? Math.min(100, Math.round((b.current || 0) / b.total * 100)) : 0;
+  }
+
+  function renderBooks() {
+    const f = filters.book;
+    const list = books.filter(b => f === 'all' || b.format === f);
+    const finished = list.filter(b => bookStatus(b) === 'finished')
+      .sort((a, b) => (b.finishedAt || 0) - (a.finishedAt || 0));
+    const html =
+      section('sec-active', 'Reading', list.filter(b => bookStatus(b) === 'reading'), bookCard) +
+      section('sec-next', 'Up next', list.filter(b => bookStatus(b) === 'want'), bookCard) +
+      section('sec-done', 'Finished', finished, bookCard);
+    document.getElementById('books-list').innerHTML = html || '<div class="empty">No books yet</div>';
+
+    const year = new Date().getFullYear();
+    document.getElementById('bk-reading').textContent = books.filter(b => bookStatus(b) === 'reading').length;
+    document.getElementById('bk-next').textContent = books.filter(b => bookStatus(b) === 'want').length;
+    document.getElementById('bk-done').textContent = books.filter(b => bookStatus(b) === 'finished').length;
+    document.getElementById('bk-year-label').textContent = 'Read in ' + year;
+    document.getElementById('bk-year').textContent = books.filter(b =>
+      bookStatus(b) === 'finished' && b.finishedAt && new Date(b.finishedAt).getFullYear() === year).length;
+  }
+
+  function bookCard(b) {
+    const st = bookStatus(b);
+    const audio = b.format === 'audio';
+    const showBar = audio || b.total;
+    const prog = st !== 'reading' ? '' : `
+      <div class="prog">
+        <button class="prog-num" data-act="set" aria-label="Set progress">${bookProgLabel(b)}</button>
+        <button class="prog-btn plus" data-act="step" aria-label="Add progress">${audio ? '+5%' : '+10 PG'}</button>
+      </div>
+      ${showBar ? `<div class="prog-bar"><i style="width:${bookPct(b)}%"></i></div>` : ''}`;
+    return `
+      <div class="card ${st === 'finished' ? 'is-done' : ''}" data-id="${esc(b.id)}">
+        <div class="card-top">
+          <div class="card-main">
+            <div class="tags">
+              <span class="tag ${b.format}">${audio ? 'Audiobook' : 'Physical'}</span>
+              ${st === 'finished' && b.finishedAt ? `<span class="tag">${shortDate(b.finishedAt)}</span>` : ''}
+            </div>
+            <div class="card-title">${esc(b.title)}</div>
+            ${b.author ? `<div class="card-sub">${esc(b.author)}</div>` : ''}
+          </div>
+          ${delBtn('book', b.id)}
+        </div>
+        ${prog}
+        <div class="card-foot">
+          <span class="card-len">${!audio && b.total ? `<span>${b.total}</span> PG` : ''}</span>
+          <div class="status">
+            ${BOOK_BTNS.map(([v, icon, label]) =>
+              `<button class="st ${st === v ? 'active' : ''}" data-act="status" data-state="${v}" aria-label="${label}">${icon}</button>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function setBookStatus(b, st) {
+    if (b.status !== 'finished' && st === 'finished') b.finishedAt = Date.now();
+    if (st !== 'finished') b.finishedAt = null;
+    if (st === 'finished') b.current = b.format === 'audio' ? 100 : (b.total || b.current || 0);
+    b.status = st;
+  }
+
+  document.getElementById('books-list').addEventListener('click', e => {
+    const btn = e.target.closest('[data-act]');
+    if (!btn) return;
+    const b = findBook(btn.closest('.card').dataset.id);
+    if (!b) return;
+    const act = btn.dataset.act;
+    const max = b.format === 'audio' ? 100 : (b.total || Infinity);
+    if (act === 'status') {
+      setBookStatus(b, btn.dataset.state);
+    } else {
+      let n;
+      if (act === 'step') n = (b.current || 0) + (b.format === 'audio' ? 5 : 10);
+      else {
+        const v = prompt(b.format === 'audio' ? 'Percent listened (0-100)' : 'Page you are on', b.current || 0);
+        if (v === null || toInt(v) === null) return;
+        n = toInt(v);
+      }
+      b.current = Math.max(0, Math.min(n, max));
+      if (b.current === max) setBookStatus(b, 'finished');
     }
-    updateStats();
-    applyFilter();
-  }
-
-  function updateStats() {
-    const shows = allShows();
-    document.getElementById('stat-total').textContent = shows.length;
-    document.getElementById('stat-watching').textContent = shows.filter(s => getStatus(s.id) === 'watching').length;
-    document.getElementById('stat-completed').textContent = shows.filter(isDoneShow).length;
-    document.getElementById('stat-hours').textContent = Math.round(shows.reduce((a, s) => a + hoursLeft(s), 0));
-  }
-
-  function applyFilter() {
-    let anyVisible = false;
-    document.querySelectorAll('.tier-block').forEach(block => {
-      let n = 0;
-      block.querySelectorAll('.card').forEach(card => {
-        let show;
-        if (currentFilter === 'all') show = true;
-        else if (currentFilter === 'anime' || currentFilter === 'live') show = card.dataset.type === currentFilter;
-        else show = card.dataset.status === currentFilter;
-        card.classList.toggle('hidden', !show);
-        if (show) n++;
-      });
-      block.style.display = n ? '' : 'none';
-      block.querySelector('[data-count]').textContent = n + (n === 1 ? ' TITLE' : ' TITLES');
-      if (n) anyVisible = true;
-    });
-    document.getElementById('empty-filter').style.display = anyVisible ? 'none' : 'block';
-  }
-
-  document.getElementById('filters').addEventListener('click', e => {
-    const chip = e.target.closest('.chip');
-    if (!chip) return;
-    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
-    currentFilter = chip.dataset.filter;
-    applyFilter();
+    save(BOOKS_KEY, books);
+    renderBooks();
   });
+
+  function addBook(e) {
+    e.preventDefault();
+    const titleEl = document.getElementById('book-title');
+    const authorEl = document.getElementById('book-author');
+    const pagesEl = document.getElementById('book-pages');
+    const err = document.getElementById('book-err');
+    const title = titleEl.value.trim();
+    if (!title) { err.textContent = 'Enter a title'; return false; }
+    const format = formChoice.book.format;
+    if (books.some(b => b.title.toLowerCase() === title.toLowerCase() && b.format === format)) {
+      err.textContent = 'Already on the list'; return false;
+    }
+    const pages = toInt(pagesEl.value);
+    books.unshift({
+      id: uid('book'), title, author: authorEl.value.trim(), format,
+      status: 'want', current: 0,
+      total: format === 'physical' && pages > 0 ? Math.min(pages, 10000) : null,
+      added: Date.now(), finishedAt: null
+    });
+    save(BOOKS_KEY, books);
+    titleEl.value = ''; authorEl.value = ''; pagesEl.value = '';
+    toggleForm('book', false);
+    renderBooks();
+    return false;
+  }
+
+  function deleteBook(id) {
+    books = books.filter(b => b.id !== id);
+    save(BOOKS_KEY, books);
+    renderBooks();
+  }
 
   // ===== TO-DO =====
   function renderTodos() {
     const open = todos.filter(t => !t.done).sort((a, b) => b.created - a.created);
     const done = todos.filter(t => t.done).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
-
-    document.getElementById('todo-open').innerHTML = open.length
-      ? open.map(todoItem).join('')
-      : '<div class="empty">All clear</div>';
-
+    document.getElementById('todo-open').innerHTML = open.length ? open.map(todoItem).join('') : '<div class="empty">All clear</div>';
     document.getElementById('todo-done-wrap').innerHTML = done.length ? `
       <div class="list-label"><span>Done · ${done.length}</span><button class="text-btn" onclick="clearDone()">Clear done</button></div>
       ${done.map(todoItem).join('')}` : '';
-
-    updateTabCounts();
+    document.getElementById('tab-todo-n').textContent = open.length || '';
   }
-
   function todoItem(t) {
     return `
       <div class="item ${t.done ? 'done' : ''}">
-        <button class="check" onclick="toggleTodo('${t.id}')" aria-label="${t.done ? 'Mark not done' : 'Mark done'}">${ICONS.completed}</button>
+        <button class="check" onclick="toggleTodo('${esc(t.id)}')" aria-label="${t.done ? 'Mark not done' : 'Mark done'}">${ICONS.check}</button>
         <span class="item-text">${esc(t.text)}</span>
-        <button class="del" onclick="deleteTodo('${t.id}')" aria-label="Delete">X</button>
+        ${delBtn('todo', t.id)}
       </div>`;
   }
-
   function addTodo(e) {
     e.preventDefault();
     const input = document.getElementById('todo-input');
@@ -843,7 +800,6 @@
     renderTodos();
     return false;
   }
-
   function toggleTodo(id) {
     const t = todos.find(x => x.id === id);
     if (!t) return;
@@ -852,18 +808,8 @@
     save(TODOS_KEY, todos);
     renderTodos();
   }
-
-  function deleteTodo(id) {
-    todos = todos.filter(t => t.id !== id);
-    save(TODOS_KEY, todos);
-    renderTodos();
-  }
-
-  function clearDone() {
-    todos = todos.filter(t => !t.done);
-    save(TODOS_KEY, todos);
-    renderTodos();
-  }
+  function deleteTodo(id) { todos = todos.filter(t => t.id !== id); save(TODOS_KEY, todos); renderTodos(); }
+  function clearDone() { todos = todos.filter(t => !t.done); save(TODOS_KEY, todos); renderTodos(); }
 
   // ===== NOTES =====
   function renderNotes() {
@@ -873,35 +819,38 @@
           <div class="item note-item">
             <span class="item-text">${esc(n.text)}</span>
             <span class="item-date">${shortDate(n.created)}</span>
-            <button class="del" onclick="deleteNote('${n.id}')" aria-label="Delete">X</button>
+            ${delBtn('note', n.id)}
           </div>`).join('')
       : '<div class="empty">No notes</div>';
-    updateTabCounts();
   }
-
   function addNote(e) {
     e.preventDefault();
     const input = document.getElementById('note-input');
     const text = input.value.trim();
     if (!text) return false;
-    notes.push({ id: uid('rem'), text, created: Date.now() });
+    notes.push({ id: uid('note'), text, created: Date.now() });
     save(NOTES_KEY, notes);
     input.value = '';
     renderNotes();
     return false;
   }
-
-  function deleteNote(id) {
-    notes = notes.filter(n => n.id !== id);
-    save(NOTES_KEY, notes);
-    renderNotes();
-  }
+  function deleteNote(id) { notes = notes.filter(n => n.id !== id); save(NOTES_KEY, notes); renderNotes(); }
 
   // ===== EXPORT / IMPORT / RESET =====
+  function seedShows(extra) {
+    const base = SEED_SHOWS.map(s => Object.assign({}, s));
+    (extra || []).forEach(c => {
+      if (c && c.id && c.title && !base.some(s => s.id === c.id)) {
+        base.unshift({ id: c.id, title: c.title, type: c.type === 'live' ? 'live' : 'anime',
+          episodes: c.episodes || null, hours: c.hours || 0, added: c.created || Date.now() });
+      }
+    });
+    return base;
+  }
+
   function exportState() {
-    const data = JSON.stringify({ version: 4, state, reminders: notes, todos, customShows, progress }, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
+    const data = JSON.stringify({ version: 5, shows, state, progress, books, todos, reminders: notes }, null, 2);
+    const url = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
     const a = document.createElement('a');
     a.href = url;
     a.download = 'backlog-' + new Date().toISOString().slice(0, 10) + '.json';
@@ -917,24 +866,19 @@
       const file = e.target.files[0];
       if (!file) return;
       try {
-        const parsed = JSON.parse(await file.text());
-        if (!isObj(parsed)) throw new Error('Not a Backlog export');
-        if ([2, 3, 4].includes(parsed.version)) {
-          state = isObj(parsed.state) ? parsed.state : {};
-          notes = isArr(parsed.reminders) ? parsed.reminders : [];
-          if (parsed.version >= 3) todos = isArr(parsed.todos) ? parsed.todos : [];
-          if (parsed.version >= 4) {
-            customShows = isArr(parsed.customShows) ? parsed.customShows : [];
-            progress = isObj(parsed.progress) ? parsed.progress : {};
-          }
-        } else {
-          state = parsed; // v1: bare state object
+        const d = JSON.parse(await file.text());
+        if (!isObj(d)) throw new Error('Not a Backlog export');
+        const v = d.version || 1;
+        if (v === 1) { state = d; notes = []; todos = []; progress = {}; books = []; shows = seedShows(); }
+        else {
+          state = isObj(d.state) ? d.state : {};
+          notes = isArr(d.reminders) ? d.reminders : [];
+          todos = isArr(d.todos) ? d.todos : [];
+          progress = isObj(d.progress) ? d.progress : {};
+          books = isArr(d.books) ? d.books : [];
+          shows = v >= 5 && isArr(d.shows) ? d.shows : seedShows(isArr(d.customShows) ? d.customShows : []);
         }
-        save(STATE_KEY, state);
-        save(NOTES_KEY, notes);
-        save(TODOS_KEY, todos);
-        save(CUSTOM_KEY, customShows);
-        save(PROGRESS_KEY, progress);
+        saveAll();
         renderAll();
       } catch (err) {
         alert('Import failed: ' + err.message);
@@ -944,27 +888,36 @@
   }
 
   function resetAll() {
-    if (!confirm('Wipe all show progress, added shows, to-dos and notes? Export first if you want a backup.')) return;
-    state = {}; notes = []; todos = []; customShows = []; progress = {};
-    [STATE_KEY, NOTES_KEY, TODOS_KEY, CUSTOM_KEY, PROGRESS_KEY].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+    if (!confirm('Wipe everything (shows, books, to-dos, notes)? Export first if you want a backup.')) return;
+    state = {}; progress = {}; notes = []; todos = []; books = [];
+    shows = seedShows();
+    saveAll();
     renderAll();
   }
 
-  // ===== INIT =====
-  function renderAll() {
-    renderShows();
-    updateStats();
-    applyFilter();
-    renderTodos();
-    renderNotes();
+  function saveAll() {
+    save(SHOWS_KEY, shows); save(STATE_KEY, state); save(PROGRESS_KEY, progress);
+    save(BOOKS_KEY, books); save(TODOS_KEY, todos); save(NOTES_KEY, notes);
   }
+
+  // ===== INIT =====
+  function renderAll() { renderTodos(); renderShows(); renderBooks(); renderNotes(); }
 
   (function init() {
     state = load(STATE_KEY, {}, isObj);
+    progress = load(PROGRESS_KEY, {}, isObj);
     notes = load(NOTES_KEY, [], isArr);
     todos = load(TODOS_KEY, [], isArr);
-    customShows = load(CUSTOM_KEY, [], isArr).filter(s => s && s.id && s.title && TIERS.includes(s.tier));
-    progress = load(PROGRESS_KEY, {}, isObj);
+    books = load(BOOKS_KEY, [], isArr).filter(b => b && b.id && b.title);
+    const saved = load(SHOWS_KEY, null, isArr);
+    if (saved) {
+      shows = saved.filter(s => s && s.id && s.title);
+    } else {
+      // First run on this version: starter list plus any shows added in V2.
+      shows = seedShows(load(OLD_CUSTOM_KEY, [], isArr));
+      save(SHOWS_KEY, shows);
+      try { localStorage.removeItem(OLD_CUSTOM_KEY); } catch (e) {}
+    }
     renderAll();
     setTab('todo');
   })();
