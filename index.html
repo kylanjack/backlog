@@ -12,8 +12,9 @@
 <meta name="theme-color" content="#1A1C2C">
 <meta name="description" content="Shows, to-dos and notes">
 
-<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAByklEQVR42u3dwa2CQBiF0YuxANdIbAAacaUtWBkt6MpKaMCEvSXYgMBORzxny+IZ8uWfZDK8qeqmC7yz8QoQB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH4kAciANxIA4QB4u2X/zb4+24yne6P91NDiwriAPEgTgQB+JAHMQm2KoNl3bqUdsPJgeWFcSBOEAciANxIA5iE2zJ8/oo/BfuzoepR+P0owLPj5kciANxIA7EgTgQB+IgNsHKU8g5q5mdrvzU+TGTA3EgDsSBOBAH4kAciANxIA4QB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH8TlkPvcft1LG7ZAz3zyaHFhWEAfiQBwgDsSBOIhNsLgd0uRAHIgDcSAOxAHiQBzE7ZBxO6TJgTgQB+JAHIgDcSAOiNsh43ZIkwNxIA7EgTgQB+JAHIgDxIE4EAfiQByIA3EgDsSBOEAciANxIA7EgTgQB/E5ZNwO6XZILCuIA8SBOBAH4kAcxCZY3A5pcmBZQRyIA8SBOBAH4iB/sQm2mhNTJgfiAHEgDsSBOBAH4qBsVd103gImB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH4kAciANxIA4QB/Ne+mUwNWj2tbgAAAAASUVORK5CYII=">
-<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAByklEQVR42u3dwa2CQBiF0YuxANdIbAAacaUtWBkt6MpKaMCEvSXYgMBORzxny+IZ8uWfZDK8qeqmC7yz8QoQB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH4kAciANxIA4QB4u2X/zb4+24yne6P91NDiwriAPEgTgQB+JAHMQm2KoNl3bqUdsPJgeWFcSBOEAciANxIA5iE2zJ8/oo/BfuzoepR+P0owLPj5kciANxIA7EgTgQB+IgNsHKU8g5q5mdrvzU+TGTA3EgDsSBOBAH4kAciANxIA4QB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH8TlkPvcft1LG7ZAz3zyaHFhWEAfiQBwgDsSBOIhNsLgd0uRAHIgDcSAOxAHiQBzE7ZBxO6TJgTgQB+JAHIgDcSAOiNsh43ZIkwNxIA7EgTgQB+JAHIgDxIE4EAfiQByIA3EgDsSBOEAciANxIA7EgTgQB/E5ZNwO6XZILCuIA8SBOBAH4kAcxCZY3A5pcmBZQRyIA8SBOBAH4iB/sQm2mhNTJgfiAHEgDsSBOBAH4qBsVd103gImB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH4kAciANxIA4QB/Ne+mUwNWj2tbgAAAAASUVORK5CYII=">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Silkscreen&display=swap" rel="stylesheet">
@@ -178,6 +179,50 @@
   .st.active[data-state="completed"]   { background: var(--green); color: var(--bg); box-shadow: inset 0 -3px 0 #6FB83F; }
   .st.active[data-state="rewatched"]   { background: var(--blue); color: var(--bg); box-shadow: inset 0 -3px 0 #2A72B0; }
 
+  /* === EPISODE PROGRESS === */
+  .prog { display: none; align-items: center; gap: 8px; margin-top: 10px; }
+  .card.watching .prog { display: flex; }
+  .prog-btn {
+    font-family: var(--px);
+    font-size: 14px;
+    min-width: 44px;
+    height: 44px;
+    padding: 0 10px;
+    background: var(--bg);
+    color: var(--muted);
+    box-shadow: inset 0 -3px 0 #11121D;
+  }
+  .prog-btn.plus { background: var(--cyan); color: var(--bg); box-shadow: inset 0 -3px 0 #3FB8C2; flex: 1; }
+  .prog-num { font-family: var(--px); font-size: 14px; color: var(--cyan); min-width: 92px; min-height: 44px; text-align: center; text-decoration: underline dotted; text-underline-offset: 4px; }
+  .prog-bar { height: 4px; background: var(--bg); margin-top: 8px; display: none; }
+  .card.watching .prog-bar { display: block; }
+  .prog-bar i { display: block; height: 100%; background: var(--cyan); }
+  .tag.custom { color: var(--yellow); }
+  .card-del { font-family: var(--px); font-size: 11px; color: var(--panel-hi); margin-left: auto; padding: 4px 0 4px 12px; min-height: 28px; }
+  .card-del:active { color: var(--red); }
+
+  /* === ADD SHOW FORM === */
+  .add-show-toggle { width: 100%; margin-bottom: 12px; }
+  .show-form { display: none; background: var(--panel); box-shadow: inset 0 -4px 0 var(--panel-edge); padding: 14px 14px 18px; margin-bottom: 16px; }
+  .show-form.open { display: block; }
+  .field-label { font-family: var(--px); font-size: 11px; color: var(--muted); margin: 12px 0 6px; display: block; }
+  .field-label:first-child { margin-top: 0; }
+  .seg { display: flex; gap: 6px; }
+  .seg button {
+    flex: 1;
+    font-family: var(--px);
+    font-size: 12px;
+    min-height: 44px;
+    background: var(--bg);
+    color: var(--muted);
+    box-shadow: inset 0 -3px 0 #11121D;
+  }
+  .seg button.on { background: var(--orange); color: var(--bg); box-shadow: inset 0 -3px 0 #B5513A; }
+  .show-form .add-input { width: 100%; }
+  .form-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .form-actions .add-btn { flex: 1; }
+  .form-err { font-family: var(--px); font-size: 11px; color: var(--orange); margin-top: 8px; min-height: 14px; }
+
   .empty-filter { font-family: var(--px); font-size: 12px; color: var(--muted); text-align: center; padding: 32px 0; display: none; }
 
   /* === ADD FORM === */
@@ -320,6 +365,32 @@
       <div class="stat"><span class="stat-label">Hours left</span><span class="stat-value y" id="stat-hours">0</span></div>
     </div>
 
+    <button class="add-btn add-show-toggle" id="add-show-toggle" onclick="toggleShowForm()">+ ADD SHOW</button>
+    <form class="show-form" id="show-form" onsubmit="return addShow(event)">
+      <label class="field-label" for="show-title">Name</label>
+      <input class="add-input" id="show-title" type="text" maxlength="120" autocomplete="off" placeholder="Show name">
+      <span class="field-label">Type</span>
+      <div class="seg" data-field="type">
+        <button type="button" data-v="anime" class="on">Anime</button>
+        <button type="button" data-v="live">Live-action</button>
+      </div>
+      <span class="field-label">Tier</span>
+      <div class="seg" data-field="tier">
+        <button type="button" data-v="S">S</button>
+        <button type="button" data-v="A">A</button>
+        <button type="button" data-v="B" class="on">B</button>
+        <button type="button" data-v="C">C</button>
+        <button type="button" data-v="D">D</button>
+      </div>
+      <label class="field-label" for="show-eps">Episodes (optional)</label>
+      <input class="add-input" id="show-eps" type="number" inputmode="numeric" min="1" max="5000" placeholder="24">
+      <div class="form-err" id="show-err"></div>
+      <div class="form-actions">
+        <button type="button" class="chip" style="background:var(--bg)" onclick="toggleShowForm(false)">Cancel</button>
+        <button type="submit" class="add-btn">SAVE SHOW</button>
+      </div>
+    </form>
+
     <div class="chips" id="filters">
       <button class="chip active" data-filter="all">All</button>
       <button class="chip" data-filter="watching">Watching</button>
@@ -422,11 +493,14 @@
   const STATE_KEY = 'watchlist:state';
   const NOTES_KEY = 'watchlist:reminders';
   const TODOS_KEY = 'backlog:todos';
-  const TAB_KEY = 'backlog:tab';
+  const CUSTOM_KEY = 'backlog:custom-shows';
+  const PROGRESS_KEY = 'backlog:progress';
 
   let state = {};
   let notes = [];
   let todos = [];
+  let customShows = [];
+  let progress = {};
   let currentFilter = 'all';
 
   // ===== STORAGE =====
@@ -478,7 +552,6 @@
     document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
     document.getElementById('tab-label').textContent = { shows: 'SHOWS', todo: 'TO-DO', notes: 'NOTES' }[name];
-    try { localStorage.setItem(TAB_KEY, name); } catch (e) {}
     window.scrollTo(0, 0);
   }
   document.querySelector('.tabbar').addEventListener('click', e => {
@@ -493,6 +566,16 @@
   }
 
   // ===== SHOWS =====
+  const allShows = () => SHOWS.concat(customShows);
+  const findShow = id => allShows().find(s => s.id === id);
+  const getProg = id => Math.max(0, parseInt(progress[id], 10) || 0);
+  const isDoneShow = s => ['completed', 'rewatched'].includes(getStatus(s.id));
+  function hoursLeft(s) {
+    if (isDoneShow(s)) return 0;
+    if (!s.episodes) return s.hours || 0;
+    const left = Math.max(0, s.episodes - getProg(s.id));
+    return (s.hours || 0) * left / s.episodes;
+  }
   const getStatus = id => STATUSES.includes(state[id]) ? state[id] : 'not-started';
 
   const ICONS = {
@@ -506,7 +589,7 @@
   function renderShows() {
     const root = document.getElementById('tiers');
     root.innerHTML = TIERS.map(tier => {
-      const shows = SHOWS.filter(s => s.tier === tier);
+      const shows = allShows().filter(s => s.tier === tier);
       if (!shows.length) return '';
       return `
         <div class="tier-block" data-tier="${tier}">
@@ -520,6 +603,14 @@
     }).join('');
   }
 
+  function progLabel(s) {
+    const n = getProg(s.id);
+    return s.episodes ? `EP ${n} / ${s.episodes}` : `EP ${n}`;
+  }
+  function progPct(s) {
+    return s.episodes ? Math.min(100, Math.round(getProg(s.id) / s.episodes * 100)) : 0;
+  }
+
   function renderCard(s) {
     const status = getStatus(s.id);
     return `
@@ -527,10 +618,17 @@
         <div class="tags">
           <span class="tag ${s.type}">${s.type === 'anime' ? 'Anime' : 'Live-action'}</span>
           ${s.airing ? '<span class="tag airing">Airing</span>' : ''}
+          ${s.custom ? `<span class="tag custom">Added</span><button class="card-del" data-del="${s.id}" aria-label="Delete show">Delete</button>` : ''}
         </div>
         <div class="card-title">${esc(s.title)}</div>
+        <div class="prog">
+          <button class="prog-btn" data-step="-1" aria-label="Back one episode">-1</button>
+          <button class="prog-num" data-prog aria-label="Set episode">${progLabel(s)}</button>
+          <button class="prog-btn plus" data-step="1" aria-label="Watched one more episode">+1 EP</button>
+        </div>
+        <div class="prog-bar"><i data-bar style="width:${progPct(s)}%"></i></div>
         <div class="card-foot">
-          <span class="card-len"><span>${s.episodes}</span> EP · ~${s.hours}H</span>
+          <span class="card-len">${s.episodes ? `<span>${s.episodes}</span> EP` : '? EP'}${s.hours ? ` · ~${Math.round(s.hours)}H` : ''}</span>
           <div class="status" role="group" aria-label="Watch status">
             ${STATUSES.map(st => `
               <button class="st ${status === st ? 'active' : ''}" data-state="${st}" aria-label="${STATUS_LABEL[st]}" title="${STATUS_LABEL[st]}">${ICONS[st]}</button>
@@ -541,12 +639,124 @@
   }
 
   document.getElementById('tiers').addEventListener('click', e => {
-    const btn = e.target.closest('.st');
-    if (!btn) return;
-    e.stopPropagation();
-    const card = btn.closest('.card');
-    setStatus(card.dataset.id, btn.dataset.state);
+    const st = e.target.closest('.st');
+    if (st) {
+      e.stopPropagation();
+      setStatus(st.closest('.card').dataset.id, st.dataset.state);
+      return;
+    }
+    const step = e.target.closest('.prog-btn');
+    if (step) {
+      e.stopPropagation();
+      stepEpisode(step.closest('.card').dataset.id, parseInt(step.dataset.step, 10));
+      return;
+    }
+    const num = e.target.closest('.prog-num');
+    if (num) {
+      e.stopPropagation();
+      const id = num.closest('.card').dataset.id;
+      const v = prompt('Episode you are on', getProg(id));
+      if (v === null) return;
+      const n = parseInt(v, 10);
+      if (!isNaN(n)) stepEpisode(id, n - getProg(id));
+      return;
+    }
+    const del = e.target.closest('.card-del');
+    if (del) {
+      e.stopPropagation();
+      deleteShow(del.dataset.del);
+    }
   });
+
+  function stepEpisode(id, delta) {
+    const s = findShow(id);
+    if (!s) return;
+    let n = getProg(id) + delta;
+    if (n < 0) n = 0;
+    if (s.episodes && n > s.episodes) n = s.episodes;
+    progress[id] = n;
+    save(PROGRESS_KEY, progress);
+    const card = document.querySelector(`.card[data-id="${id}"]`);
+    if (card) {
+      card.querySelector('[data-prog]').textContent = progLabel(s);
+      card.querySelector('[data-bar]').style.width = progPct(s) + '%';
+    }
+    if (s.episodes && n === s.episodes && delta > 0) {
+      setStatus(id, 'completed');
+    } else {
+      updateStats();
+    }
+  }
+
+  // ===== ADD / DELETE SHOWS =====
+  const showForm = { type: 'anime', tier: 'B' };
+
+  function toggleShowForm(force) {
+    const form = document.getElementById('show-form');
+    const open = typeof force === 'boolean' ? force : !form.classList.contains('open');
+    form.classList.toggle('open', open);
+    document.getElementById('add-show-toggle').style.display = open ? 'none' : '';
+    document.getElementById('show-err').textContent = '';
+    if (open) document.getElementById('show-title').focus();
+  }
+
+  document.getElementById('show-form').addEventListener('click', e => {
+    const b = e.target.closest('.seg button');
+    if (!b) return;
+    e.stopPropagation();
+    const seg = b.parentElement;
+    seg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    showForm[seg.dataset.field] = b.dataset.v;
+  });
+  document.getElementById('show-title').addEventListener('input', () => {
+    document.getElementById('show-err').textContent = '';
+  });
+
+  function addShow(e) {
+    e.preventDefault();
+    const titleEl = document.getElementById('show-title');
+    const epsEl = document.getElementById('show-eps');
+    const title = titleEl.value.trim();
+    const err = document.getElementById('show-err');
+    if (!title) { err.textContent = 'Enter a name'; return false; }
+    if (allShows().some(s => s.title.toLowerCase() === title.toLowerCase())) { err.textContent = 'Already on the list'; return false; }
+    const eps = parseInt(epsEl.value, 10);
+    const episodes = eps > 0 ? Math.min(eps, 5000) : null;
+    const perEp = showForm.type === 'anime' ? 0.4 : 0.75;
+    customShows.push({
+      id: uid('custom'),
+      title,
+      type: showForm.type,
+      tier: showForm.tier,
+      episodes,
+      hours: episodes ? Math.round(episodes * perEp) : 0,
+      custom: true,
+      created: Date.now()
+    });
+    save(CUSTOM_KEY, customShows);
+    titleEl.value = '';
+    epsEl.value = '';
+    toggleShowForm(false);
+    renderShows();
+    updateStats();
+    applyFilter();
+    return false;
+  }
+
+  function deleteShow(id) {
+    const s = customShows.find(x => x.id === id);
+    if (!s) return;
+    if (!confirm('Delete "' + s.title + '"?')) return;
+    customShows = customShows.filter(x => x.id !== id);
+    delete state[id];
+    delete progress[id];
+    save(CUSTOM_KEY, customShows);
+    save(STATE_KEY, state);
+    save(PROGRESS_KEY, progress);
+    renderShows();
+    updateStats();
+    applyFilter();
+  }
 
   function setStatus(id, status) {
     if (!STATUSES.includes(status)) return;
@@ -563,11 +773,11 @@
   }
 
   function updateStats() {
-    const isDone = s => ['completed', 'rewatched'].includes(getStatus(s.id));
-    document.getElementById('stat-total').textContent = SHOWS.length;
-    document.getElementById('stat-watching').textContent = SHOWS.filter(s => getStatus(s.id) === 'watching').length;
-    document.getElementById('stat-completed').textContent = SHOWS.filter(isDone).length;
-    document.getElementById('stat-hours').textContent = SHOWS.reduce((a, s) => isDone(s) ? a : a + s.hours, 0);
+    const shows = allShows();
+    document.getElementById('stat-total').textContent = shows.length;
+    document.getElementById('stat-watching').textContent = shows.filter(s => getStatus(s.id) === 'watching').length;
+    document.getElementById('stat-completed').textContent = shows.filter(isDoneShow).length;
+    document.getElementById('stat-hours').textContent = Math.round(shows.reduce((a, s) => a + hoursLeft(s), 0));
   }
 
   function applyFilter() {
@@ -689,7 +899,7 @@
 
   // ===== EXPORT / IMPORT / RESET =====
   function exportState() {
-    const data = JSON.stringify({ version: 3, state, reminders: notes, todos }, null, 2);
+    const data = JSON.stringify({ version: 4, state, reminders: notes, todos, customShows, progress }, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -709,16 +919,22 @@
       try {
         const parsed = JSON.parse(await file.text());
         if (!isObj(parsed)) throw new Error('Not a Backlog export');
-        if (parsed.version === 2 || parsed.version === 3) {
+        if ([2, 3, 4].includes(parsed.version)) {
           state = isObj(parsed.state) ? parsed.state : {};
           notes = isArr(parsed.reminders) ? parsed.reminders : [];
-          if (parsed.version === 3) todos = isArr(parsed.todos) ? parsed.todos : [];
+          if (parsed.version >= 3) todos = isArr(parsed.todos) ? parsed.todos : [];
+          if (parsed.version >= 4) {
+            customShows = isArr(parsed.customShows) ? parsed.customShows : [];
+            progress = isObj(parsed.progress) ? parsed.progress : {};
+          }
         } else {
           state = parsed; // v1: bare state object
         }
         save(STATE_KEY, state);
         save(NOTES_KEY, notes);
         save(TODOS_KEY, todos);
+        save(CUSTOM_KEY, customShows);
+        save(PROGRESS_KEY, progress);
         renderAll();
       } catch (err) {
         alert('Import failed: ' + err.message);
@@ -728,9 +944,9 @@
   }
 
   function resetAll() {
-    if (!confirm('Wipe all show progress, to-dos and notes? Export first if you want a backup.')) return;
-    state = {}; notes = []; todos = [];
-    [STATE_KEY, NOTES_KEY, TODOS_KEY].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+    if (!confirm('Wipe all show progress, added shows, to-dos and notes? Export first if you want a backup.')) return;
+    state = {}; notes = []; todos = []; customShows = []; progress = {};
+    [STATE_KEY, NOTES_KEY, TODOS_KEY, CUSTOM_KEY, PROGRESS_KEY].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
     renderAll();
   }
 
@@ -747,10 +963,10 @@
     state = load(STATE_KEY, {}, isObj);
     notes = load(NOTES_KEY, [], isArr);
     todos = load(TODOS_KEY, [], isArr);
+    customShows = load(CUSTOM_KEY, [], isArr).filter(s => s && s.id && s.title && TIERS.includes(s.tier));
+    progress = load(PROGRESS_KEY, {}, isObj);
     renderAll();
-    let tab = 'shows';
-    try { tab = localStorage.getItem(TAB_KEY) || 'shows'; } catch (e) {}
-    setTab(tab);
+    setTab('todo');
   })();
 </script>
 </body>
