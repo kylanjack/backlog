@@ -571,7 +571,7 @@
         <button class="text-btn" onclick="resetLook()">Reset look</button>
         <button class="text-btn danger" onclick="resetAll()">Reset all data</button>
       </div>
-      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 4.2</span>
+      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 4.3</span>
     </div>
   </section>
 
@@ -805,6 +805,23 @@
   const showDone = s => ['completed', 'rewatched'].includes(showStatus(s.id));
   const findShow = id => shows.find(s => s.id === id);
 
+  // Overall episode number -> { season, ep, len } using the per-season episode counts.
+  function seasonOf(s, n) {
+    if (!isArr(s.seasons) || s.seasons.length < 2) return null;
+    let left = n;
+    for (let i = 0; i < s.seasons.length; i++) {
+      const len = s.seasons[i];
+      if (left <= len || i === s.seasons.length - 1) return { season: i + 1, ep: Math.max(0, left), len };
+      left -= len;
+    }
+    return null;
+  }
+  function epLabel(s, n) {
+    const p = seasonOf(s, n);
+    if (p) return `S${p.season} E${p.ep} / ${p.len}`;
+    return s.episodes ? `EP ${n} / ${s.episodes}` : `EP ${n}`;
+  }
+
   function showHoursLeft(s) {
     if (showDone(s)) return 0;
     if (!s.episodes) return s.hours || 0;
@@ -832,7 +849,7 @@
     const prog = st !== 'watching' ? '' : `
       <div class="prog">
         <button class="prog-btn" data-act="ep" data-step="-1" aria-label="Back one episode">-1</button>
-        <button class="prog-num" data-act="ep-set" aria-label="Set episode">${s.episodes ? `EP ${n} / ${s.episodes}` : `EP ${n}`}</button>
+        <button class="prog-num" data-act="ep-set" aria-label="Set episode">${epLabel(s, n)}</button>
         <button class="prog-btn plus" data-act="ep" data-step="1" aria-label="Watched one more episode">+1 EP</button>
       </div>
       ${s.episodes ? `<div class="prog-bar"><i style="width:${Math.min(100, Math.round(n / s.episodes * 100))}%"></i></div>` : ''}`;
@@ -851,7 +868,7 @@
         </div>
         ${prog}
         <div class="card-foot">
-          <span class="card-len">${s.episodes ? `<span>${s.episodes}</span> EP` : '? EP'}${s.hours ? ` · ~${Math.round(s.hours)}H` : ''}</span>
+          <span class="card-len">${isArr(s.seasons) && s.seasons.length > 1 ? `<span>${s.seasons.length}</span> SEASONS · ` : ''}${s.episodes ? `<span>${s.episodes}</span> EP` : '? EP'}${s.hours ? ` · ~${Math.round(s.hours)}H` : ''}</span>
           <div class="status">
             ${SHOW_BTNS.map(([v, icon, label]) =>
               `<button class="st ${st === v ? 'active' : ''}" data-act="status" data-state="${v}" aria-label="${label}">${icon}</button>`).join('')}
@@ -874,9 +891,20 @@
       let n;
       if (act === 'ep') n = showProg(id) + toInt(btn.dataset.step);
       else {
-        const v = prompt('Episode you are on', showProg(id));
-        if (v === null || toInt(v) === null) return;
-        n = toInt(v);
+        const cur = seasonOf(s, showProg(id));
+        if (cur) {
+          const sv = prompt(`Season (1-${s.seasons.length})`, cur.season);
+          if (sv === null || toInt(sv) === null) return;
+          const sn = Math.min(Math.max(1, toInt(sv)), s.seasons.length);
+          const ev = prompt(`Episode in season ${sn} (0-${s.seasons[sn - 1]})`, sn === cur.season ? cur.ep : 0);
+          if (ev === null || toInt(ev) === null) return;
+          const before = s.seasons.slice(0, sn - 1).reduce((a, x) => a + x, 0);
+          n = before + Math.min(Math.max(0, toInt(ev)), s.seasons[sn - 1]);
+        } else {
+          const v = prompt('Episode you are on', showProg(id));
+          if (v === null || toInt(v) === null) return;
+          n = toInt(v);
+        }
       }
       n = Math.max(0, s.episodes ? Math.min(n, s.episodes) : n);
       progress[id] = n;
@@ -904,6 +932,7 @@
       hours: episodes ? Math.round(episodes * minsPerEp / 60) : 0,
       image: pick ? safeCover(pick.image) : null,
       airing: !!(pick && pick.airing),
+      seasons: pick && pick.seasons && episodes === pick.episodes ? pick.seasons : null,
       added: Date.now()
     });
     save(SHOWS_KEY, shows);
@@ -1240,33 +1269,94 @@
     }));
   }
 
-  async function searchAnilist(q, signal) {
-    const query = `query ($s: String) { Page(perPage: 6) { media(search: $s, type: ANIME, sort: SEARCH_MATCH) {
-      id title { english romaji } episodes duration status seasonYear format coverImage { medium } } } }`;
+  const SEASON_FORMATS = ['TV', 'TV_SHORT', 'ONA'];
+  const aniTitle = m => (m.title && (m.title.english || m.title.romaji)) || '';
+
+  async function anilist(query, variables, signal) {
     const res = await fetch('https://graphql.anilist.co', {
       method: 'POST', signal,
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ query, variables: { s: q } })
+      body: JSON.stringify({ query, variables })
     });
     if (res.status === 429) throw new Error('AniList busy, try again in a minute');
     if (!res.ok) throw new Error('AniList ' + res.status);
     const data = await res.json();
-    const list = (data.data && data.data.Page && data.data.Page.media) || [];
-    return list.map(m => ({
-      src: 'anilist', id: m.id, title: (m.title && (m.title.english || m.title.romaji)) || '',
+    if (data.errors && data.errors.length) throw new Error(data.errors[0].message);
+    return data.data;
+  }
+
+  async function searchAnilist(q, signal) {
+    const data = await anilist(`query ($s: String) { Page(perPage: 10) { media(search: $s, type: ANIME, sort: SEARCH_MATCH) {
+      id title { english romaji } episodes duration status seasonYear format coverImage { medium }
+      relations { edges { relationType node { id type format } } } } } }`, { s: q }, signal);
+    const list = (data && data.Page && data.Page.media) || [];
+    const ids = new Set(list.map(m => m.id));
+    // A later season points back to an earlier one with a PREQUEL relation. If that earlier
+    // season is also in the results, hide the later one: picking the show pulls in every season.
+    const prequelOf = m => ((m.relations && m.relations.edges) || [])
+      .find(e => e.relationType === 'PREQUEL' && e.node.type === 'ANIME' && SEASON_FORMATS.includes(e.node.format));
+    return list.filter(m => {
+      const pre = prequelOf(m);
+      return !(pre && ids.has(pre.node.id) && SEASON_FORMATS.includes(m.format));
+    }).slice(0, 6).map(m => ({
+      src: 'anilist', id: m.id, title: aniTitle(m), format: m.format,
       image: m.coverImage && m.coverImage.medium,
       episodes: m.episodes || null, minutes: m.duration || null,
       airing: m.status === 'RELEASING',
-      meta: [m.seasonYear, m.format, m.episodes ? m.episodes + ' ep' : (m.status === 'RELEASING' ? 'airing' : '')].filter(Boolean).join(' · ')
+      meta: [m.seasonYear, m.format, prequelOf(m) ? 'later season, picks up all seasons' : ''].filter(Boolean).join(' · ')
     })).filter(r => r.title);
+  }
+
+  // Walk the PREQUEL chain back to season 1, then the SEQUEL chain forward, collecting TV seasons.
+  async function anilistSeasons(startId) {
+    const Q = `query ($id: Int) { Media(id: $id, type: ANIME) {
+      id title { english romaji } episodes duration status format coverImage { medium }
+      relations { edges { relationType node { id type format } } } } }`;
+    const cache = {};
+    const get = async id => cache[id] || (cache[id] = (await anilist(Q, { id })).Media);
+    const nextOf = (m, rel) => ((m.relations && m.relations.edges) || [])
+      .find(e => e.relationType === rel && e.node.type === 'ANIME' && SEASON_FORMATS.includes(e.node.format));
+    let root = await get(startId);
+    for (let i = 0; i < 12; i++) {
+      const pre = nextOf(root, 'PREQUEL');
+      if (!pre) break;
+      root = await get(pre.node.id);
+    }
+    const chain = [];
+    const seen = new Set();
+    let cur = root;
+    for (let i = 0; i < 15 && cur && !seen.has(cur.id); i++) {
+      seen.add(cur.id);
+      if (SEASON_FORMATS.includes(cur.format)) chain.push(cur);
+      const nx = nextOf(cur, 'SEQUEL');
+      cur = nx ? await get(nx.node.id) : null;
+    }
+    return { root, chain };
   }
 
   async function showDetails(r) {
     if (r.src === 'tvmaze') {
       const res = await fetch('https://api.tvmaze.com/shows/' + r.id + '/episodes');
       if (res.ok) {
-        const eps = await res.json();
-        r = Object.assign({}, r, { episodes: eps.filter(e => e.type !== 'insignificant_special').length || null });
+        const eps = (await res.json()).filter(e => e.type !== 'insignificant_special' && e.number != null);
+        const bySeason = {};
+        eps.forEach(e => { bySeason[e.season] = (bySeason[e.season] || 0) + 1; });
+        const seasons = Object.keys(bySeason).map(Number).sort((a, b) => a - b).map(n => bySeason[n]);
+        r = Object.assign({}, r, { episodes: eps.length || null, seasons: seasons.length > 1 ? seasons : null });
+      }
+    } else if (r.src === 'anilist' && SEASON_FORMATS.includes(r.format)) {
+      const { root, chain } = await anilistSeasons(r.id);
+      if (chain.length > 1) {
+        const known = chain.every(m => m.episodes);
+        r = Object.assign({}, r, {
+          id: root.id,
+          title: aniTitle(root) || r.title,
+          image: (root.coverImage && root.coverImage.medium) || r.image,
+          minutes: root.duration || r.minutes,
+          airing: chain.some(m => m.status === 'RELEASING'),
+          episodes: known ? chain.reduce((a, m) => a + m.episodes, 0) : null,
+          seasons: known ? chain.map(m => m.episodes) : null
+        });
       }
     }
     document.getElementById('show-eps').value = r.episodes || '';
