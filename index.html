@@ -571,7 +571,7 @@
         <button class="text-btn" onclick="resetLook()">Reset look</button>
         <button class="text-btn danger" onclick="resetAll()">Reset all data</button>
       </div>
-      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 4.1</span>
+      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 4.2</span>
     </div>
   </section>
 
@@ -1879,6 +1879,8 @@
 
   // ----- Login screen -----
   const GUEST_KEY = 'backlog:guest';
+  // Off until custom SMTP is set up in Supabase. Supabase's built-in email only reaches project team members.
+  const EMAIL_ENABLED = false;
   let authMode = 'signin', authEmail = '', authMsg = '', authErr = false, authBusy = false;
 
   function openAuth(mode) { authMode = mode || 'signin'; authMsg = ''; authErr = false; renderAuth(); document.getElementById('auth').classList.add('show'); }
@@ -1899,7 +1901,7 @@
   function renderAuth() {
     const sub = {
       signin: 'Sign in to sync across your devices.',
-      signup: 'Create your account.',
+      signup: 'Create your account. Pick a password you will remember.',
       'code-email': 'We will email you a 6-digit code.',
       code: 'Enter the code sent to ' + authEmail,
       'reset-email': 'Reset your password.',
@@ -1918,8 +1920,8 @@
     const link = (mode, text) => `<button type="button" class="text-btn" onclick="openAuth('${mode}')">${text}</button>`;
     const body = {
       signin: emailField('username') + pwField('current-password', 'Password') + `<button class="add-btn" type="submit">SIGN IN</button>
-        <div class="auth-links">${link('signup', 'Create account')}${link('reset-email', 'Forgot password?')}</div>
-        <div class="auth-links">${link('code-email', 'Email me a sign-in code instead')}</div>`,
+        <div class="auth-links">${link('signup', 'Create account')}${EMAIL_ENABLED ? link('reset-email', 'Forgot password?') : ''}</div>
+        ${EMAIL_ENABLED ? `<div class="auth-links">${link('code-email', 'Email me a sign-in code instead')}</div>` : ''}`,
       signup: emailField('username') + pwField('new-password', 'Choose a password') + `<button class="add-btn" type="submit">CREATE ACCOUNT</button>
         <div class="auth-links">${link('signin', 'I already have an account')}</div>`,
       'code-email': emailField('email') + `<button class="add-btn" type="submit">SEND CODE</button>
