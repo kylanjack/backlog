@@ -177,6 +177,32 @@
   .auth-links { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; margin-top: 14px; }
   .auth-guest { display: block; margin: 22px auto 0; }
 
+  /* === GAME TASKS === */
+  .tasks-toggle {
+    width: 100%; margin-top: 12px; min-height: 40px; display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--px); font-size: calc(11px * var(--fs)); color: var(--muted);
+    background: var(--bg); padding: 0 12px; box-shadow: inset 0 -3px 0 var(--well-edge);
+  }
+  .tasks-toggle b { font-weight: 400; color: var(--t-green); }
+  .tasks { background: var(--bg); padding: 8px; margin-top: 2px; }
+  .task { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+  .task .check { width: 36px; height: 36px; background: var(--panel); }
+  .task.done .check { background: var(--green); }
+  .task.done .check svg { visibility: visible; }
+  .task-text { flex: 1; min-width: 0; font-size: calc(15px * var(--fs)); overflow-wrap: anywhere; }
+  .task.done .task-text { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--t-green); }
+  .task .del { min-width: 44px; height: 32px; }
+  .task-form { display: flex; gap: 6px; margin-top: 6px; }
+  .task-form .add-input { padding: 9px 10px; border-width: 2px; }
+  .task-form .add-btn { min-height: 42px; padding: 0 12px; font-size: calc(12px * var(--fs)); }
+
+  /* === TO-DO CATEGORIES === */
+  .chip.cat-edit { color: var(--t-red); }
+  .chip .x { margin-left: 6px; color: var(--t-red); }
+  .chip.dashed { background: transparent; box-shadow: inset 0 0 0 2px var(--panel); }
+  .todo-cat-head { margin-top: 14px; }
+  .item .cat-tag { font-family: var(--px); font-size: calc(10px * var(--fs)); color: var(--muted); background: var(--bg); padding: 2px 5px; flex-shrink: 0; }
+
   /* === SETTINGS === */
   .set-group { background: var(--panel); box-shadow: inset 0 -4px 0 var(--panel-edge); padding: 14px 14px 18px; margin-bottom: 12px; }
   .set-title { font-family: var(--px); font-size: calc(13px * var(--fs)); margin-bottom: 4px; }
@@ -379,6 +405,7 @@
 
   <!-- ===== TO-DO ===== -->
   <section class="panel" id="panel-todo">
+    <div class="chips" id="todo-cats"></div>
     <form class="add-form" onsubmit="return addTodo(event)">
       <input class="add-input" id="todo-input" type="text" placeholder="Add a to-do" maxlength="200" autocomplete="off">
       <button class="add-btn" type="submit">ADD</button>
@@ -571,7 +598,7 @@
         <button class="text-btn" onclick="resetLook()">Reset look</button>
         <button class="text-btn danger" onclick="resetAll()">Reset all data</button>
       </div>
-      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 4.4</span>
+      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 4.5</span>
     </div>
   </section>
 
@@ -644,12 +671,16 @@
   const SHOWS_KEY = 'backlog:shows';
   const BOOKS_KEY = 'backlog:books';
   const GAMES_KEY = 'backlog:games';
+  const CATS_KEY = 'backlog:todo-cats';
+  const DEFAULT_CATS = ['Work', 'Apartment', 'Errands'];
   const OLD_CUSTOM_KEY = 'backlog:custom-shows'; // V2 only, migrated into SHOWS_KEY
 
   const SHOW_STATUSES = ['not-started', 'watching', 'completed', 'rewatched'];
   const BOOK_STATUSES = ['want', 'reading', 'finished'];
 
-  let shows = [], books = [], games = [], state = {}, progress = {}, notes = [], todos = [];
+  let shows = [], books = [], games = [], state = {}, progress = {}, notes = [], todos = [], cats = DEFAULT_CATS.slice();
+  let todoCat = 'all', catEdit = false;
+  const openTasks = new Set();
   const filters = { show: 'all', book: 'all', game: 'all' };
   const formChoice = { show: { type: 'anime' }, book: { format: 'physical' }, game: { platform: 'PC' } };
 
@@ -764,7 +795,7 @@
     }
     const [kind, id] = btn.dataset.del.split('|');
     disarm();
-    ({ show: deleteShow, book: deleteBook, game: deleteGame, todo: deleteTodo, note: deleteNote })[kind](id);
+    ({ show: deleteShow, book: deleteBook, game: deleteGame, gtask: deleteGameTask, todo: deleteTodo, note: deleteNote })[kind](id);
   }, true);
   const delBtn = (kind, id) => `<button class="del" type="button" data-del="${kind}|${esc(id)}" aria-label="Delete">DEL</button>`;
 
@@ -1504,6 +1535,7 @@
           ${delBtn('game', g.id)}
         </div>
         ${prog}
+        ${gameTasks(g)}
         <div class="card-foot">
           <span class="card-len">${g.achTotal ? `<span>${g.achTotal}</span> ACH` : ''}${g.playtime ? ` · ~${g.playtime}H AVG` : ''}</span>
           <div class="status">
@@ -1514,12 +1546,67 @@
       </div>`;
   }
 
+  // Per-game checklist for the things left to 100% it.
+  function gameTasks(g) {
+    const tasks = isArr(g.tasks) ? g.tasks : [];
+    const done = tasks.filter(t => t.done).length;
+    const open = openTasks.has(g.id);
+    const head = `<button class="tasks-toggle" type="button" data-act="tasks">
+      <span>${open ? '▾' : '▸'} 100% CHECKLIST</span><span>${tasks.length ? `<b>${done}</b> / ${tasks.length}` : 'ADD'}</span></button>`;
+    if (!open) return head;
+    const sorted = tasks.filter(t => !t.done).concat(tasks.filter(t => t.done));
+    return head + `
+      <div class="tasks">
+        ${sorted.map(t => `
+          <div class="task ${t.done ? 'done' : ''}">
+            <button class="check" type="button" data-act="task" data-task="${esc(t.id)}" aria-label="${t.done ? 'Mark not done' : 'Mark done'}">${ICONS.check}</button>
+            <span class="task-text">${esc(t.text)}</span>
+            ${delBtn('gtask', g.id + ':' + t.id)}
+          </div>`).join('') || '<div class="suggest-status">Nothing yet. Add what is left: collectibles, trophies, side quests.</div>'}
+        <form class="task-form" data-game="${esc(g.id)}">
+          <input class="add-input" type="text" maxlength="160" autocomplete="off" placeholder="Add a step">
+          <button class="add-btn" type="submit">ADD</button>
+        </form>
+      </div>`;
+  }
+
+  document.getElementById('games-list').addEventListener('submit', e => {
+    const form = e.target.closest('.task-form');
+    if (!form) return;
+    e.preventDefault();
+    const g = findGame(form.dataset.game);
+    const input = form.querySelector('input');
+    const text = input.value.trim();
+    if (!g || !text) return;
+    if (!isArr(g.tasks)) g.tasks = [];
+    g.tasks.push({ id: uid('task'), text, done: false });
+    save(GAMES_KEY, games);
+    renderGames();
+    const again = document.querySelector(`.task-form[data-game="${CSS.escape(g.id)}"] input`);
+    if (again) again.focus();
+  });
+
+  function deleteGameTask(key) {
+    const [gid, tid] = key.split(':');
+    const g = findGame(gid);
+    if (!g || !isArr(g.tasks)) return;
+    g.tasks = g.tasks.filter(t => t.id !== tid);
+    save(GAMES_KEY, games);
+    renderGames();
+  }
+
   document.getElementById('games-list').addEventListener('click', e => {
     const btn = e.target.closest('[data-act]');
     if (!btn) return;
     const g = findGame(btn.closest('.card').dataset.id);
     if (!g) return;
     const act = btn.dataset.act;
+    if (act === 'tasks') { openTasks.has(g.id) ? openTasks.delete(g.id) : openTasks.add(g.id); renderGames(); return; }
+    if (act === 'task') {
+      const t = (g.tasks || []).find(x => x.id === btn.dataset.task);
+      if (t) { t.done = !t.done; save(GAMES_KEY, games); renderGames(); }
+      return;
+    }
     if (act === 'status') setGameStatus(g, btn.dataset.state);
     else {
       let n;
@@ -1575,20 +1662,79 @@
   }
 
   // ===== TO-DO =====
+  const catOf = t => cats.includes(t.cat) ? t.cat : '';
+
+  function renderTodoCats() {
+    const count = c => todos.filter(t => !t.done && (c === 'all' || catOf(t) === c)).length;
+    const chip = (v, label) => {
+      const n = count(v);
+      if (catEdit && v !== 'all') return `<button class="chip cat-edit" type="button" data-cat-del="${esc(v)}">${esc(label)}<span class="x">✕</span></button>`;
+      return `<button class="chip ${todoCat === v ? 'active' : ''}" type="button" data-cat="${esc(v)}">${esc(label)}${n ? ' ' + n : ''}</button>`;
+    };
+    document.getElementById('todo-cats').innerHTML =
+      chip('all', 'All') + cats.map(c => chip(c, c)).join('') +
+      (catEdit
+        ? '<button class="chip dashed" type="button" data-cat-act="done">Done</button>'
+        : '<button class="chip dashed" type="button" data-cat-act="new">+ New</button><button class="chip dashed" type="button" data-cat-act="edit">Edit</button>');
+    document.getElementById('todo-input').placeholder = todoCat === 'all' ? 'Add a to-do' : 'Add to ' + todoCat;
+  }
+
+  document.getElementById('todo-cats').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.dataset.cat) { todoCat = b.dataset.cat; renderTodos(); return; }
+    if (b.dataset.catDel) {
+      const c = b.dataset.catDel;
+      if (!confirm(`Delete the "${c}" category? Its to-dos stay, with no category.`)) return;
+      cats = cats.filter(x => x !== c);
+      todos.forEach(t => { if (t.cat === c) t.cat = ''; });
+      if (todoCat === c) todoCat = 'all';
+      save(CATS_KEY, cats); save(TODOS_KEY, todos);
+      renderTodos();
+      return;
+    }
+    const act = b.dataset.catAct;
+    if (act === 'new') {
+      const name = (prompt('New category name') || '').trim().slice(0, 24);
+      if (!name) return;
+      if (cats.some(c => c.toLowerCase() === name.toLowerCase())) { todoCat = cats.find(c => c.toLowerCase() === name.toLowerCase()); renderTodos(); return; }
+      cats.push(name);
+      todoCat = name;
+      save(CATS_KEY, cats);
+      renderTodos();
+    } else if (act === 'edit') { catEdit = true; renderTodoCats(); }
+    else if (act === 'done') { catEdit = false; renderTodoCats(); }
+  });
+
   function renderTodos() {
-    const open = todos.filter(t => !t.done).sort((a, b) => b.created - a.created);
-    const done = todos.filter(t => t.done).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
-    document.getElementById('todo-open').innerHTML = open.length ? open.map(todoItem).join('') : '<div class="empty">All clear</div>';
+    if (todoCat !== 'all' && !cats.includes(todoCat)) todoCat = 'all';
+    renderTodoCats();
+    const inView = t => todoCat === 'all' || catOf(t) === todoCat;
+    const open = todos.filter(t => !t.done && inView(t)).sort((a, b) => b.created - a.created);
+    const done = todos.filter(t => t.done && inView(t)).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
+    let html = '';
+    if (!open.length) html = '<div class="empty">All clear</div>';
+    else if (todoCat === 'all') {
+      const groups = [''].concat(cats).map(c => [c, open.filter(t => catOf(t) === c)]).filter(g => g[1].length);
+      html = groups.length === 1 && groups[0][0] === ''
+        ? open.map(todoItem).join('')
+        : groups.map(([c, list]) => `
+            <div class="list-label todo-cat-head"><span>${esc(c || 'No category')} · ${list.length}</span></div>
+            ${list.map(todoItem).join('')}`).join('');
+    } else html = open.map(todoItem).join('');
+    document.getElementById('todo-open').innerHTML = html;
     document.getElementById('todo-done-wrap').innerHTML = done.length ? `
       <div class="list-label"><span>Done · ${done.length}</span><button class="text-btn" onclick="clearDone()">Clear done</button></div>
       ${done.map(todoItem).join('')}` : '';
-    document.getElementById('tab-todo-n').textContent = open.length || '';
+    document.getElementById('tab-todo-n').textContent = todos.filter(t => !t.done).length || '';
   }
   function todoItem(t) {
+    const tag = t.done && todoCat === 'all' && catOf(t) ? `<span class="cat-tag">${esc(catOf(t))}</span>` : '';
     return `
       <div class="item ${t.done ? 'done' : ''}" data-id="${esc(t.id)}">
         <button class="check" onclick="toggleTodo('${esc(t.id)}')" aria-label="${t.done ? 'Mark not done' : 'Mark done'}">${ICONS.check}</button>
         <span class="item-text">${esc(t.text)}</span>
+        ${tag}
         ${delBtn('todo', t.id)}
       </div>`;
   }
@@ -1597,7 +1743,7 @@
     const input = document.getElementById('todo-input');
     const text = input.value.trim();
     if (!text) return false;
-    todos.push({ id: uid('todo'), text, done: false, created: Date.now() });
+    todos.push({ id: uid('todo'), text, done: false, created: Date.now(), cat: todoCat === 'all' ? '' : todoCat });
     save(TODOS_KEY, todos);
     input.value = '';
     renderTodos();
@@ -1612,7 +1758,11 @@
     renderTodos();
   }
   function deleteTodo(id) { todos = todos.filter(t => t.id !== id); save(TODOS_KEY, todos); renderTodos(); }
-  function clearDone() { todos = todos.filter(t => !t.done); save(TODOS_KEY, todos); renderTodos(); }
+  function clearDone() {
+    const inView = t => todoCat === 'all' || catOf(t) === todoCat;
+    todos = todos.filter(t => !(t.done && inView(t)));
+    save(TODOS_KEY, todos); renderTodos();
+  }
 
   // ===== SWIPE ON TO-DOS =====
   // Swipe right: toggle done. Swipe left: delete (with undo).
@@ -1745,7 +1895,7 @@
   }
 
   function exportState() {
-    const data = JSON.stringify({ version: 5, shows, state, progress, books, games, todos, reminders: notes, look }, null, 2);
+    const data = JSON.stringify({ version: 5, shows, state, progress, books, games, todos, cats, reminders: notes, look }, null, 2);
     const url = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
     const a = document.createElement('a');
     a.href = url;
@@ -1770,6 +1920,7 @@
           state = isObj(d.state) ? d.state : {};
           notes = isArr(d.reminders) ? d.reminders : [];
           todos = isArr(d.todos) ? d.todos : [];
+          if (isArr(d.cats)) cats = d.cats.filter(c => typeof c === 'string' && c);
           progress = isObj(d.progress) ? d.progress : {};
           books = isArr(d.books) ? d.books : [];
           games = isArr(d.games) ? d.games : [];
@@ -1794,7 +1945,7 @@
 
   function saveAll() {
     save(SHOWS_KEY, shows); save(STATE_KEY, state); save(PROGRESS_KEY, progress);
-    save(BOOKS_KEY, books); save(GAMES_KEY, games); save(TODOS_KEY, todos); save(NOTES_KEY, notes);
+    save(BOOKS_KEY, books); save(GAMES_KEY, games); save(TODOS_KEY, todos); save(CATS_KEY, cats); save(NOTES_KEY, notes);
   }
 
   // ===== APPEARANCE SETTINGS =====
@@ -1861,7 +2012,7 @@
   const SB_KEY = 'sb_publishable_4ZsqPQ8cCckNizfdbugc4w_F9PDlwvD';
   const SESSION_KEY = 'backlog:session';
   const SYNC_KEY = 'backlog:sync';
-  const DATA_KEYS = [SHOWS_KEY, STATE_KEY, PROGRESS_KEY, BOOKS_KEY, GAMES_KEY, TODOS_KEY, NOTES_KEY, LOOK_KEY];
+  const DATA_KEYS = [SHOWS_KEY, STATE_KEY, PROGRESS_KEY, BOOKS_KEY, GAMES_KEY, TODOS_KEY, CATS_KEY, NOTES_KEY, LOOK_KEY];
 
   let session = load(SESSION_KEY, null, isObj);
   let syncMeta = Object.assign({ syncedAt: null, dirty: false }, load(SYNC_KEY, {}, isObj));
@@ -1923,7 +2074,7 @@
   }
 
   function snapshot() {
-    return { v: 5, shows, state, progress, books, games, todos, reminders: notes, look };
+    return { v: 5, shows, state, progress, books, games, todos, cats, reminders: notes, look };
   }
   function localHasData() {
     return shows.length || books.length || games.length || todos.length || notes.length;
@@ -1937,6 +2088,7 @@
     books = isArr(d.books) ? d.books : [];
     games = isArr(d.games) ? d.games : [];
     todos = isArr(d.todos) ? d.todos : [];
+    if (isArr(d.cats)) { cats = d.cats.filter(c => typeof c === 'string' && c); save(CATS_KEY, cats); }
     notes = isArr(d.reminders) ? d.reminders : [];
     if (isObj(d.look)) { look = Object.assign({}, LOOK_DEFAULT, d.look); save(LOOK_KEY, look); applyLook(); }
     saveAll();
@@ -2149,6 +2301,7 @@
     syncMeta = { syncedAt: null, dirty: false };
     applyingRemote = true;
     shows = []; state = {}; progress = {}; books = []; games = []; todos = []; notes = [];
+    cats = DEFAULT_CATS.slice(); todoCat = 'all';
     saveAll();
     applyingRemote = false;
     acct = { step: 'email', email: '', msg: 'Signed out', err: false, status: 'idle', choice: null };
@@ -2206,6 +2359,7 @@
     progress = load(PROGRESS_KEY, {}, isObj);
     notes = load(NOTES_KEY, [], isArr);
     todos = load(TODOS_KEY, [], isArr);
+    cats = load(CATS_KEY, DEFAULT_CATS.slice(), isArr).filter(c => typeof c === 'string' && c);
     books = load(BOOKS_KEY, [], isArr).filter(b => b && b.id && b.title);
     games = load(GAMES_KEY, [], isArr).filter(g => g && g.id && g.title);
     const saved = load(SHOWS_KEY, null, isArr);
