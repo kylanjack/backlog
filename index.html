@@ -571,7 +571,7 @@
         <button class="text-btn" onclick="resetLook()">Reset look</button>
         <button class="text-btn danger" onclick="resetAll()">Reset all data</button>
       </div>
-      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 4.3</span>
+      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 4.4</span>
     </div>
   </section>
 
@@ -1240,11 +1240,11 @@
       if (!r) return;
       box.innerHTML = '<div class="suggest-status">Loading details…</div>';
       let full = r;
-      try { full = await onPick(r) || r; } catch (err) { console.warn('detail lookup failed', err); }
+      try { full = await onPick(r) || r; } catch (err) { full = Object.assign({}, r, { warn: 'Details failed: ' + err.message }); }
       L.picked = full;
       input.value = full.title;
       box.innerHTML = '';
-      pickedBox.innerHTML = `<div class="picked">${safeCover(full.image) ? `<img src="${esc(full.image)}" alt="" style="${full.wide ? 'width:72px;height:41px' : ''}" onerror="this.remove()">` : ''}<span>Filled in. Check it, then save.</span></div>`;
+      pickedBox.innerHTML = `<div class="picked">${safeCover(full.image) ? `<img src="${esc(full.image)}" alt="" style="${full.wide ? 'width:72px;height:41px' : ''}" onerror="this.remove()">` : ''}<span>${full.warn ? esc(full.warn) + '. Check the episodes, then save.' : (isArr(full.seasons) ? full.seasons.length + ' seasons, ' + full.episodes + ' episodes. Save when ready.' : 'Filled in. Check it, then save.')}</span></div>`;
     });
     L.clear = () => {
       L.picked = null; L.q = ''; clearTimeout(L.timer); if (L.ctl) L.ctl.abort();
@@ -1272,13 +1272,19 @@
   const SEASON_FORMATS = ['TV', 'TV_SHORT', 'ONA'];
   const aniTitle = m => (m.title && (m.title.english || m.title.romaji)) || '';
 
-  async function anilist(query, variables, signal) {
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  async function anilist(query, variables, signal, tries = 2) {
     const res = await fetch('https://graphql.anilist.co', {
       method: 'POST', signal,
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ query, variables })
     });
-    if (res.status === 429) throw new Error('AniList busy, try again in a minute');
+    if (res.status === 429 && tries > 0) {
+      const wait = Math.min(8, toInt(res.headers.get('Retry-After')) || 3);
+      await sleep(wait * 1000);
+      return anilist(query, variables, signal, tries - 1);
+    }
+    if (res.status === 429) throw new Error('AniList busy (rate limit)');
     if (!res.ok) throw new Error('AniList ' + res.status);
     const data = await res.json();
     if (data.errors && data.errors.length) throw new Error(data.errors[0].message);
@@ -1313,7 +1319,13 @@
       id title { english romaji } episodes duration status format coverImage { medium }
       relations { edges { relationType node { id type format } } } } }`;
     const cache = {};
-    const get = async id => cache[id] || (cache[id] = (await anilist(Q, { id })).Media);
+    const get = async id => {
+      if (cache[id]) return cache[id];
+      if (Object.keys(cache).length) await sleep(250);
+      const d = await anilist(Q, { id });
+      if (!d || !d.Media) throw new Error('AniList returned no data for ' + id);
+      return (cache[id] = d.Media);
+    };
     const nextOf = (m, rel) => ((m.relations && m.relations.edges) || [])
       .find(e => e.relationType === rel && e.node.type === 'ANIME' && SEASON_FORMATS.includes(e.node.format));
     let root = await get(startId);
@@ -1334,29 +1346,58 @@
     return { root, chain };
   }
 
+  async function tvmazeSeasonsFor(id) {
+    const res = await fetch('https://api.tvmaze.com/shows/' + id + '/episodes');
+    if (!res.ok) throw new Error('TVmaze ' + res.status);
+    const eps = (await res.json()).filter(e => e.type !== 'insignificant_special' && e.number != null);
+    const bySeason = {};
+    eps.forEach(e => { bySeason[e.season] = (bySeason[e.season] || 0) + 1; });
+    const seasons = Object.keys(bySeason).map(Number).sort((a, b) => a - b).map(n => bySeason[n]);
+    return { episodes: eps.length || null, seasons: seasons.length > 1 ? seasons : null };
+  }
+
+  // Fallback for anime when AniList can't give the season chain: TVmaze lists most anime as one show.
+  async function tvmazeAnimeByName(name) {
+    const res = await fetch('https://api.tvmaze.com/singlesearch/shows?q=' + encodeURIComponent(name));
+    if (!res.ok) throw new Error('TVmaze ' + res.status);
+    const show = await res.json();
+    return Object.assign({ minutes: show.averageRuntime || show.runtime || null, airing: show.status === 'Running' }, await tvmazeSeasonsFor(show.id));
+  }
+
   async function showDetails(r) {
     if (r.src === 'tvmaze') {
-      const res = await fetch('https://api.tvmaze.com/shows/' + r.id + '/episodes');
-      if (res.ok) {
-        const eps = (await res.json()).filter(e => e.type !== 'insignificant_special' && e.number != null);
-        const bySeason = {};
-        eps.forEach(e => { bySeason[e.season] = (bySeason[e.season] || 0) + 1; });
-        const seasons = Object.keys(bySeason).map(Number).sort((a, b) => a - b).map(n => bySeason[n]);
-        r = Object.assign({}, r, { episodes: eps.length || null, seasons: seasons.length > 1 ? seasons : null });
-      }
+      try { r = Object.assign({}, r, await tvmazeSeasonsFor(r.id)); }
+      catch (e) { r = Object.assign({}, r, { warn: 'Could not load episodes: ' + e.message }); }
     } else if (r.src === 'anilist' && SEASON_FORMATS.includes(r.format)) {
-      const { root, chain } = await anilistSeasons(r.id);
-      if (chain.length > 1) {
-        const known = chain.every(m => m.episodes);
+      let done = false;
+      try {
+        const { root, chain } = await anilistSeasons(r.id);
+        const known = chain.length && chain.every(m => m.episodes);
         r = Object.assign({}, r, {
           id: root.id,
           title: aniTitle(root) || r.title,
           image: (root.coverImage && root.coverImage.medium) || r.image,
           minutes: root.duration || r.minutes,
-          airing: chain.some(m => m.status === 'RELEASING'),
-          episodes: known ? chain.reduce((a, m) => a + m.episodes, 0) : null,
-          seasons: known ? chain.map(m => m.episodes) : null
+          airing: chain.some(m => m.status === 'RELEASING')
         });
+        if (known && chain.length > 1) {
+          r.episodes = chain.reduce((a, m) => a + m.episodes, 0);
+          r.seasons = chain.map(m => m.episodes);
+          done = true;
+        } else if (chain.length === 1 && chain[0].episodes) {
+          r.episodes = chain[0].episodes;
+          done = true;
+        }
+      } catch (e) {
+        r = Object.assign({}, r, { warn: 'AniList: ' + e.message });
+      }
+      if (!done) {
+        try {
+          const t = await tvmazeAnimeByName(r.title);
+          if (t.episodes) { r = Object.assign({}, r, t, { warn: null }); done = true; }
+        } catch (e) {
+          r.warn = (r.warn ? r.warn + ' / ' : '') + 'TVmaze: ' + e.message;
+        }
       }
     }
     document.getElementById('show-eps').value = r.episodes || '';
