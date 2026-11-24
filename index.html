@@ -598,7 +598,7 @@
         <button class="text-btn" onclick="resetLook()">Reset look</button>
         <button class="text-btn danger" onclick="resetAll()">Reset all data</button>
       </div>
-      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 4.5</span>
+      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 4.6</span>
     </div>
   </section>
 
@@ -1302,6 +1302,13 @@
 
   const SEASON_FORMATS = ['TV', 'TV_SHORT', 'ONA'];
   const aniTitle = m => (m.title && (m.title.english || m.title.romaji)) || '';
+  // AniList links real seasons AND separate series (Naruto -> Shippuden -> Boruto) the same way,
+  // so only treat an entry as a later season when its title says it is one.
+  const SEASON_RE = /\b(season\s*\d+|\d+(st|nd|rd|th)\s+season|(second|third|fourth|fifth|sixth|seventh|final)\s+season|part\s*\d+|cour\s*\d+|arc)\s*$|\bseason\s*\d+\b|\b(second|third|fourth|fifth|final)\s+season\b|\bpart\s*(\d+|ii|iii)\b|\s(ii|iii|iv|v|vi)$|\barc\b|-hen\b|\bcour\b|\sr2$/i;
+  const isLaterSeason = m => {
+    const t = m.title || {};
+    return [t.english, t.romaji].filter(Boolean).some(x => SEASON_RE.test(x.trim()));
+  };
 
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   async function anilist(query, variables, signal, tries = 2) {
@@ -1330,7 +1337,7 @@
     const ids = new Set(list.map(m => m.id));
     // A later season points back to an earlier one with a PREQUEL relation. If that earlier
     // season is also in the results, hide the later one: picking the show pulls in every season.
-    const prequelOf = m => ((m.relations && m.relations.edges) || [])
+    const prequelOf = m => isLaterSeason(m) && ((m.relations && m.relations.edges) || [])
       .find(e => e.relationType === 'PREQUEL' && e.node.type === 'ANIME' && SEASON_FORMATS.includes(e.node.format));
     return list.filter(m => {
       const pre = prequelOf(m);
@@ -1360,7 +1367,7 @@
     const nextOf = (m, rel) => ((m.relations && m.relations.edges) || [])
       .find(e => e.relationType === rel && e.node.type === 'ANIME' && SEASON_FORMATS.includes(e.node.format));
     let root = await get(startId);
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 12 && isLaterSeason(root); i++) {
       const pre = nextOf(root, 'PREQUEL');
       if (!pre) break;
       root = await get(pre.node.id);
@@ -1372,7 +1379,9 @@
       seen.add(cur.id);
       if (SEASON_FORMATS.includes(cur.format)) chain.push(cur);
       const nx = nextOf(cur, 'SEQUEL');
-      cur = nx ? await get(nx.node.id) : null;
+      if (!nx) break;
+      const next = await get(nx.node.id);
+      cur = isLaterSeason(next) ? next : null;   // stop at a new series (e.g. Shippuden, Boruto)
     }
     return { root, chain };
   }
