@@ -152,6 +152,31 @@
   .sync-dot.busy { background: var(--yellow); }
   .sync-dot.bad { background: var(--orange); }
 
+  .credit { font-family: var(--px); font-size: calc(11px * var(--fs)); color: var(--muted); text-align: center; margin-top: 18px; }
+  .credit a { color: var(--t-accent); }
+  .st.active[data-state="beaten"] { background: var(--yellow); color: var(--ink); box-shadow: inset 0 -3px 0 #C99A48; }
+  .st.active[data-state="hundred"] { background: var(--green); color: var(--ink); box-shadow: inset 0 -3px 0 var(--green-edge); }
+  .st.active[data-state="backlog"] { background: var(--panel-hi); color: #FFFFFF; box-shadow: inset 0 -3px 0 var(--hi-edge); }
+  .st.active[data-state="playing"] { background: var(--cyan); color: var(--ink); box-shadow: inset 0 -3px 0 var(--cyan-edge); }
+  .cover.wide { width: 88px; height: 50px; }
+
+  /* === LOGIN SCREEN === */
+  .auth {
+    position: fixed; inset: 0; z-index: 50; background: var(--bg); overflow-y: auto;
+    display: none; padding: calc(env(safe-area-inset-top) + 48px) 20px calc(env(safe-area-inset-bottom) + 32px);
+  }
+  .auth.show { display: block; }
+  .auth-inner { max-width: 420px; margin: 0 auto; }
+  .auth-logo { font-family: var(--px); font-size: calc(40px * var(--fs)); letter-spacing: 1px; text-align: center; }
+  .auth-logo span { color: var(--t-accent); }
+  .auth-icon { display: block; width: 88px; height: 88px; margin: 0 auto 16px; image-rendering: pixelated; }
+  .auth-sub { text-align: center; color: var(--muted); font-size: calc(15px * var(--fs)); margin: 6px 0 28px; }
+  .auth-card { background: var(--panel); box-shadow: inset 0 -4px 0 var(--panel-edge); padding: 18px 16px 20px; }
+  .auth-card .add-input { margin-bottom: 4px; }
+  .auth-card .add-btn { width: 100%; margin-top: 14px; }
+  .auth-links { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; margin-top: 14px; }
+  .auth-guest { display: block; margin: 22px auto 0; }
+
   /* === SETTINGS === */
   .set-group { background: var(--panel); box-shadow: inset 0 -4px 0 var(--panel-edge); padding: 14px 14px 18px; margin-bottom: 12px; }
   .set-title { font-family: var(--px); font-size: calc(13px * var(--fs)); margin-bottom: 4px; }
@@ -329,7 +354,7 @@
   }
   .tabbar-inner { max-width: 640px; margin: 0 auto; display: flex; gap: 6px; }
   .tab {
-    flex: 1; font-family: var(--px); font-size: calc(12px * var(--fs)); min-height: 48px; padding: 0 2px;
+    flex: 1; min-width: 0; font-family: var(--px); font-size: calc(11px * var(--fs)); min-height: 48px; padding: 0 1px;
     background: var(--panel); color: var(--muted); box-shadow: inset 0 -4px 0 var(--panel-edge);
   }
   .tab.active { background: var(--accent); color: var(--ink); box-shadow: inset 0 -4px 0 var(--accent-edge); }
@@ -373,18 +398,20 @@
 
     <button class="add-btn add-toggle" id="show-toggle" onclick="toggleForm('show')">+ ADD SHOW</button>
     <form class="big-form" id="show-form" onsubmit="return addShow(event)">
-      <label class="field-label" for="show-title">Name</label>
-      <input class="add-input" id="show-title" type="text" maxlength="120" autocomplete="off" placeholder="Show name">
       <span class="field-label">Type</span>
       <div class="seg" data-form="show" data-field="type">
         <button type="button" data-v="anime" class="on">Anime</button>
         <button type="button" data-v="live">Live-action</button>
       </div>
+      <label class="field-label" for="show-title">Name</label>
+      <input class="add-input" id="show-title" type="text" maxlength="120" autocomplete="off" autocorrect="off" placeholder="Start typing a name">
+      <div class="suggest" id="show-suggest"></div>
+      <div id="show-picked"></div>
       <label class="field-label" for="show-eps">Episodes (optional)</label>
       <input class="add-input" id="show-eps" type="number" inputmode="numeric" min="1" max="5000" placeholder="24">
       <div class="form-err" id="show-err"></div>
       <div class="form-actions">
-        <button type="button" class="ghost-btn" onclick="toggleForm('show', false)">Cancel</button>
+        <button type="button" class="ghost-btn" onclick="lookups.show.clear(); toggleForm('show', false)">Cancel</button>
         <button type="submit" class="add-btn">SAVE SHOW</button>
       </div>
     </form>
@@ -436,6 +463,48 @@
       <button class="chip" data-filter="audio">Audiobook</button>
     </div>
     <div id="books-list"></div>
+  </section>
+
+  <!-- ===== GAMES ===== -->
+  <section class="panel" id="panel-games">
+    <div class="stats">
+      <div class="stat"><span class="stat-label">Playing</span><span class="stat-value c" id="gm-playing">0</span></div>
+      <div class="stat"><span class="stat-label">Backlog</span><span class="stat-value y" id="gm-backlog">0</span></div>
+      <div class="stat"><span class="stat-label">100%</span><span class="stat-value g" id="gm-done">0</span></div>
+      <div class="stat"><span class="stat-label" id="gm-year-label">This year</span><span class="stat-value" id="gm-year">0</span></div>
+    </div>
+
+    <button class="add-btn add-toggle" id="game-toggle" onclick="toggleForm('game')">+ ADD GAME</button>
+    <form class="big-form" id="game-form" onsubmit="return addGame(event)">
+      <label class="field-label" for="game-title">Name</label>
+      <input class="add-input" id="game-title" type="text" maxlength="120" autocomplete="off" autocorrect="off" placeholder="Start typing a game">
+      <div class="suggest" id="game-suggest"></div>
+      <div id="game-picked"></div>
+      <span class="field-label">Platform</span>
+      <div class="seg" data-form="game" data-field="platform">
+        <button type="button" data-v="PC" class="on">PC</button>
+        <button type="button" data-v="PS">PS</button>
+        <button type="button" data-v="Xbox">Xbox</button>
+        <button type="button" data-v="Switch">Switch</button>
+      </div>
+      <label class="field-label" for="game-ach">Achievements / trophies (optional)</label>
+      <input class="add-input" id="game-ach" type="number" inputmode="numeric" min="1" max="5000" placeholder="50">
+      <div class="form-err" id="game-err"></div>
+      <div class="form-actions">
+        <button type="button" class="ghost-btn" onclick="lookups.game.clear(); toggleForm('game', false)">Cancel</button>
+        <button type="submit" class="add-btn">SAVE GAME</button>
+      </div>
+    </form>
+
+    <div class="chips" data-chips="game">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="PC">PC</button>
+      <button class="chip" data-filter="PS">PS</button>
+      <button class="chip" data-filter="Xbox">Xbox</button>
+      <button class="chip" data-filter="Switch">Switch</button>
+    </div>
+    <div id="games-list"></div>
+    <div class="credit">Game data from <a href="https://rawg.io" target="_blank" rel="noopener">RAWG</a></div>
   </section>
 
   <!-- ===== NOTES ===== -->
@@ -502,10 +571,20 @@
         <button class="text-btn" onclick="resetLook()">Reset look</button>
         <button class="text-btn danger" onclick="resetAll()">Reset all data</button>
       </div>
-      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 4.0</span>
+      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 4.1</span>
     </div>
   </section>
 
+</div>
+
+<div class="auth" id="auth" role="dialog" aria-label="Sign in">
+  <div class="auth-inner">
+    <img class="auth-icon" src="apple-touch-icon.png" alt="">
+    <div class="auth-logo">BACK<span>LOG</span></div>
+    <div class="auth-sub" id="auth-sub"></div>
+    <div class="auth-card" id="auth-card"></div>
+    <button class="text-btn auth-guest" type="button" onclick="useGuest()">Use without an account</button>
+  </div>
 </div>
 
 <div class="toast" id="toast"><span id="toast-text"></span><button type="button" id="toast-undo">UNDO</button></div>
@@ -515,6 +594,7 @@
     <button class="tab" data-tab="todo">TO-DO<span class="n" id="tab-todo-n"></span></button>
     <button class="tab" data-tab="shows">SHOWS</button>
     <button class="tab" data-tab="books">BOOKS</button>
+    <button class="tab" data-tab="games">GAMES</button>
     <button class="tab" data-tab="notes">NOTES</button>
   </div>
 </nav>
@@ -563,14 +643,15 @@
   const PROGRESS_KEY = 'backlog:progress';    // show episode by id
   const SHOWS_KEY = 'backlog:shows';
   const BOOKS_KEY = 'backlog:books';
+  const GAMES_KEY = 'backlog:games';
   const OLD_CUSTOM_KEY = 'backlog:custom-shows'; // V2 only, migrated into SHOWS_KEY
 
   const SHOW_STATUSES = ['not-started', 'watching', 'completed', 'rewatched'];
   const BOOK_STATUSES = ['want', 'reading', 'finished'];
 
-  let shows = [], books = [], state = {}, progress = {}, notes = [], todos = [];
-  const filters = { show: 'all', book: 'all' };
-  const formChoice = { show: { type: 'anime' }, book: { format: 'physical' } };
+  let shows = [], books = [], games = [], state = {}, progress = {}, notes = [], todos = [];
+  const filters = { show: 'all', book: 'all', game: 'all' };
+  const formChoice = { show: { type: 'anime' }, book: { format: 'physical' }, game: { platform: 'PC' } };
 
   // ===== HELPERS =====
   const isObj = v => v && typeof v === 'object' && !Array.isArray(v);
@@ -612,6 +693,7 @@
     box:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" shape-rendering="crispEdges"><rect x="5" y="5" width="14" height="14"/></svg>',
     play:  '<svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M7 4h3v2h3v2h3v2h3v4h-3v2h-3v2h-3v2H7z"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M19 6h3v3h-3v3h-3v3h-3v3h-3v3H7v-3H4v-3H1v-3h3v3h3v3h3v-3h3v-3h3V9h3z"/></svg>',
+    star:  '<svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M10 2h4v6h8v4h-3v2h-2v3h2v5h-3v-2h-2v-2h-4v2H7v2H4v-5h2v-3H4v-2H2V8h8z"/></svg>',
     again: '<svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M6 4h12v3h3v6h-3V7H6v3h3v3H3V7h3zM18 20H6v-3H3v-6h3v6h12v-3h-3v-3h6v6h-3z"/></svg>'
   };
   const SHOW_BTNS = [
@@ -633,7 +715,7 @@
   }
 
   // ===== TABS =====
-  const TAB_NAMES = { todo: 'TO-DO', shows: 'SHOWS', books: 'BOOKS', notes: 'NOTES', settings: 'SETTINGS', search: 'SEARCH' };
+  const TAB_NAMES = { todo: 'TO-DO', shows: 'SHOWS', books: 'BOOKS', games: 'GAMES', notes: 'NOTES', settings: 'SETTINGS', search: 'SEARCH' };
   function setTab(name) {
     if (!TAB_NAMES[name]) name = 'todo';
     document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
@@ -682,7 +764,7 @@
     }
     const [kind, id] = btn.dataset.del.split('|');
     disarm();
-    ({ show: deleteShow, book: deleteBook, todo: deleteTodo, note: deleteNote })[kind](id);
+    ({ show: deleteShow, book: deleteBook, game: deleteGame, todo: deleteTodo, note: deleteNote })[kind](id);
   }, true);
   const delBtn = (kind, id) => `<button class="del" type="button" data-del="${kind}|${esc(id)}" aria-label="Delete">DEL</button>`;
 
@@ -700,11 +782,12 @@
     if (!b) return;
     seg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
     formChoice[seg.dataset.form][seg.dataset.field] = b.dataset.v;
+    if (seg.dataset.form === 'show' && window.lookups) lookups.show.rerun();
     if (seg.dataset.form === 'book') {
       document.getElementById('book-pages-wrap').style.display = b.dataset.v === 'physical' ? '' : 'none';
     }
   }));
-  ['show', 'book'].forEach(k => document.getElementById(k + '-title').addEventListener('input', () => {
+  ['show', 'book', 'game'].forEach(k => document.getElementById(k + '-title').addEventListener('input', () => {
     document.getElementById(k + '-err').textContent = '';
   }));
 
@@ -713,7 +796,7 @@
     if (!chip) return;
     row.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
     filters[row.dataset.chips] = chip.dataset.filter;
-    row.dataset.chips === 'show' ? renderShows() : renderBooks();
+    ({ show: renderShows, book: renderBooks, game: renderGames })[row.dataset.chips]();
   }));
 
   // ===== SHOWS =====
@@ -756,6 +839,7 @@
     return `
       <div class="card ${st} ${showDone(s) ? 'is-done' : ''}" data-id="${esc(s.id)}">
         <div class="card-top">
+          ${safeCover(s.image) ? `<img class="cover" src="${esc(s.image)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
           <div class="card-main">
             <div class="tags">
               <span class="tag ${s.type}">${s.type === 'anime' ? 'Anime' : 'Live-action'}</span>
@@ -813,13 +897,18 @@
     const eps = toInt(epsEl.value);
     const episodes = eps > 0 ? Math.min(eps, 5000) : null;
     const type = formChoice.show.type;
+    const pick = lookups.show.picked && lookups.show.picked.title === title ? lookups.show.picked : null;
+    const minsPerEp = (pick && pick.minutes) || (type === 'anime' ? 24 : 45);
     shows.unshift({
       id: uid('show'), title, type, episodes,
-      hours: episodes ? Math.round(episodes * (type === 'anime' ? 0.4 : 0.75)) : 0,
+      hours: episodes ? Math.round(episodes * minsPerEp / 60) : 0,
+      image: pick ? safeCover(pick.image) : null,
+      airing: !!(pick && pick.airing),
       added: Date.now()
     });
     save(SHOWS_KEY, shows);
     titleEl.value = ''; epsEl.value = '';
+    lookups.show.clear();
     toggleForm('show', false);
     renderShows();
     return false;
@@ -972,7 +1061,7 @@
   let picked = null, searchTimer = null, searchCtl = null, lastQuery = '';
 
   function safeCover(url) {
-    return typeof url === 'string' && /^https:\/\/(books\.google\.com|books\.googleusercontent\.com|covers\.openlibrary\.org)\//.test(url) ? url : null;
+    return typeof url === 'string' && /^https:\/\/(books\.google\.com|books\.googleusercontent\.com|covers\.openlibrary\.org|static\.tvmaze\.com|s4\.anilist\.co|media\.rawg\.io)\//.test(url) ? url : null;
   }
 
   async function searchGoogle(q, signal) {
@@ -1082,6 +1171,278 @@
     document.getElementById('book-picked').innerHTML = '';
   }
 
+  // ===== LOOKUP (shows + games) =====
+  // Generic search-as-you-type: search(q, signal) -> [{ title, meta, image, wide, ... }], onPick(result) fills the form.
+  function makeLookup({ kind, search, onPick, minLen = 2 }) {
+    const input = document.getElementById(kind + '-title');
+    const box = document.getElementById(kind + '-suggest');
+    const pickedBox = document.getElementById(kind + '-picked');
+    const L = { picked: null, results: [], timer: null, ctl: null, q: '' };
+    async function run(q) {
+      if (L.ctl) L.ctl.abort();
+      L.ctl = new AbortController();
+      box.innerHTML = '<div class="suggest-status">Searching…</div>';
+      try {
+        const res = await search(q, L.ctl.signal);
+        if (q !== L.q) return;
+        L.results = res;
+        box.innerHTML = res.length ? res.map((r, i) => `
+          <button type="button" class="sug" data-i="${i}">
+            ${safeCover(r.image) ? `<img src="${esc(r.image)}" alt="" style="${r.wide ? 'width:72px;height:41px' : ''}" onerror="this.remove()">` : '<span class="no-cover"></span>'}
+            <span><div class="sug-title">${esc(r.title)}</div><div class="sug-meta">${esc(r.meta || '')}</div></span>
+          </button>`).join('') : '<div class="suggest-status">No matches. Type it in.</div>';
+      } catch (e) {
+        if (e.name === 'AbortError' || q !== L.q) return;
+        box.innerHTML = '<div class="suggest-status">Search failed. Type it in.<br>' + esc(e.message) + '</div>';
+      }
+    }
+    input.addEventListener('input', () => {
+      const v = input.value;
+      if (L.picked && L.picked.title !== v) { L.picked = null; pickedBox.innerHTML = ''; }
+      clearTimeout(L.timer);
+      L.q = v.trim();
+      if (L.q.length < minLen) { if (L.ctl) L.ctl.abort(); box.innerHTML = ''; return; }
+      L.timer = setTimeout(() => run(L.q), 450);
+    });
+    box.addEventListener('click', async e => {
+      const b = e.target.closest('.sug');
+      if (!b) return;
+      const r = L.results[toInt(b.dataset.i)];
+      if (!r) return;
+      box.innerHTML = '<div class="suggest-status">Loading details…</div>';
+      let full = r;
+      try { full = await onPick(r) || r; } catch (err) { console.warn('detail lookup failed', err); }
+      L.picked = full;
+      input.value = full.title;
+      box.innerHTML = '';
+      pickedBox.innerHTML = `<div class="picked">${safeCover(full.image) ? `<img src="${esc(full.image)}" alt="" style="${full.wide ? 'width:72px;height:41px' : ''}" onerror="this.remove()">` : ''}<span>Filled in. Check it, then save.</span></div>`;
+    });
+    L.clear = () => {
+      L.picked = null; L.q = ''; clearTimeout(L.timer); if (L.ctl) L.ctl.abort();
+      box.innerHTML = ''; pickedBox.innerHTML = '';
+    };
+    L.rerun = () => { if (L.q.length >= minLen && !L.picked) run(L.q); };
+    return L;
+  }
+
+  const stripYear = d => (d || '').slice(0, 4);
+
+  async function searchTvmaze(q, signal) {
+    const res = await fetch('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(q), { signal });
+    if (!res.ok) throw new Error('TVmaze ' + res.status);
+    const data = await res.json();
+    return data.slice(0, 6).map(({ show: s }) => ({
+      src: 'tvmaze', id: s.id, title: s.name,
+      image: s.image && s.image.medium ? s.image.medium.replace(/^http:/, 'https:') : null,
+      minutes: s.averageRuntime || s.runtime || null,
+      airing: s.status === 'Running',
+      meta: [stripYear(s.premiered), s.network ? s.network.name : (s.webChannel ? s.webChannel.name : ''), s.status].filter(Boolean).join(' · ')
+    }));
+  }
+
+  async function searchAnilist(q, signal) {
+    const query = `query ($s: String) { Page(perPage: 6) { media(search: $s, type: ANIME, sort: SEARCH_MATCH) {
+      id title { english romaji } episodes duration status seasonYear format coverImage { medium } } } }`;
+    const res = await fetch('https://graphql.anilist.co', {
+      method: 'POST', signal,
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ query, variables: { s: q } })
+    });
+    if (res.status === 429) throw new Error('AniList busy, try again in a minute');
+    if (!res.ok) throw new Error('AniList ' + res.status);
+    const data = await res.json();
+    const list = (data.data && data.data.Page && data.data.Page.media) || [];
+    return list.map(m => ({
+      src: 'anilist', id: m.id, title: (m.title && (m.title.english || m.title.romaji)) || '',
+      image: m.coverImage && m.coverImage.medium,
+      episodes: m.episodes || null, minutes: m.duration || null,
+      airing: m.status === 'RELEASING',
+      meta: [m.seasonYear, m.format, m.episodes ? m.episodes + ' ep' : (m.status === 'RELEASING' ? 'airing' : '')].filter(Boolean).join(' · ')
+    })).filter(r => r.title);
+  }
+
+  async function showDetails(r) {
+    if (r.src === 'tvmaze') {
+      const res = await fetch('https://api.tvmaze.com/shows/' + r.id + '/episodes');
+      if (res.ok) {
+        const eps = await res.json();
+        r = Object.assign({}, r, { episodes: eps.filter(e => e.type !== 'insignificant_special').length || null });
+      }
+    }
+    document.getElementById('show-eps').value = r.episodes || '';
+    return r;
+  }
+
+  // Games go through our Supabase Edge Function so the RAWG key never ships to the browser.
+  async function gameApi(params, signal) {
+    if (!session) throw new Error('Sign in to search games');
+    const token = await accessToken();
+    const res = await fetch(SB_URL + '/functions/v1/game-search?' + new URLSearchParams(params), {
+      signal, headers: { apikey: SB_KEY, Authorization: 'Bearer ' + token }
+    });
+    let body = null;
+    try { body = await res.json(); } catch (e) {}
+    if (!res.ok) throw new Error((body && body.error) || ('Game search ' + res.status));
+    return body;
+  }
+  async function searchGames(q, signal) {
+    const d = await gameApi({ q }, signal);
+    return (d.results || []).map(g => ({
+      id: g.id, title: g.name, image: g.image, wide: true,
+      meta: [stripYear(g.released), (g.platforms || []).slice(0, 3).join(', ')].filter(Boolean).join(' · ')
+    }));
+  }
+  async function gameDetails(r) {
+    const d = await gameApi({ id: r.id });
+    const full = Object.assign({}, r, { achievements: d.achievements, playtime: d.playtime, image: d.image || r.image });
+    document.getElementById('game-ach').value = d.achievements || '';
+    const plats = (d.platforms || []).join(' ').toLowerCase();
+    const guess = /pc/.test(plats) ? 'PC' : /playstation/.test(plats) ? 'PS' : /xbox/.test(plats) ? 'Xbox' : /nintendo|switch/.test(plats) ? 'Switch' : null;
+    if (guess) {
+      formChoice.game.platform = guess;
+      document.querySelectorAll('.seg[data-form="game"] button').forEach(b => b.classList.toggle('on', b.dataset.v === guess));
+    }
+    return full;
+  }
+
+  const lookups = window.lookups = {
+    show: makeLookup({ kind: 'show', search: (q, sig) => formChoice.show.type === 'anime' ? searchAnilist(q, sig) : searchTvmaze(q, sig), onPick: showDetails }),
+    game: makeLookup({ kind: 'game', search: searchGames, onPick: gameDetails })
+  };
+
+  // ===== GAMES =====
+  const GAME_STATUSES = ['backlog', 'playing', 'beaten', 'hundred'];
+  const GAME_BTNS = [
+    ['backlog', ICONS.box, 'Backlog'], ['playing', ICONS.play, 'Playing'],
+    ['beaten', ICONS.check, 'Beaten'], ['hundred', ICONS.star, '100%']
+  ];
+  const gameStatus = g => GAME_STATUSES.includes(g.status) ? g.status : 'backlog';
+  const findGame = id => games.find(g => g.id === id);
+  const gamePct = g => g.achTotal ? Math.min(100, Math.round((g.achDone || 0) / g.achTotal * 100)) : Math.min(100, g.pct || 0);
+
+  function setGameStatus(g, st) {
+    if (st === 'hundred' && g.status !== 'hundred') {
+      g.doneAt = Date.now();
+      if (g.achTotal) g.achDone = g.achTotal; else g.pct = 100;
+    }
+    if (st !== 'hundred') g.doneAt = null;
+    g.status = st;
+  }
+
+  function renderGames() {
+    const f = filters.game;
+    const list = games.filter(g => f === 'all' || g.platform === f);
+    const done = list.filter(g => gameStatus(g) === 'hundred').sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
+    const html =
+      section('sec-active', 'Playing', list.filter(g => gameStatus(g) === 'playing'), gameCard) +
+      section('sec-next', 'Backlog', list.filter(g => gameStatus(g) === 'backlog'), gameCard) +
+      section('sec-next', 'Beaten, not 100%', list.filter(g => gameStatus(g) === 'beaten'), gameCard) +
+      section('sec-done', '100%', done, gameCard);
+    document.getElementById('games-list').innerHTML = html || '<div class="empty">No games yet</div>';
+    const year = new Date().getFullYear();
+    document.getElementById('gm-playing').textContent = games.filter(g => gameStatus(g) === 'playing').length;
+    document.getElementById('gm-backlog').textContent = games.filter(g => gameStatus(g) === 'backlog').length;
+    document.getElementById('gm-done').textContent = games.filter(g => gameStatus(g) === 'hundred').length;
+    document.getElementById('gm-year-label').textContent = '100% in ' + year;
+    document.getElementById('gm-year').textContent = games.filter(g =>
+      gameStatus(g) === 'hundred' && g.doneAt && new Date(g.doneAt).getFullYear() === year).length;
+  }
+
+  function gameCard(g) {
+    const st = gameStatus(g);
+    const hasProg = st === 'playing' || st === 'beaten';
+    const label = g.achTotal ? `${g.achDone || 0} / ${g.achTotal}` : `${g.pct || 0}%`;
+    const prog = !hasProg ? '' : `
+      <div class="prog">
+        ${g.achTotal ? '<button class="prog-btn" data-act="step" data-step="-1" aria-label="One less">-1</button>' : ''}
+        <button class="prog-num" data-act="set" aria-label="Set progress">${label}</button>
+        <button class="prog-btn plus" data-act="step" data-step="1" aria-label="Add progress">${g.achTotal ? '+1 ACH' : '+5%'}</button>
+      </div>
+      <div class="prog-bar"><i style="width:${gamePct(g)}%"></i></div>`;
+    return `
+      <div class="card ${st === 'hundred' ? 'is-done' : ''}" data-id="${esc(g.id)}">
+        <div class="card-top">
+          ${safeCover(g.image) ? `<img class="cover wide" src="${esc(g.image)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+          <div class="card-main">
+            <div class="tags">
+              <span class="tag">${esc(g.platform || 'Other')}</span>
+              ${st === 'hundred' && g.doneAt ? `<span class="tag">${shortDate(g.doneAt)}</span>` : ''}
+            </div>
+            <div class="card-title">${esc(g.title)}</div>
+          </div>
+          ${delBtn('game', g.id)}
+        </div>
+        ${prog}
+        <div class="card-foot">
+          <span class="card-len">${g.achTotal ? `<span>${g.achTotal}</span> ACH` : ''}${g.playtime ? ` · ~${g.playtime}H AVG` : ''}</span>
+          <div class="status">
+            ${GAME_BTNS.map(([v, icon, label]) =>
+              `<button class="st ${st === v ? 'active' : ''}" data-act="status" data-state="${v}" aria-label="${label}">${icon}</button>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  document.getElementById('games-list').addEventListener('click', e => {
+    const btn = e.target.closest('[data-act]');
+    if (!btn) return;
+    const g = findGame(btn.closest('.card').dataset.id);
+    if (!g) return;
+    const act = btn.dataset.act;
+    if (act === 'status') setGameStatus(g, btn.dataset.state);
+    else {
+      let n;
+      const cur = g.achTotal ? (g.achDone || 0) : (g.pct || 0);
+      const max = g.achTotal || 100;
+      if (act === 'step') n = cur + (g.achTotal ? toInt(btn.dataset.step) : 5 * toInt(btn.dataset.step));
+      else {
+        const v = prompt(g.achTotal ? `Achievements done (of ${g.achTotal})` : 'Percent complete (0-100)', cur);
+        if (v === null || toInt(v) === null) return;
+        n = toInt(v);
+      }
+      n = Math.max(0, Math.min(n, max));
+      if (g.achTotal) g.achDone = n; else g.pct = n;
+      if (n === max) setGameStatus(g, 'hundred');
+    }
+    save(GAMES_KEY, games);
+    renderGames();
+  });
+
+  function addGame(e) {
+    e.preventDefault();
+    const titleEl = document.getElementById('game-title');
+    const achEl = document.getElementById('game-ach');
+    const err = document.getElementById('game-err');
+    const title = titleEl.value.trim();
+    if (!title) { err.textContent = 'Enter a name'; return false; }
+    const platform = formChoice.game.platform;
+    if (games.some(g => g.title.toLowerCase() === title.toLowerCase() && g.platform === platform)) {
+      err.textContent = 'Already on the list'; return false;
+    }
+    const pick = lookups.game.picked && lookups.game.picked.title === title ? lookups.game.picked : null;
+    const ach = toInt(achEl.value);
+    games.unshift({
+      id: uid('game'), title, platform, status: 'backlog',
+      achTotal: ach > 0 ? Math.min(ach, 5000) : null, achDone: 0, pct: 0,
+      image: pick ? safeCover(pick.image) : null,
+      playtime: pick && pick.playtime ? pick.playtime : null,
+      rawgId: pick ? pick.id : null,
+      added: Date.now(), doneAt: null
+    });
+    save(GAMES_KEY, games);
+    titleEl.value = ''; achEl.value = '';
+    lookups.game.clear();
+    toggleForm('game', false);
+    renderGames();
+    return false;
+  }
+
+  function deleteGame(id) {
+    games = games.filter(g => g.id !== id);
+    save(GAMES_KEY, games);
+    renderGames();
+  }
+
   // ===== TO-DO =====
   function renderTodos() {
     const open = todos.filter(t => !t.done).sort((a, b) => b.created - a.created);
@@ -1179,12 +1540,13 @@
   function renderSearch() {
     const q = document.getElementById('search-input').value.trim().toLowerCase();
     const box = document.getElementById('search-results');
-    if (!q) { box.innerHTML = '<div class="empty">To-dos, shows, books, notes</div>'; return; }
+    if (!q) { box.innerHTML = '<div class="empty">To-dos, shows, books, games, notes</div>'; return; }
     const has = v => String(v || '').toLowerCase().includes(q);
     const groups = [
       ['To-dos', 'todo', todos.filter(t => has(t.text)).map(t => [t.id, t.text, t.done ? 'Done' : 'Open'])],
       ['Shows', 'shows', shows.filter(s => has(s.title)).map(s => [s.id, s.title, ({ 'not-started': 'Up next', watching: 'Watching', completed: 'Done', rewatched: 'Rewatched' })[showStatus(s.id)]])],
       ['Books', 'books', books.filter(b => has(b.title) || has(b.author)).map(b => [b.id, b.title, [b.author, ({ want: 'Up next', reading: 'Reading', finished: 'Finished' })[bookStatus(b)]].filter(Boolean).join(' · ')])],
+      ['Games', 'games', games.filter(g => has(g.title)).map(g => [g.id, g.title, [g.platform, ({ backlog: 'Backlog', playing: 'Playing', beaten: 'Beaten', hundred: '100%' })[gameStatus(g)]].filter(Boolean).join(' · ')])],
       ['Notes', 'notes', notes.filter(n => has(n.text)).map(n => [n.id, n.text, shortDate(n.created)])]
     ];
     const html = groups.filter(g => g[2].length).map(([label, tab, rows]) => `
@@ -1200,11 +1562,11 @@
     const b = e.target.closest('[data-go]');
     if (!b) return;
     const [tab, id] = b.dataset.go.split('|');
-    if (tab === 'shows' || tab === 'books') {
-      const kind = tab === 'shows' ? 'show' : 'book';
+    const kind = { shows: 'show', books: 'book', games: 'game' }[tab];
+    if (kind) {
       filters[kind] = 'all';
       document.querySelectorAll(`[data-chips="${kind}"] .chip`).forEach(c => c.classList.toggle('active', c.dataset.filter === 'all'));
-      tab === 'shows' ? renderShows() : renderBooks();
+      ({ show: renderShows, book: renderBooks, game: renderGames })[kind]();
     }
     setTab(tab);
     const target = document.querySelector(`#panel-${tab} [data-id="${CSS.escape(id)}"]`);
@@ -1252,7 +1614,7 @@
   }
 
   function exportState() {
-    const data = JSON.stringify({ version: 5, shows, state, progress, books, todos, reminders: notes, look }, null, 2);
+    const data = JSON.stringify({ version: 5, shows, state, progress, books, games, todos, reminders: notes, look }, null, 2);
     const url = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
     const a = document.createElement('a');
     a.href = url;
@@ -1279,6 +1641,7 @@
           todos = isArr(d.todos) ? d.todos : [];
           progress = isObj(d.progress) ? d.progress : {};
           books = isArr(d.books) ? d.books : [];
+          games = isArr(d.games) ? d.games : [];
           shows = v >= 5 && isArr(d.shows) ? d.shows : seedShows(isArr(d.customShows) ? d.customShows : []);
         }
         saveAll();
@@ -1291,8 +1654,8 @@
   }
 
   function resetAll() {
-    if (!confirm('Wipe everything (shows, books, to-dos, notes)? Export first if you want a backup.')) return;
-    state = {}; progress = {}; notes = []; todos = []; books = [];
+    if (!confirm('Wipe everything (shows, books, games, to-dos, notes)? Export first if you want a backup.')) return;
+    state = {}; progress = {}; notes = []; todos = []; books = []; games = [];
     shows = [];
     saveAll();
     renderAll();
@@ -1300,7 +1663,7 @@
 
   function saveAll() {
     save(SHOWS_KEY, shows); save(STATE_KEY, state); save(PROGRESS_KEY, progress);
-    save(BOOKS_KEY, books); save(TODOS_KEY, todos); save(NOTES_KEY, notes);
+    save(BOOKS_KEY, books); save(GAMES_KEY, games); save(TODOS_KEY, todos); save(NOTES_KEY, notes);
   }
 
   // ===== APPEARANCE SETTINGS =====
@@ -1367,7 +1730,7 @@
   const SB_KEY = 'sb_publishable_4ZsqPQ8cCckNizfdbugc4w_F9PDlwvD';
   const SESSION_KEY = 'backlog:session';
   const SYNC_KEY = 'backlog:sync';
-  const DATA_KEYS = [SHOWS_KEY, STATE_KEY, PROGRESS_KEY, BOOKS_KEY, TODOS_KEY, NOTES_KEY, LOOK_KEY];
+  const DATA_KEYS = [SHOWS_KEY, STATE_KEY, PROGRESS_KEY, BOOKS_KEY, GAMES_KEY, TODOS_KEY, NOTES_KEY, LOOK_KEY];
 
   let session = load(SESSION_KEY, null, isObj);
   let syncMeta = Object.assign({ syncedAt: null, dirty: false }, load(SYNC_KEY, {}, isObj));
@@ -1429,10 +1792,10 @@
   }
 
   function snapshot() {
-    return { v: 5, shows, state, progress, books, todos, reminders: notes, look };
+    return { v: 5, shows, state, progress, books, games, todos, reminders: notes, look };
   }
   function localHasData() {
-    return shows.length || books.length || todos.length || notes.length;
+    return shows.length || books.length || games.length || todos.length || notes.length;
   }
   function applyData(d) {
     if (!isObj(d)) return;
@@ -1441,6 +1804,7 @@
     state = isObj(d.state) ? d.state : {};
     progress = isObj(d.progress) ? d.progress : {};
     books = isArr(d.books) ? d.books : [];
+    games = isArr(d.games) ? d.games : [];
     todos = isArr(d.todos) ? d.todos : [];
     notes = isArr(d.reminders) ? d.reminders : [];
     if (isObj(d.look)) { look = Object.assign({}, LOOK_DEFAULT, d.look); save(LOOK_KEY, look); applyLook(); }
@@ -1497,7 +1861,7 @@
     try {
       const row = await pullRemote();
       const remoteHas = row && isObj(row.data) &&
-        ['shows', 'books', 'todos', 'reminders'].some(k => isArr(row.data[k]) && row.data[k].length);
+        ['shows', 'books', 'games', 'todos', 'reminders'].some(k => isArr(row.data[k]) && row.data[k].length);
       if (!row || !remoteHas) {
         await pushLocal();
       } else if (!localHasData()) {
@@ -1513,34 +1877,118 @@
     renderAccount();
   }
 
-  async function sendCode() {
-    const email = document.getElementById('acct-email').value.trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { acct.msg = 'Enter a valid email'; acct.err = true; renderAccount(); return; }
-    acct.email = email; acct.msg = 'Sending…'; acct.err = false; renderAccount();
-    try {
-      await sb('/auth/v1/otp', { method: 'POST', body: JSON.stringify({ email, create_user: true }) });
-      acct.step = 'code'; acct.msg = 'Code sent. Check your email (and spam).'; acct.err = false;
-    } catch (e) {
-      acct.msg = e.status === 429 ? 'Too many codes requested. Wait a few minutes.' : 'Could not send code: ' + e.message;
-      acct.err = true;
-    }
-    renderAccount();
+  // ----- Login screen -----
+  const GUEST_KEY = 'backlog:guest';
+  let authMode = 'signin', authEmail = '', authMsg = '', authErr = false, authBusy = false;
+
+  function openAuth(mode) { authMode = mode || 'signin'; authMsg = ''; authErr = false; renderAuth(); document.getElementById('auth').classList.add('show'); }
+  function closeAuth() { document.getElementById('auth').classList.remove('show'); }
+  function useGuest() { rawSave(GUEST_KEY, true); closeAuth(); }
+
+  function authError(e) {
+    const m = (e && e.message) || '';
+    if (e && e.status === 429) return 'Too many tries. Wait a few minutes.';
+    if (/invalid login credentials/i.test(m)) return 'Wrong email or password.';
+    if (/email not confirmed/i.test(m)) return 'Confirm your email first (check your inbox), then sign in.';
+    if (/already registered/i.test(m)) return 'That email already has an account. Sign in instead.';
+    if (/password/i.test(m)) return m;
+    if (/token has expired|invalid/i.test(m)) return 'Wrong or expired code.';
+    return m || 'Something went wrong. Try again.';
   }
 
-  async function verifyCode() {
-    const code = document.getElementById('acct-code').value.replace(/\D/g, '');
-    if (code.length < 6) { acct.msg = 'Enter the code from the email'; acct.err = true; renderAccount(); return; }
-    acct.msg = 'Checking…'; acct.err = false; renderAccount();
+  function renderAuth() {
+    const sub = {
+      signin: 'Sign in to sync across your devices.',
+      signup: 'Create your account.',
+      'code-email': 'We will email you a 6-digit code.',
+      code: 'Enter the code sent to ' + authEmail,
+      'reset-email': 'Reset your password.',
+      reset: 'Enter the code sent to ' + authEmail + ' and a new password.'
+    }[authMode];
+    document.getElementById('auth-sub').textContent = sub;
+    const emailField = (ac) => `
+      <label class="field-label" for="auth-email">Email</label>
+      <input class="add-input" id="auth-email" name="email" type="email" autocomplete="${ac}" autocapitalize="off" autocorrect="off" spellcheck="false" required value="${esc(authEmail)}" placeholder="you@email.com">`;
+    const codeField = `
+      <label class="field-label" for="auth-code">Code</label>
+      <input class="add-input" id="auth-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" required placeholder="123456">`;
+    const pwField = (ac, label) => `
+      <label class="field-label" for="auth-pw">${label}</label>
+      <input class="add-input" id="auth-pw" name="password" type="password" autocomplete="${ac}" minlength="8" required placeholder="8+ characters">`;
+    const link = (mode, text) => `<button type="button" class="text-btn" onclick="openAuth('${mode}')">${text}</button>`;
+    const body = {
+      signin: emailField('username') + pwField('current-password', 'Password') + `<button class="add-btn" type="submit">SIGN IN</button>
+        <div class="auth-links">${link('signup', 'Create account')}${link('reset-email', 'Forgot password?')}</div>
+        <div class="auth-links">${link('code-email', 'Email me a sign-in code instead')}</div>`,
+      signup: emailField('username') + pwField('new-password', 'Choose a password') + `<button class="add-btn" type="submit">CREATE ACCOUNT</button>
+        <div class="auth-links">${link('signin', 'I already have an account')}</div>`,
+      'code-email': emailField('email') + `<button class="add-btn" type="submit">SEND CODE</button>
+        <div class="auth-links">${link('signin', 'Back to password sign-in')}</div>`,
+      code: codeField + `<button class="add-btn" type="submit">SIGN IN</button>
+        <div class="auth-links">${link('code-email', 'Resend or change email')}${link('signin', 'Use password')}</div>`,
+      'reset-email': emailField('username') + `<button class="add-btn" type="submit">SEND RESET CODE</button>
+        <div class="auth-links">${link('signin', 'Back to sign in')}</div>`,
+      reset: codeField + pwField('new-password', 'New password') + `<button class="add-btn" type="submit">SAVE PASSWORD</button>
+        <div class="auth-links">${link('reset-email', 'Resend code')}${link('signin', 'Back to sign in')}</div>`
+    }[authMode];
+    document.getElementById('auth-card').innerHTML = `
+      <form id="auth-form" onsubmit="return submitAuth(event)" novalidate>${body}
+        <div class="acct-msg ${authErr ? 'err' : ''}" id="auth-msg">${esc(authMsg)}</div>
+      </form>`;
+  }
+
+  function setAuthMsg(msg, err) { authMsg = msg; authErr = !!err; const el = document.getElementById('auth-msg'); if (el) { el.textContent = msg; el.className = 'acct-msg' + (err ? ' err' : ''); } }
+
+  async function submitAuth(e) {
+    e.preventDefault();
+    if (authBusy) return false;
+    const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+    const email = val('auth-email').toLowerCase() || authEmail;
+    const pw = document.getElementById('auth-pw') ? document.getElementById('auth-pw').value : '';
+    const code = val('auth-code').replace(/\D/g, '');
+    if (document.getElementById('auth-email') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setAuthMsg('Enter a valid email', true); return false; }
+    if (document.getElementById('auth-pw') && pw.length < 8) { setAuthMsg('Password needs 8+ characters', true); return false; }
+    if (document.getElementById('auth-code') && code.length < 6) { setAuthMsg('Enter the 6-digit code', true); return false; }
+    authEmail = email;
+    authBusy = true;
+    setAuthMsg('Working…', false);
     try {
-      const t = await sb('/auth/v1/verify', { method: 'POST', body: JSON.stringify({ type: 'email', email: acct.email, token: code }) });
-      storeSession(t);
-      setSyncMeta({ syncedAt: null, dirty: false });
-      acct.step = 'in'; acct.msg = '';
-      await afterSignIn();
-    } catch (e) {
-      acct.msg = 'Wrong or expired code. Try again or resend.'; acct.err = true;
-      renderAccount();
+      if (authMode === 'signin') {
+        const t = await sb('/auth/v1/token?grant_type=password', { method: 'POST', body: JSON.stringify({ email, password: pw }) });
+        await finishSignIn(t);
+      } else if (authMode === 'signup') {
+        const t = await sb('/auth/v1/signup', { method: 'POST', body: JSON.stringify({ email, password: pw }) });
+        if (t && t.access_token) await finishSignIn(t);
+        else { authMode = 'signin'; renderAuth(); setAuthMsg('Account created. Check your email to confirm it, then sign in.', false); }
+      } else if (authMode === 'code-email') {
+        await sb('/auth/v1/otp', { method: 'POST', body: JSON.stringify({ email, create_user: true }) });
+        authMode = 'code'; renderAuth(); setAuthMsg('Code sent. Check your email (and spam).', false);
+      } else if (authMode === 'code') {
+        const t = await sb('/auth/v1/verify', { method: 'POST', body: JSON.stringify({ type: 'email', email, token: code }) });
+        await finishSignIn(t);
+      } else if (authMode === 'reset-email') {
+        await sb('/auth/v1/recover', { method: 'POST', body: JSON.stringify({ email }) });
+        authMode = 'reset'; renderAuth(); setAuthMsg('If that email has an account, a code is on its way.', false);
+      } else if (authMode === 'reset') {
+        const t = await sb('/auth/v1/verify', { method: 'POST', body: JSON.stringify({ type: 'recovery', email, token: code }) });
+        await sb('/auth/v1/user', { method: 'PUT', headers: { Authorization: 'Bearer ' + t.access_token }, body: JSON.stringify({ password: pw }) });
+        await finishSignIn(t);
+      }
+    } catch (err) {
+      setAuthMsg(authError(err), true);
     }
+    authBusy = false;
+    return false;
+  }
+
+  async function finishSignIn(t) {
+    storeSession(t);
+    setSyncMeta({ syncedAt: null, dirty: false });
+    try { localStorage.removeItem(GUEST_KEY); } catch (e) {}
+    acct.step = 'in'; acct.msg = ''; acct.err = false;
+    closeAuth();
+    renderAccount();
+    await afterSignIn();
   }
 
   async function resolveChoice(useAccount) {
@@ -1567,12 +2015,13 @@
     [SESSION_KEY, SYNC_KEY].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
     syncMeta = { syncedAt: null, dirty: false };
     applyingRemote = true;
-    shows = []; state = {}; progress = {}; books = []; todos = []; notes = [];
+    shows = []; state = {}; progress = {}; books = []; games = []; todos = []; notes = [];
     saveAll();
     applyingRemote = false;
     acct = { step: 'email', email: '', msg: 'Signed out', err: false, status: 'idle', choice: null };
     renderAll();
     renderAccount();
+    openAuth('signin');
   }
 
   function renderAccount() {
@@ -1604,28 +2053,10 @@
         </div>${msg}`;
       return;
     }
-    if (acct.step === 'code') {
-      box.innerHTML = `
-        <span class="field-label">Account</span>
-        <div class="font-sample">Code sent to ${esc(acct.email)}</div>
-        <div class="add-form" style="margin:10px 0 0">
-          <input class="add-input" id="acct-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="6-digit code">
-          <button class="add-btn" type="button" onclick="verifyCode()">SIGN IN</button>
-        </div>
-        <div class="acct-row">
-          <button class="ghost-btn" type="button" onclick="acct.step='email';acct.msg='';renderAccount()">CHANGE EMAIL</button>
-          <button class="ghost-btn" type="button" onclick="sendCode()">RESEND</button>
-        </div>
-        <input type="hidden" id="acct-email" value="${esc(acct.email)}">${msg}`;
-      return;
-    }
     box.innerHTML = `
       <span class="field-label">Account</span>
-      <div class="font-sample">Sign in to back up and sync. No password, we email you a code.</div>
-      <div class="add-form" style="margin:10px 0 0">
-        <input class="add-input" id="acct-email" type="email" autocomplete="email" autocapitalize="off" placeholder="you@email.com" value="${esc(acct.email)}">
-        <button class="add-btn" type="button" onclick="sendCode()">SEND CODE</button>
-      </div>${msg}`;
+      <div class="font-sample">Not signed in. Your data is only on this phone.</div>
+      <div class="acct-row"><button class="add-btn" type="button" onclick="openAuth('signin')">SIGN IN OR CREATE ACCOUNT</button></div>${msg}`;
   }
 
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') syncNow(); });
@@ -1635,7 +2066,7 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW:', e.message)));
   }
-  function renderAll() { renderTodos(); renderShows(); renderBooks(); renderNotes(); }
+  function renderAll() { renderTodos(); renderShows(); renderBooks(); renderGames(); renderNotes(); }
 
   (function init() {
     state = load(STATE_KEY, {}, isObj);
@@ -1643,6 +2074,7 @@
     notes = load(NOTES_KEY, [], isArr);
     todos = load(TODOS_KEY, [], isArr);
     books = load(BOOKS_KEY, [], isArr).filter(b => b && b.id && b.title);
+    games = load(GAMES_KEY, [], isArr).filter(g => g && g.id && g.title);
     const saved = load(SHOWS_KEY, null, isArr);
     if (saved) {
       shows = saved.filter(s => s && s.id && s.title);
@@ -1659,6 +2091,7 @@
     renderAll();
     if (session) acct.step = 'in';
     renderAccount();
+    if (!session && !load(GUEST_KEY, false, v => v === true)) openAuth('signin');
     setTab('todo');
     if (session) syncNow();
   })();
