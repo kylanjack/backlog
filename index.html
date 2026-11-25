@@ -203,6 +203,17 @@
   .todo-cat-head { margin-top: 14px; }
   .item .cat-tag { font-family: var(--px); font-size: calc(10px * var(--fs)); color: var(--muted); background: var(--bg); padding: 2px 5px; flex-shrink: 0; }
 
+  /* === TO-DO EDIT === */
+  .item-text.tap { cursor: pointer; }
+  .item.editing { display: block; padding: 12px 12px 14px; }
+  .item.editing .add-input { width: 100%; }
+  .edit-cats { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .edit-cats .chip { min-height: 38px; padding: 8px 10px; }
+  .edit-cats .chip:not(.active) { background: var(--bg); box-shadow: inset 0 -3px 0 var(--well-edge); }
+  .edit-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .edit-actions .add-btn { flex: 1; min-height: 44px; }
+  .edit-actions .ghost-btn { min-height: 44px; }
+
   /* === SETTINGS === */
   .set-group { background: var(--panel); box-shadow: inset 0 -4px 0 var(--panel-edge); padding: 14px 14px 18px; margin-bottom: 12px; }
   .set-title { font-family: var(--px); font-size: calc(13px * var(--fs)); margin-bottom: 4px; }
@@ -598,7 +609,7 @@
         <button class="text-btn" onclick="resetLook()">Reset look</button>
         <button class="text-btn danger" onclick="resetAll()">Reset all data</button>
       </div>
-      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 4.6</span>
+      <span class="field-label">Last saved: <span id="sync-time">—</span> · Build 4.7</span>
     </div>
   </section>
 
@@ -1737,12 +1748,65 @@
       ${done.map(todoItem).join('')}` : '';
     document.getElementById('tab-todo-n').textContent = todos.filter(t => !t.done).length || '';
   }
+  // Tap a to-do's text to edit it and change its category.
+  let editingTodo = null, editCat = '';
+  function todoEditor(t) {
+    const chip = (v, label) => `<button type="button" class="chip ${editCat === v ? 'active' : ''}" data-edit-cat="${esc(v)}">${esc(label)}</button>`;
+    return `
+      <div class="item editing" data-id="${esc(t.id)}">
+        <input class="add-input" id="todo-edit-input" type="text" maxlength="200" autocomplete="off" value="${esc(t.text)}">
+        <div class="edit-cats">${chip('', 'No category')}${cats.map(c => chip(c, c)).join('')}</div>
+        <div class="edit-actions">
+          <button type="button" class="ghost-btn" data-edit-act="cancel">CANCEL</button>
+          <button type="button" class="add-btn" data-edit-act="save">SAVE</button>
+        </div>
+      </div>`;
+  }
+  function startEditTodo(id) {
+    const t = todos.find(x => x.id === id);
+    if (!t) return;
+    editingTodo = id;
+    editCat = catOf(t);
+    renderTodos();
+    const inp = document.getElementById('todo-edit-input');
+    if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+  }
+  function saveEditTodo() {
+    const t = todos.find(x => x.id === editingTodo);
+    const inp = document.getElementById('todo-edit-input');
+    if (t && inp) {
+      const text = inp.value.trim();
+      if (text) t.text = text;
+      t.cat = editCat;
+      save(TODOS_KEY, todos);
+    }
+    editingTodo = null;
+    renderTodos();
+  }
+  document.getElementById('panel-todo').addEventListener('click', e => {
+    const c = e.target.closest('[data-edit-cat]');
+    if (c) {
+      editCat = c.dataset.editCat;
+      c.parentElement.querySelectorAll('.chip').forEach(x => x.classList.toggle('active', x === c));
+      return;
+    }
+    const a = e.target.closest('[data-edit-act]');
+    if (a) { a.dataset.editAct === 'save' ? saveEditTodo() : (editingTodo = null, renderTodos()); return; }
+    const txt = e.target.closest('.item-text.tap');
+    if (txt && !editingTodo) startEditTodo(txt.closest('.item').dataset.id);
+  });
+  document.getElementById('panel-todo').addEventListener('keydown', e => {
+    if (e.target.id === 'todo-edit-input' && e.key === 'Enter') { e.preventDefault(); saveEditTodo(); }
+    if (e.target.id === 'todo-edit-input' && e.key === 'Escape') { editingTodo = null; renderTodos(); }
+  });
+
   function todoItem(t) {
+    if (t.id === editingTodo) return todoEditor(t);
     const tag = t.done && todoCat === 'all' && catOf(t) ? `<span class="cat-tag">${esc(catOf(t))}</span>` : '';
     return `
       <div class="item ${t.done ? 'done' : ''}" data-id="${esc(t.id)}">
         <button class="check" onclick="toggleTodo('${esc(t.id)}')" aria-label="${t.done ? 'Mark not done' : 'Mark done'}">${ICONS.check}</button>
-        <span class="item-text">${esc(t.text)}</span>
+        <span class="item-text tap" role="button" aria-label="Edit">${esc(t.text)}</span>
         ${tag}
         ${delBtn('todo', t.id)}
       </div>`;
@@ -1780,7 +1844,7 @@
     let el = null, x0 = 0, y0 = 0, dx = 0, locked = null;
     panel.addEventListener('touchstart', e => {
       const item = e.target.closest('.item');
-      if (!item || e.target.closest('button')) { el = null; return; }
+      if (!item || item.classList.contains('editing') || e.target.closest('button, input')) { el = null; return; }
       el = item; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; dx = 0; locked = null;
     }, { passive: true });
     panel.addEventListener('touchmove', e => {
